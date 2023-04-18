@@ -19,32 +19,34 @@
 
 package io.arlas.server.ogc.common.dao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import io.arlas.server.core.services.CollectionReferenceService;
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
+import co.elastic.clients.elasticsearch.core.search.SourceFilter;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InternalServerErrorException;
+import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
-import io.arlas.server.core.impl.elastic.utils.ElasticTool;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.CollectionReferenceParameters;
 import io.arlas.server.core.model.CollectionReferences;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
+import io.arlas.server.core.services.CollectionReferenceService;
+import io.arlas.server.core.utils.BoundingBox;
+import io.arlas.server.core.utils.CollectionUtil;
+import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.requestfilter.ElasticFilter;
-import io.arlas.server.core.utils.BoundingBox;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.IndexNotFoundException;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 public class ElasticOGCCollectionReferenceDao implements OGCCollectionReferenceDao {
 
@@ -52,15 +54,6 @@ public class ElasticOGCCollectionReferenceDao implements OGCCollectionReferenceD
     private final String arlasIndex;
     private final Service service;
     private final CollectionReferenceService collectionReferenceService;
-
-    private static ObjectMapper mapper;
-    private static ObjectReader reader;
-
-    static {
-        mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
-        reader = mapper.readerFor(CollectionReferenceParameters.class);
-    }
 
     public ElasticOGCCollectionReferenceDao(ElasticClient client, CollectionReferenceService collectionReferenceService, String index, Service service) {
         this.client = client;
@@ -73,10 +66,10 @@ public class ElasticOGCCollectionReferenceDao implements OGCCollectionReferenceD
     public CollectionReferences getCollectionReferences(String[] includes, String[] excludes, int size, int from,
                                                         String[] ids, String q, String constraint, BoundingBox boundingBox) throws ArlasException, IOException {
 
-        BoolQueryBuilder ogcBoolQuery = QueryBuilders.boolQuery();
-        BoolQueryBuilder ogcIdsQBoundingBoxBoolQuery = ElasticFilter.filter(ids, "dublin_core_element_name.identifier", q, "internal.fulltext", boundingBox, "dublin_core_element_name.coverage");
-        BoolQueryBuilder ogcConstraintBoolQuery = ElasticFilter.filter(constraint, getMetacollectionDescription(), service);
-        ogcBoolQuery.filter(ogcIdsQBoundingBoxBoolQuery).filter(ogcConstraintBoolQuery);
+        BoolQuery.Builder ogcBoolQuery =  new BoolQuery.Builder();
+        BoolQuery.Builder ogcIdsQBoundingBoxBoolQuery = ElasticFilter.filter(ids, "dublin_core_element_name.identifier", q, "internal.fulltext", boundingBox, "dublin_core_element_name.coverage");
+        BoolQuery.Builder ogcConstraintBoolQuery = ElasticFilter.filter(constraint, getMetacollectionDescription(), service);
+        ogcBoolQuery.filter(ogcIdsQBoundingBoxBoolQuery.build()._toQuery()).filter(ogcConstraintBoolQuery.build()._toQuery());
         return getCollectionReferences(ogcBoolQuery, includes, excludes, size, from);
     }
 
@@ -84,11 +77,12 @@ public class ElasticOGCCollectionReferenceDao implements OGCCollectionReferenceD
     public CollectionReferences getCollectionReferencesExceptOne(String[] includes, String[] excludes, int size, int from,
                                                                  String[] ids, String q, String constraint, BoundingBox boundingBox, CollectionReference collectionReferenceToRemove) throws ArlasException, IOException {
 
-        BoolQueryBuilder ogcBoolQuery = QueryBuilders.boolQuery();
-        BoolQueryBuilder ogcIdsQBoundingBoxBoolQuery = ElasticFilter.filter(ids, "dublin_core_element_name.identifier", q, "internal.fulltext", boundingBox, "dublin_core_element_name.coverage");
-        BoolQueryBuilder ogcConstraintBoolQuery = ElasticFilter.filter(constraint, getMetacollectionDescription(), service);
-        ogcBoolQuery.filter(ogcIdsQBoundingBoxBoolQuery).filter(ogcConstraintBoolQuery);
-        ogcBoolQuery.filter(QueryBuilders.boolQuery().mustNot(QueryBuilders.matchQuery("dublin_core_element_name.identifier", collectionReferenceToRemove.params.dublinCoreElementName.identifier)));
+        BoolQuery.Builder ogcBoolQuery = new BoolQuery.Builder();
+        BoolQuery.Builder ogcIdsQBoundingBoxBoolQuery = ElasticFilter.filter(ids, "dublin_core_element_name.identifier", q, "internal.fulltext", boundingBox, "dublin_core_element_name.coverage");
+        BoolQuery.Builder ogcConstraintBoolQuery = ElasticFilter.filter(constraint, getMetacollectionDescription(), service);
+        ogcBoolQuery.filter(ogcIdsQBoundingBoxBoolQuery.build()._toQuery()).filter(ogcConstraintBoolQuery.build()._toQuery());
+        ogcBoolQuery.filter(new BoolQuery.Builder().mustNot(MatchQuery.of(builder -> builder.field("dublin_core_element_name.identifier")
+                .query(FieldValue.of(collectionReferenceToRemove.params.dublinCoreElementName.identifier)))._toQuery()).build()._toQuery());
         return getCollectionReferences(ogcBoolQuery, includes, excludes, size, from);
     }
 
@@ -96,12 +90,13 @@ public class ElasticOGCCollectionReferenceDao implements OGCCollectionReferenceD
     public CollectionReferences getAllCollectionReferencesExceptOne(String[] includes, String[] excludes, int size, int from,
                                                                   CollectionReference collectionReferenceToRemove) throws ArlasException {
 
-        BoolQueryBuilder ogcBoolQuery = QueryBuilders.boolQuery();
-        ogcBoolQuery.filter(QueryBuilders.boolQuery().mustNot(QueryBuilders.matchQuery("dublin_core_element_name.identifier", collectionReferenceToRemove.params.dublinCoreElementName.identifier)));
+        BoolQuery.Builder ogcBoolQuery = new BoolQuery.Builder();
+        ogcBoolQuery.filter(new BoolQuery.Builder().mustNot(MatchQuery.of(builder -> builder.field("dublin_core_element_name.identifier")
+                .query(FieldValue.of(collectionReferenceToRemove.params.dublinCoreElementName.identifier)))._toQuery()).build()._toQuery());
         return getCollectionReferences(ogcBoolQuery, includes, excludes, size, from);
     }
 
-    private CollectionReferences getCollectionReferences(BoolQueryBuilder boolQueryBuilder, String[] includes, String[] excludes, int size, int from) throws ArlasException {
+    private CollectionReferences getCollectionReferences(BoolQuery.Builder boolQueryBuilder, String[] includes, String[] excludes, int size, int from) throws ArlasException {
         CollectionReferences collectionReferences = new CollectionReferences();
         collectionReferences.collectionReferences = new ArrayList<>();
 
@@ -113,36 +108,29 @@ public class ElasticOGCCollectionReferenceDao implements OGCCollectionReferenceD
         } else {
             excludes = new String[]{"include_fields"};
         }
+        SourceFilter sourceFilter = new SourceFilter.Builder().excludes(Arrays.asList(excludes)).includes(Arrays.asList(includes)).build();
+        SourceConfig sourceConfig = new SourceConfig.Builder().filter(sourceFilter).build();
         try {
-            SearchRequest request = new SearchRequest(arlasIndex);
-            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(boolQueryBuilder).from(from).size(size)
-                .fetchSource(includes, excludes);
-            request.source(searchSourceBuilder);
-            SearchResponse response = client.search(request);
-
-            collectionReferences.totalCollectionReferences = response.getHits().getTotalHits().value;
-            for (SearchHit hit : response.getHits().getHits()) {
-                String source = hit.getSourceAsString();
-                try {
-                    collectionReferences.collectionReferences.add(new CollectionReference(hit.getId(), mapper.readerFor(CollectionReferenceParameters.class).readValue(source)));
-
-                } catch (IOException e) {
-                    throw new InternalServerErrorException("Can not fetch collection", e);
-                }
+            SearchRequest request = SearchRequest.of(r -> r
+                            .index(arlasIndex)
+                            .source(sourceConfig)
+                            .from(from).size(size)
+                            .query(boolQueryBuilder.build()._toQuery()));
+            SearchResponse<CollectionReferenceParameters> response = client.search(request, CollectionReferenceParameters.class);
+            List<Hit<CollectionReferenceParameters>> hits = client.search(request, CollectionReferenceParameters.class).hits().hits();
+            collectionReferences.totalCollectionReferences = response.hits().total().value();
+            for (Hit<CollectionReferenceParameters> hit : hits) {
+                    collectionReferences.collectionReferences.add(new CollectionReference(hit.id(), hit.source()));
             }
             collectionReferences.nbCollectionReferences = collectionReferences.collectionReferences.size();
-
-
-
-        } catch (IndexNotFoundException e) {
+        } catch (NotFoundException e) {
             throw new InternalServerErrorException("Unreachable collections", e);
         }
         return collectionReferences;
     }
 
-    private CollectionReferenceDescription getMetacollectionDescription() throws ArlasException, IOException {
-        CollectionReference metaCollection = ElasticTool.getCollectionReferenceFromES(client, arlasIndex, reader, "metacollection");
+    private CollectionReferenceDescription getMetacollectionDescription() throws ArlasException {
+        CollectionReference metaCollection = client.getCollectionReferenceFromES(arlasIndex, "metacollection");
         return collectionReferenceService.describeCollection(metaCollection);
     }
 }

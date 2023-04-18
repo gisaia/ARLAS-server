@@ -1,4 +1,6 @@
 {
+  "mappings":
+  {
   "_source": {
     "enabled": true
   },
@@ -51,65 +53,12 @@
     "geo_params": {
       "properties": {
         "geometry": {
-          "type": "geo_shape",
-          "tree": "geohash"
+          "type": "geo_shape"
         },
         "centroid": {
           "type": "geo_point"
-        },
-        "h3": {
-          "properties": {
-            "0": {
-              "type": "keyword"
-            },
-            "1": {
-              "type": "keyword"
-            },
-            "2": {
-              "type": "keyword"
-            },
-            "3": {
-              "type": "keyword"
-            },
-            "4": {
-              "type": "keyword"
-            },
-            "5": {
-              "type": "keyword"
-            },
-            "6": {
-              "type": "keyword"
-            },
-            "7": {
-              "type": "keyword"
-            },
-            "8": {
-              "type": "keyword"
-            },
-            "9": {
-              "type": "keyword"
-            },
-            "10": {
-              "type": "keyword"
-            },
-            "11": {
-              "type": "keyword"
-            },
-            "12": {
-              "type": "keyword"
-            },
-            "13": {
-              "type": "keyword"
-            },
-            "14": {
-              "type": "keyword"
-            },
-            "15": {
-              "type": "keyword"
-            }
-          }
         }
       }
     }
   }
-}
+}}

@@ -3170,8 +3170,6 @@ definitions:
         type: "string"
       centroid_path:
         type: "string"
-      h3_path:
-        type: "string"
       timestamp_path:
         type: "string"
       exclude_fields:
@@ -3672,7 +3670,6 @@ definitions:
         - "geotile"
         - "histogram"
         - "term"
-        - "h3"
       field:
         type: "string"
       interval:

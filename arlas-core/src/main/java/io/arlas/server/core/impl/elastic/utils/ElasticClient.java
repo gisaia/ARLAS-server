@@ -19,99 +19,109 @@
 
 package io.arlas.server.core.impl.elastic.utils;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
+import co.elastic.clients.elasticsearch._types.mapping.Property;
+import co.elastic.clients.elasticsearch.core.*;
+import co.elastic.clients.elasticsearch.indices.GetFieldMappingResponse;
+import co.elastic.clients.elasticsearch.indices.GetMappingResponse;
+import co.elastic.clients.elasticsearch.indices.get_field_mapping.TypeFieldMappings;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.BadRequestException;
 import io.arlas.commons.exceptions.InternalServerErrorException;
 import io.arlas.commons.exceptions.NotFoundException;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.ElasticConfiguration;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.ElasticsearchStatusException;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.ClearScrollRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchScrollRequest;
-import org.elasticsearch.action.support.master.AcknowledgedResponse;
-import org.elasticsearch.client.RequestOptions;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.CollectionReferenceParameters;
+import io.arlas.server.core.utils.CollectionUtil;
+import jakarta.json.stream.JsonGenerator;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.ResponseException;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.*;
-import org.elasticsearch.client.sniff.Sniffer;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.xcontent.XContentType;
-import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static io.arlas.server.core.model.CollectionReference.INCLUDE_FIELDS;
+
 @SuppressWarnings({"rawtypes"})
 public class ElasticClient {
-    private static Logger LOGGER = LoggerFactory.getLogger(ElasticClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticClient.class);
 
-    private RestHighLevelClient client;
-    private Sniffer sniffer;
+    private final ElasticsearchClient client;
+    private final JacksonJsonpMapper mapper;
 
     public ElasticClient(ElasticConfiguration configuration) {
-        ImmutablePair<RestHighLevelClient, Sniffer> pair = ElasticTool.getRestHighLevelClient(configuration);
-        this.client = pair.getLeft();
-        this.sniffer = pair.getRight();
+        // disable JVM default policies of caching positive hostname resolutions indefinitely
+        // because the Elastic load balancer can change IP addresses
+        java.security.Security.setProperty("networkaddress.cache.ttl", "60");
+        java.security.Security.setProperty("networkaddress.cache.negative.ttl", "0");
+
+        // Create the low-level client
+        RestClientBuilder restClientBuilder = RestClient.builder(configuration.getElasticNodes());
+        restClientBuilder.setHttpClientConfigCallback(
+                httpClientBuilder -> httpClientBuilder
+                        .setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(configuration.elasticSocketTimeout).build()));
+        // Authentication needed ?
+        if (!StringUtil.isNullOrEmpty(configuration.elasticCredentials)) {
+            String[] credentials = ElasticConfiguration.getCredentials(configuration.elasticCredentials);
+            final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(credentials[0], credentials[1]));
+
+            restClientBuilder.setHttpClientConfigCallback(
+                    httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+                            .setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(configuration.elasticSocketTimeout).build()));
+        }
+        mapper = new JacksonJsonpMapper();
+        // Create the transport with a Jackson mapper
+        ElasticsearchTransport transport = new RestClientTransport(restClientBuilder.build(), mapper);
+        // And create the API client
+        client = new ElasticsearchClient(transport);
     }
 
-    public ElasticClient(RestHighLevelClient client, Sniffer sniffer) {
-        this.client = client;
-        this.sniffer = sniffer;
-    }
-
-    public RestHighLevelClient getClient() {
+    public ElasticsearchClient getClient() {
         return client;
     }
 
     public boolean isClusterHealthRed() throws ArlasException {
         try {
-            ClusterHealthResponse response = client.cluster().health(new ClusterHealthRequest(), RequestOptions.DEFAULT);
-            return response.getStatus() == ClusterHealthStatus.RED;
+            return client.cluster().health().status() == HealthStatus.Red;
         } catch (IOException e) {
             processException(e, "");
             return false;
         }
     }
 
-    public CreateIndexResponse createIndex(String index, String mapping) throws ArlasException {
+    public void createIndex(String index, InputStream mapping) throws ArlasException {
         try {
-            CreateIndexRequest request = new CreateIndexRequest(index);
-            request.mapping(mapping, XContentType.JSON);
-            return client.indices().create(request, RequestOptions.DEFAULT);
+            client.indices().create(b -> b.index(index).withJson(mapping));
         } catch (IOException e) {
             processException(e, index);
-            return null;
         }
     }
 
     public void aliasIndex(String index, String alias) throws ArlasException {
         try {
-            IndicesAliasesRequest request = new IndicesAliasesRequest();
-            IndicesAliasesRequest.AliasActions aliasAction =
-                    new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
-                            .index(index)
-                            .alias(alias);
-            request.addAliasAction(aliasAction);
-            client.indices().updateAliases(request, RequestOptions.DEFAULT);
+            client.indices().putAlias(b -> b.index(index).name(alias));
         } catch (IOException e) {
             processException(e, index);
         }
@@ -119,7 +129,7 @@ public class ElasticClient {
 
     public boolean indexExists(String index) throws ArlasException {
         try {
-            return client.indices().exists(new GetIndexRequest(index), RequestOptions.DEFAULT);
+            return client.indices().exists(b -> b.index(index)).value();
         } catch (ResponseException e) {
             if (e.getResponse().getStatusLine().getStatusCode() == 404) {
                 return false;
@@ -132,88 +142,95 @@ public class ElasticClient {
         }
     }
 
-    public Map<String, LinkedHashMap> getMappings() throws ArlasException {
+    public Map<String, Map<String, Object>> getMappings() throws ArlasException {
         return getMappings(null);
-
     }
 
-    public Map<String, LinkedHashMap> getMappings(String index) throws ArlasException {
-        try {
-            GetMappingsRequest request = new GetMappingsRequest();
-            if (index != null) {
-                request.indices(index);
+    private Map<String, Object> toMap(Map<String, Property> properties) {
+        final Map<String, Object> mapping = new HashMap<>();
+        properties.forEach((field, props) -> {
+            StringWriter writer = new StringWriter();
+            try (JsonGenerator generator = mapper.jsonProvider().createGenerator(writer)) {
+                mapper.serialize(props, generator);
             }
-            final Map<String, LinkedHashMap> res = new HashMap<>();
-            client.indices().getMapping(request, RequestOptions.DEFAULT).mappings()
-                    .forEach((k,v) -> res.put(k, (LinkedHashMap) v.sourceAsMap().get("properties")));
-            if(res.isEmpty()){
-                GetIndexTemplatesRequest getIndexTemplatesRequest = new GetIndexTemplatesRequest();
-                client.indices().getIndexTemplate(getIndexTemplatesRequest,RequestOptions.DEFAULT)
-                        .getIndexTemplates().forEach(tpl -> {
+            try {
+                mapping.put(field, mapper.objectMapper().readValue(writer.toString(), Map.class));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return mapping;
+    }
+
+    public Map<String, Map<String, Object>> getMappings(String index) throws ArlasException {
+        try {
+            final Map<String, Map<String, Object>> res = new HashMap<>();
+            if (index != null) {
+                client.indices()
+                        .getMapping(b -> b.index(index))
+                        .result()
+                        .forEach((_index, _record) -> res.put(_index, toMap(_record.mappings().properties())));
+            } else {
+                client.indices()
+                        .getMapping()
+                        .result()
+                        .forEach((_index, _record) -> res.put(_index, toMap(_record.mappings().properties())));
+            }
+
+
+            if (res.isEmpty()) {
+                client.indices().getIndexTemplate()
+                        .indexTemplates().forEach(tpl -> {
                             // verify if template's patterns match given index
                             // only support ending wildcard for pattern matching
                             AtomicReference<Boolean> matchIndex = new AtomicReference<>(false);
-                            tpl.patterns().forEach(pattern -> {
-                                if(pattern.equals(index)
-                                    || (pattern.endsWith("*") && index.startsWith(pattern.substring(0,pattern.length()-2))))
+                            tpl.indexTemplate().indexPatterns().forEach(pattern -> {
+                                if (CollectionUtil.matches(pattern, index))
                                     matchIndex.set(true);
                             });
                             // if true, add associated template's mappings
-                            if(matchIndex.get()) {
-                                res.put(tpl.name(), (LinkedHashMap) tpl.mappings().sourceAsMap().get("properties"));
+                            if (matchIndex.get()) {
+                                res.put(tpl.name(), toMap(tpl.indexTemplate().template().mappings().properties()));
                             }
                         });
             }
             return res;
-        } catch (IOException | ElasticsearchException e ) {
+        } catch (IOException | ElasticsearchException e) {
             processException(e, index);
             return null;
         }
     }
 
-    public AcknowledgedResponse putMapping(String index, String mapping) throws ArlasException {
+    public void putMapping(String index, InputStream mapping) throws ArlasException {
         try {
-            PutMappingRequest request = new PutMappingRequest(index);
-            request.source(mapping, XContentType.JSON);
-            return client.indices().putMapping(request, RequestOptions.DEFAULT);
+            client.indices().putMapping(b -> b.index(index).withJson(mapping));
+        } catch (IOException e) {
+            processException(e, index);
+        }
+    }
+
+    public GetFieldMappingResponse getFieldMapping(String index, String... fields) throws ArlasException {
+        try {
+            return client.indices().getFieldMapping(b -> b.index(index).fields(Arrays.asList(fields)));
         } catch (IOException e) {
             processException(e, index);
             return null;
         }
     }
-
-    public GetFieldMappingsResponse getFieldMapping(String index, String... fields) throws ArlasException {
-        try {
-            GetFieldMappingsRequest request = new GetFieldMappingsRequest();
-            request.indices(index);
-            request.fields(fields);
-            return client.indices().getFieldMapping(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            processException(e, index);
-            return null;
-        }
+    public SearchResponse<Map> search(SearchRequest request) throws ArlasException {
+        return search(request, Map.class);
     }
 
-    public String getHit(String index, String ref, String[] includes, String[] excludes) throws ArlasException {
+    public <T> SearchResponse<T> search(SearchRequest request, Class<T> cl) throws ArlasException {
         try {
-            GetRequest request = new GetRequest(index, ref);
-            FetchSourceContext fetchSourceContext = new FetchSourceContext(true, includes, excludes);
-            request.fetchSourceContext(fetchSourceContext);
-            GetResponse hit = client.get(request, RequestOptions.DEFAULT);
-            return hit.getSourceAsString();
+            LOGGER.debug("REQUEST  : " + request.toString());
+            SearchResponse<T> response = client.search(request, cl);
+            LOGGER.debug("RESPONSE : " + response.toString());
+            return response;
         } catch (IOException e) {
-            processException(e, index);
+            processException(e, Arrays.toString(request.index().toArray()));
             return null;
-        }
-    }
-
-    public SearchResponse search(SearchRequest request) throws ArlasException {
-        try {
-            return client.search(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            processException(e, Arrays.toString(request.indices()));
-            return null;
-        } catch (ElasticsearchStatusException e) {
+        } catch (ElasticsearchException e) {
             String msg = e.getMessage();
             Throwable[] suppressed = e.getSuppressed();
             if (suppressed.length > 0 && suppressed[0] instanceof ResponseException) {
@@ -223,27 +240,9 @@ public class ElasticClient {
         }
     }
 
-    public SearchResponse searchScroll(SearchScrollRequest request) throws ArlasException {
+    public DeleteResponse deleteDocument(String index, String ref) throws ArlasException {
         try {
-            return client.scroll(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            processException(e, request.getDescription());
-            return null;
-        }
-    }
-
-    public void clearScroll(ClearScrollRequest request) throws ArlasException {
-        try {
-            client.clearScroll(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            processException(e, request.getDescription());
-        }
-    }
-
-    public DeleteResponse delete(String index, String ref) throws ArlasException {
-        try {
-            DeleteRequest request = new DeleteRequest(index, ref);
-            return client.delete(request, RequestOptions.DEFAULT);
+            return client.delete(b -> b.index(index).id(ref));
         } catch (IOException e) {
             processException(e, index);
             return null;
@@ -252,21 +251,53 @@ public class ElasticClient {
 
     public void deleteIndex(String index) throws ArlasException {
         try {
-            client.indices().delete(new DeleteIndexRequest(index), RequestOptions.DEFAULT);
+            client.indices().delete(b -> b.index(index));
         } catch (IOException e) {
             processException(e, index);
         }
     }
 
-    public IndexResponse index(String index, String id, String source) throws ArlasException {
+    public IndexResponse index(String index, String id, Object source) throws ArlasException {
         try {
-            IndexRequest request = new IndexRequest(index).id(id);
-            request.source(source, XContentType.JSON);
-            return client.index(request, RequestOptions.DEFAULT);
+            return client.index(b -> b.index(index).id(id).document(source));
         } catch (IOException e) {
             processException(e, index);
             return null;
         }
+    }
+
+    public boolean isDateField(String field, String index) throws ArlasException {
+        String lastKey = field.substring(field.lastIndexOf(".") + 1);
+        GetFieldMappingResponse response = getFieldMapping(index, field);
+        return response.result().keySet()
+                .stream()
+                .anyMatch(indexName -> {
+                    TypeFieldMappings data = response.result().get(indexName);
+                    return data != null && data.mappings().get(field).mapping().get(lastKey).isDate();
+                });
+    }
+
+    public CollectionReference getCollectionReferenceFromES(String index, String ref) throws ArlasException {
+        CollectionReference collection = new CollectionReference(ref);
+
+        try {
+            GetResponse<CollectionReferenceParameters> cr = client.get(b -> b
+                            .index(index)
+                            .id(ref)
+                            .source(s -> s.fetch(true))
+                            //Exclude old include_fields for support old collection
+                            .sourceExcludes(INCLUDE_FIELDS),
+                    CollectionReferenceParameters.class);
+            if (cr.found()) {
+                collection.params = cr.source();
+                LOGGER.debug("****** getCollectionReferenceFromES cr=" + collection.params);
+            } else {
+                throw new NotFoundException("Collection " + ref + " not found.");
+            }
+        } catch (IOException e) {
+            throw new InternalServerErrorException("Can not fetch collection " + ref, e);
+        }
+        return collection;
     }
 
     private void processException(Exception e, String index) throws ArlasException {
@@ -279,19 +310,4 @@ public class ElasticClient {
         throw new InternalServerErrorException(e.getMessage());
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        this.close();
-    }
-
-    public void close() {
-        try {
-            if (this.sniffer != null) {
-                this.sniffer.close();
-            }
-            this.client.close();
-        } catch (IOException ignored) {
-        }
-    }
 }

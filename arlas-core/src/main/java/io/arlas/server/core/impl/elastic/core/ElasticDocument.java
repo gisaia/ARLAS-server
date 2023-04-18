@@ -19,15 +19,15 @@
 
 package io.arlas.server.core.impl.elastic.core;
 
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
 import io.arlas.server.core.model.CollectionReference;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 
 public class ElasticDocument {
 
@@ -39,16 +39,13 @@ public class ElasticDocument {
 
     public Map<String, Object> getSource(CollectionReference collectionReference, String identifier, String[] includes) throws ArlasException {
         String[] excludes = collectionReference.params.excludeFields.split(",");
-        SearchRequest request = new SearchRequest(collectionReference.params.indexName);
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.matchQuery(collectionReference.params.idPath, identifier))
-                .fetchSource(includes, excludes);
-        request.source(searchSourceBuilder);
-        SearchHits hits = client.search(request).getHits();
-        Map<String, Object> response = null;
-        if (hits.getHits().length > 0) {
-            response = hits.getAt(0).getSourceAsMap();
-        }
-        return response;
+        SearchRequest request = SearchRequest.of(r -> r
+                        .index(collectionReference.params.indexName)
+                        .source(b -> b.filter(c -> c.excludes(Arrays.asList(excludes)).includes(Arrays.asList(includes))))
+                        .query(b -> b.term(c -> c.field(collectionReference.params.idPath).value(identifier)))
+        );
+
+        Optional<Hit<Map>> hits = client.search(request).hits().hits().stream().findFirst();
+        return hits.map(Hit::source).orElse(null);
     }
 }

@@ -19,6 +19,10 @@
 
 package io.arlas.server.ogc.common.requestfilter;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.GeoShapeRelation;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
+import co.elastic.clients.json.JsonData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.utils.StringUtil;
@@ -29,56 +33,102 @@ import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.common.utils.OpenGISFieldsExtractor;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.geojson.LngLatAlt;
+import org.geojson.Polygon;
 import org.geotools.filter.v2_0.FESConfiguration;
 import org.geotools.xsd.Parser;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class ElasticFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFilter.class);
 
-    public static BoolQueryBuilder filter(String[] ids, String idFieldName, String q, String fulltextField, BoundingBox boundingBox, String geometryField) throws IOException {
-        BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+    public static BoolQuery.Builder filter(String[] ids, String idFieldName, String q, String fulltextField, BoundingBox boundingBox, String geometryField) throws IOException {
+
+
+        BoolQuery.Builder orBoolQueryBuilder = new BoolQuery.Builder();
+        BoolQuery.Builder boolQuery = new BoolQuery.Builder();
         int minimumShouldMatch = 0;
         if (ids != null && ids.length > 0) {
             for (String resourceIdValue : ids) {
-                orBoolQueryBuilder = orBoolQueryBuilder.should(QueryBuilders.matchQuery(idFieldName, resourceIdValue));
+                orBoolQueryBuilder = orBoolQueryBuilder.should(MatchQuery
+                        .of(builder -> builder.field(idFieldName)
+                                .query(FieldValue.of(resourceIdValue)))
+                        ._toQuery());
             }
             minimumShouldMatch = minimumShouldMatch + 1;
         } else if (!StringUtil.isNullOrEmpty(q)) {
             orBoolQueryBuilder = orBoolQueryBuilder
-                    .should((QueryBuilders.simpleQueryStringQuery(q).defaultOperator(Operator.AND).field(fulltextField)));
+                    .should(SimpleQueryStringQuery.of(builder -> builder.query(q).defaultOperator(Operator.And).fields(fulltextField))._toQuery());
             minimumShouldMatch = minimumShouldMatch + 1;
         }
         if (boundingBox != null) {
-            double[] bbox = new double[] { boundingBox.getWest(), boundingBox.getSouth(), boundingBox.getEast(), boundingBox.getNorth() };
+            double west = boundingBox.getWest();
+            double east =  boundingBox.getEast();
+            double south = boundingBox.getSouth();
+            double north = boundingBox.getNorth();
+            /** In ARLAS-api west and east are necessarily between -180 and 180**/
+            /** In case of west > east, it means the bbox crosses the dateline (antiméridien) => a translation of west or east by 360 is necessary to be
+             * correctly interpreted by geoWithinQuery and geoIntersectsQuery*/
+            if (west > east) {
+                if (west >= 0) {
+                    west -= 360;
+                } else {
+                    /** east is necessarily < 0 */
+                    east += 360;
+                }
+            }
+            Polygon polygonGeometry = new Polygon();
+            List<LngLatAlt> exteriorRing = new ArrayList<>();
+            exteriorRing.add(new LngLatAlt(east, south));
+            exteriorRing.add(new LngLatAlt(east, north));
+            exteriorRing.add(new LngLatAlt(west, north));
+            exteriorRing.add(new LngLatAlt(west, south));
+            exteriorRing.add(new LngLatAlt(east, south));
+            polygonGeometry.setExteriorRing(exteriorRing);
+            JSONObject polygon = new JSONObject();
+            JSONArray jsonArayExt = new JSONArray();
+            polygonGeometry.getExteriorRing().forEach(lngLatAlt -> {
+                JSONArray jsonArayLngLat = new JSONArray();
+                jsonArayLngLat.add(0, lngLatAlt.getLongitude());
+                jsonArayLngLat.add(1, lngLatAlt.getLatitude());
+                jsonArayExt.add(jsonArayLngLat);
+            });
+            JSONArray jsonAray = new JSONArray();
+            jsonAray.add(jsonArayExt);
+            polygon.put("type", "Polygon");
+            polygon.put("coordinates", jsonAray);
+
             orBoolQueryBuilder = orBoolQueryBuilder
-                    .should(QueryBuilders.geoIntersectionQuery(geometryField, ElasticFluidSearch.createPolygon(bbox)));
+                    .should(QueryBuilders.geoShape()
+                            .field(geometryField)
+                            .shape(s -> s
+                                    .relation(GeoShapeRelation.Intersects)
+                                    .shape(JsonData.of(polygon))
+                            ).build()._toQuery());
             minimumShouldMatch = minimumShouldMatch + 1;
         }
-        orBoolQueryBuilder.minimumShouldMatch(minimumShouldMatch);
-        boolQuery = boolQuery.filter(orBoolQueryBuilder);
+        orBoolQueryBuilder.minimumShouldMatch(String.valueOf(minimumShouldMatch));
+        boolQuery = boolQuery.filter(orBoolQueryBuilder.build()._toQuery());
         return boolQuery;
     }
 
-    public static BoolQueryBuilder filter(String constraint, CollectionReferenceDescription collectionDescription, Service service) throws IOException, ArlasException {
+    public static BoolQuery.Builder filter(String constraint, CollectionReferenceDescription collectionDescription, Service service) throws IOException, ArlasException {
         return ElasticFilter.filter(constraint, collectionDescription, service, Optional.empty());
     }
 
-    public static BoolQueryBuilder filter(String constraint, CollectionReferenceDescription collectionDescription, Service service, Optional<String> columnFilter) throws IOException, ArlasException {
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+    public static BoolQuery.Builder filter(String constraint, CollectionReferenceDescription collectionDescription, Service service, Optional<String> columnFilter) throws IOException, ArlasException {
+        BoolQuery.Builder boolQuery = new BoolQuery.Builder();
         FESConfiguration configuration = new FESConfiguration();
         Parser parser = new Parser(configuration);
         if (constraint != null) {
@@ -99,7 +149,8 @@ public class ElasticFilter {
                 ObjectMapper mapper = new ObjectMapper();
                 String filterQuery = mapper.writeValueAsString(filterToElastic.getQueryBuilder());
                 // TODO : find a better way to remove prefix xml in field name
-                boolQuery.filter(QueryBuilders.wrapperQuery(filterQuery.replace("tns:", "")));
+                Reader queryJson = new StringReader(filterQuery.replace("tns:", ""));
+                boolQuery.filter(Query.of(builder -> builder.withJson(queryJson)));
             } catch (SAXException | ParserConfigurationException | RuntimeException e) {
                 if (filterToElastic.ogcException != null) {
                     LOGGER.debug(filterToElastic.ogcException.getMessage());

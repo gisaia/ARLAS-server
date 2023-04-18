@@ -17,8 +17,17 @@
  * under the License.
  */
 
-package io.arlas.server.core.model.enumerations;
+package io.arlas.server.core.model.response;
 
-public enum AggregationTypeEnum {
-    datehistogram, geohash, geotile, histogram, term, geohex;
+import io.dropwizard.jackson.JsonSnakeCase;
+
+@JsonSnakeCase
+public class LatLon {
+    public Double lat;
+    public Double lon;
+
+    public LatLon(Double lat, Double lon) {
+        this.lat = lat;
+        this.lon = lon;
+    }
 }

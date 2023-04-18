@@ -1,4 +1,6 @@
 {
+  "mappings":
+  {
   "_source": {
     "enabled": true
   },
@@ -19,9 +21,6 @@
     "centroid_path": {
       "type": "text"
     },
-    "h3_path": {
-      "type": "text"
-    },
     "timestamp_path": {
       "type": "text"
     },
@@ -32,4 +31,4 @@
       "type": "text"
     }
   }
-}
+}},

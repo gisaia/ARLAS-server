@@ -19,12 +19,9 @@
 
 package io.arlas.server.core.impl.elastic.exceptions;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.ArlasExceptionMapper;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.search.SearchPhaseExecutionException;
-import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.cluster.block.ClusterBlockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +34,10 @@ public class ElasticsearchExceptionMapper implements ExceptionMapper<Elasticsear
     @Override
     public Response toResponse(ElasticsearchException e) {
         logger.error("Error occurred", e);
-        if (e instanceof NoNodeAvailableException || e instanceof ClusterBlockException)
-            return ArlasException.getResponse(e, Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
-        else if (e instanceof SearchPhaseExecutionException)
-            return ArlasException.getResponse(e, Response.Status.BAD_REQUEST, e.getCause().getMessage());
-        else
-            return ArlasException.getResponse(e, Response.Status.BAD_REQUEST, e.getMessage());
+        logger.error("e.endpointId()=" + e.endpointId());
+        logger.error("e.error()=" + e.error());
+        logger.error("e.response()" + e.response());
+        logger.error("e.status()" + e.status());
+        return ArlasException.getResponse(e, Response.Status.BAD_REQUEST, e.getMessage());
     }
 }

@@ -34,7 +34,6 @@ import io.arlas.server.core.model.response.FieldType;
 import io.dropwizard.jersey.params.IntParam;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.elasticsearch.common.geo.GeoPoint;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.*;
@@ -55,7 +54,7 @@ import static io.arlas.server.core.services.FluidSearchService.*;
 import static io.arlas.server.core.utils.CheckParams.GEO_AGGREGATION_TYPE_ENUMS;
 
 public class ParamsParser {
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final String AGG_INTERVAL_PARAM = "interval-";
     private static final String AGG_FORMAT_PARAM = "format-";
     private static final String AGG_COLLECT_FIELD_PARAM = "collect_field-";
@@ -105,7 +104,7 @@ public class ParamsParser {
             if (parameter.contains(AGG_INTERVAL_PARAM)) {
                 if (aggregationModel.type.equals(AggregationTypeEnum.datehistogram)) {
                     aggregationModel.interval = getDatehistogramAggregationInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));
-                } else if (GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type) || aggregationModel.type.equals(AggregationTypeEnum.h3)) {
+                } else if (GEO_AGGREGATION_TYPE_ENUMS.contains(aggregationModel.type)) {
                     aggregationModel.interval = getGeohashAggregationInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));
                 } else if (aggregationModel.type.equals(AggregationTypeEnum.histogram)) {
                     aggregationModel.interval = getHistogramAggregationInterval(parameter.substring(AGG_INTERVAL_PARAM.length()));
@@ -153,7 +152,7 @@ public class ParamsParser {
     private static List<RawGeometry> getAggregationRawGeometries(String rawGeometriesString, CollectionReference collectionReference) throws ArlasException {
         List<RawGeometry> rawGeometries = new ArrayList<>();
         if (!StringUtil.isNullOrEmpty(rawGeometriesString)) {
-            for(String rg: Arrays.asList(rawGeometriesString.split(";"))) {
+            for(String rg: rawGeometriesString.split(";")) {
                 Matcher sortMatcher = SORT_FIELDS_PATTERN.matcher(rg);
                 RawGeometry rawGeometry = new RawGeometry();
                 if (sortMatcher.find()) {
@@ -227,8 +226,7 @@ public class ParamsParser {
         if (!StringUtil.isNullOrEmpty(intervalString)) {
             String[] sizeAndUnit = intervalString.split("(?<=[a-zA-Z])(?=\\d)|(?<=\\d)(?=[a-zA-Z])");
             if (sizeAndUnit.length == 2) {
-                Interval interval = new Interval(tryParseInteger(sizeAndUnit[0]), UnitEnum.valueOf(sizeAndUnit[1].toLowerCase()));
-                return interval;
+                return new Interval(tryParseInteger(sizeAndUnit[0]), UnitEnum.valueOf(sizeAndUnit[1].toLowerCase()));
             } else throw new InvalidParameterException("The date interval '" + intervalString + "' is not valid");
         } else {
             return null;
@@ -246,7 +244,7 @@ public class ParamsParser {
     public static String getFieldFromFieldAliases(String fieldAlias, CollectionReference collectionReference) throws ArlasException {
         boolean isAlias = fieldAlias.startsWith(RANGE_ALIASES_CHARACTER);
         if (isAlias) {
-            String alias = fieldAlias.substring(1, fieldAlias.length());
+            String alias = fieldAlias.substring(1);
             if (alias.equals(TIMESTAMP_ALIAS)) {
                 return collectionReference.params.timestampPath;
             } else {
@@ -259,11 +257,7 @@ public class ParamsParser {
 
     public static String getValidAggregationFormat(String aggFormat) {
         // TODO: check if format is in DateTimeFormat (joda)
-        if (aggFormat != null) {
-            return aggFormat;
-        } else {
-            return "yyyy-MM-dd-HH:mm:ss";
-        }
+        return Objects.requireNonNullElse(aggFormat, "yyyy-MM-dd-HH:mm:ss");
     }
 
     public static Filter getFilter(CollectionReference collectionReference, String serializedFilter) throws InvalidParameterException {
@@ -317,7 +311,6 @@ public class ParamsParser {
      * @param tileBbox bounding box of the tile. Used in tiled geosearch
      * @param pwithinBbox a `point-within-bbox` expression
      * @return Filter objet
-     * @throws ArlasException
      */
     public static Filter getFilter(CollectionReference collectionReference,
                                    List<String> filters, List<String> q, String dateFormat, Boolean righthand,
@@ -426,7 +419,7 @@ public class ParamsParser {
         } else {
             Geometry wkt = getValidWKT(geo);
             // For the case of Polygon and MultiPolygon, a check of the coordinates orientation is necessary in order to correctly interpret the "desired" polygon
-            if (wkt.getGeometryType().equals("Polygon") || wkt.getGeometryType().equals("MultiPolygon")) {
+            if ((wkt.getGeometryType().equals("Polygon") || wkt.getGeometryType().equals("MultiPolygon"))) {
                 List<Polygon> polygonList = new ArrayList<>();
                 for (int i = 0; i < wkt.getNumGeometries(); i++) {
                     Polygon subWkt = (Polygon) wkt.getGeometryN(i);
@@ -436,7 +429,6 @@ public class ParamsParser {
                         } else {
                             polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1().stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
                         }
-
                     } else {
                         // the wkt is CW
                         if (righthand == Boolean.TRUE) {
@@ -445,8 +437,6 @@ public class ParamsParser {
                             polygonList.addAll(GeoUtil.splitPolygon(subWkt)._1().stream().map(p -> (Polygon)GeoUtil.toCounterClockwise(p)).toList());
                         }
                     }
-
-
                 }
                 if (polygonList.size() == 1) {
                     return polygonList.get(0).toString();
@@ -503,7 +493,7 @@ public class ParamsParser {
         Geometry geom;
         try {
             geom = wkt.read(wktString);
-            List<Coordinate> filteredCoord = Arrays.stream(geom.getCoordinates()).filter(coordinate -> affectedBounds.contains(coordinate)).collect(Collectors.toList());
+            List<Coordinate> filteredCoord = Arrays.stream(geom.getCoordinates()).filter(affectedBounds::contains).toList();
             if(filteredCoord.size() != geom.getCoordinates().length){
                 throw new InvalidParameterException("Coordinates must be contained in the Envelope -360, 360, -180, 180");
             }
@@ -592,11 +582,6 @@ public class ParamsParser {
         return page;
     }
 
-    public static GeoPoint getGeoSortParams(String geoSort) throws ArlasException {
-        Pair<Double, Double> latLon = getGeoSortParamsAsLatLon(geoSort);
-        return new GeoPoint(latLon.getLeft(), latLon.getRight());
-    }
-
     // returns Pair(lat, lon)
     public static Pair<Double, Double> getGeoSortParamsAsLatLon(String geoSort) throws ArlasException {
         List<String> geoSortList = Arrays.asList(geoSort.split(":"));
@@ -634,9 +619,6 @@ public class ParamsParser {
 
     /**
      * This method enriches the `includes` attribute of the given `projection` parameter with fields given in `returned_geometries`
-     * @param projection
-     * @param returned_geometries
-     * @return
      */
     public static Projection enrichIncludes(Projection projection, String returned_geometries) {
         if (returned_geometries != null) {

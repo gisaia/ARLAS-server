@@ -19,6 +19,7 @@
 
 package io.arlas.server.core.impl.cache;
 
+import co.elastic.clients.elasticsearch._types.mapping.Property;
 import io.arlas.commons.cache.BaseHazelcastCacheManager;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.model.CollectionReference;
@@ -26,7 +27,6 @@ import io.arlas.server.core.model.response.FieldType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -70,13 +70,13 @@ public class HazelcastCacheManager extends BaseHazelcastCacheManager implements 
     }
 
     @Override
-    public void putMapping(String indexName, Map<String, LinkedHashMap> mapping) {
+    public void putMapping(String indexName, Map<String, Map<String, Object>> mapping) {
         putObject("mappings", indexName, mapping);
     }
 
     @Override
-    public Map<String, LinkedHashMap> getMapping(String indexName) {
-        return (Map<String, LinkedHashMap>) getObject("mappings", indexName);
+    public Map<String, Map<String, Object>> getMapping(String indexName) {
+        return (Map<String, Map<String, Object>>) getObject("mappings", indexName);
     }
 
     @Override

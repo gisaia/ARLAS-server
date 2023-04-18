@@ -18,10 +18,12 @@
  */
 package io.arlas.server.core.services;
 
+import co.elastic.clients.json.JsonData;
 import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.BadRequestException;
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
 import io.arlas.server.core.model.enumerations.OperatorEnum;
@@ -141,7 +143,7 @@ public abstract class ExploreService {
                     throw new BadRequestException("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
                 }
                 for (MultiValueFilter<Expression> f : filter.f) {
-                    fluidSearch = fluidSearch.filter(f, filter.dateformat);
+                    fluidSearch = fluidSearch.filter(f, filter.dateformat, filter.righthand);
                 }
             }
             if (filter.q != null && !filter.q.isEmpty()) {
@@ -176,7 +178,7 @@ public abstract class ExploreService {
                 );
     }
 
-    protected Feature getFeatureFromHit(Hit arlasHit, String path, GeoJsonObject geometry) {
+    protected Feature getFeatureFromHit(ArlasHit arlasHit, String path, GeoJsonObject geometry) {
         Feature feature = new Feature();
         geometry.setCrs(null);
         // Setting geometry of geojson
@@ -221,7 +223,7 @@ public abstract class ExploreService {
         }
 
         if (projection != null && !StringUtil.isNullOrEmpty(projection.excludes)) {
-            fluidSearch = fluidSearch.exclude(projection.excludes);
+            fluidSearch.exclude(projection.excludes);
         }
     }
 
@@ -281,6 +283,7 @@ public abstract class ExploreService {
 
         return box;
     }
+
     protected Polygon createPolygonFromGeohash(String geohash) {
         Rectangle rectangle = GeohashUtils.decodeBoundary(geohash, SpatialContext.GEO);
         Polygon polygon = new Polygon();
@@ -311,7 +314,7 @@ public abstract class ExploreService {
     public CollectionReferenceService getCollectionReferenceService() { return collectionReferenceService; }
 
     public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
-                                                                       Optional<String> columnFilter) throws ArlasException {
+                                                                       Optional<String> columnFilter) throws CollectionUnavailableException {
         return collectionReferenceService.describeAllCollections(collectionReferenceList, columnFilter);
     }
 
@@ -407,8 +410,8 @@ public abstract class ExploreService {
                                 UriInfo uriInfo,
                                 String method) throws ArlasException;
 
-    public abstract List<Map<String, Object>> searchAsRaw(MixedRequest request,
-                                                          CollectionReference collectionReference) throws ArlasException;
+    public abstract List<Map<String, JsonData>> searchAsRaw(MixedRequest request,
+                                                            CollectionReference collectionReference) throws ArlasException;
 
     public abstract Map<String, Object> getRawDoc(CollectionReference collectionReference,
                                                   String identifier,

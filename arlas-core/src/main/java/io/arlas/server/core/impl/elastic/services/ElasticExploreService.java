@@ -19,6 +19,18 @@
 
 package io.arlas.server.core.impl.elastic.services;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.GeoBounds;
+import co.elastic.clients.elasticsearch._types.GeoLocation;
+import co.elastic.clients.elasticsearch._types.LatLonGeoLocation;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.MultiBucketBase;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
+import co.elastic.clients.json.JsonData;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.core.ElasticDocument;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
@@ -27,7 +39,6 @@ import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.Link;
 import io.arlas.server.core.model.enumerations.AggregatedGeometryEnum;
-import io.arlas.server.core.model.enumerations.CollectionFunction;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
 import io.arlas.server.core.model.enumerations.GeoTypeEnum;
 import io.arlas.server.core.model.request.*;
@@ -38,21 +49,12 @@ import io.arlas.server.core.services.FluidSearchService;
 import io.arlas.server.core.utils.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.geo.GeoPoint;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.*;
 import org.geojson.*;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.io.GeohashUtils;
 import org.locationtech.spatial4j.shape.Rectangle;
 
 import javax.ws.rs.core.UriInfo;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -64,6 +66,7 @@ public class ElasticExploreService extends ExploreService {
 
     protected ElasticClient client;
     protected int arlasElasticMaxPrecisionThreshold;
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public ElasticExploreService(ElasticClient client, CollectionReferenceService collectionReferenceService,
                                  String baseUri, int arlasRestCacheTimeout, int arlasElasticMaxPrecisionThreshold) {
@@ -84,11 +87,11 @@ public class ElasticExploreService extends ExploreService {
     @Override
     public Hits count(CollectionReference collectionReference,
                       FluidSearchService fluidSearch) throws ArlasException {
-        SearchHits searchHits = ((ElasticFluidSearch) fluidSearch).exec().getHits();
+        SearchResponse<Map> searchHits = ((ElasticFluidSearch) fluidSearch).exec();
 
         Hits hits = new Hits(collectionReference.collectionName);
-        hits.totalnb = searchHits.getTotalHits().value;
-        hits.nbhits = searchHits.getHits().length;
+        hits.totalnb = searchHits.hits().total().value();
+        hits.nbhits = searchHits.hits().hits().size();
         return hits;
     }
 
@@ -96,52 +99,35 @@ public class ElasticExploreService extends ExploreService {
     public ComputationResponse compute(CollectionReference collectionReference,
                                        FluidSearchService fluidSearch,
                                        String field, ComputationEnum metric) throws ArlasException {
-        SearchResponse response = ((ElasticFluidSearch) fluidSearch).exec();
+        SearchResponse<Map> response = ((ElasticFluidSearch) fluidSearch).exec();
         ComputationResponse computationResponse = new ComputationResponse();
         long startQueryTimestamp = System.nanoTime();
         computationResponse.field = field;
         computationResponse.metric = metric;
-        computationResponse.totalnb = response.getHits().getTotalHits().value;
-        List<org.elasticsearch.search.aggregations.Aggregation> aggregations = response.getAggregations().asList();
+        computationResponse.totalnb = response.hits().total().value();
+        Map<String, Aggregate> aggregations = response.aggregations();
         computationResponse.value = null;
         computationResponse.geometry = null;
 
         if (computationResponse.totalnb > 0) {
             switch (metric) {
-                case AVG:
-                    computationResponse.value = ((Avg)aggregations.get(0)).getValue();
-                    break;
-                case CARDINALITY:
-                    computationResponse.value = (double) ((Cardinality) aggregations.get(0)).getValue();
-                    break;
-                case MAX:
-                    computationResponse.value = ((Max)aggregations.get(0)).getValue();
-                    break;
-                case MIN:
-                    computationResponse.value = ((Min)aggregations.get(0)).getValue();
-                    break;
-                case SPANNING:
-                    double min;
-                    double max;
-                    if (aggregations.get(0).getName().equals(FIELD_MIN_VALUE)) {
-                        min = ((Min)aggregations.get(0)).getValue();
-                        max = ((Max)aggregations.get(1)).getValue();
-                    } else {
-                        min = ((Min)aggregations.get(1)).getValue();
-                        max = ((Max)aggregations.get(0)).getValue();
-                    }
+                case AVG -> computationResponse.value = aggregations.get(FIELD_AVG_VALUE).avg().value();
+                case CARDINALITY ->
+                        computationResponse.value = (double) aggregations.get(FIELD_CARDINALITY_VALUE).cardinality().value();
+                case MAX -> computationResponse.value = aggregations.get(FIELD_MAX_VALUE).max().value();
+                case MIN -> computationResponse.value = aggregations.get(FIELD_MIN_VALUE).min().value();
+                case SPANNING -> {
+                    double min = aggregations.get(FIELD_MIN_VALUE).min().value();
+                    double max = aggregations.get(FIELD_MAX_VALUE).max().value();
                     computationResponse.value = max - min;
-                    break;
-                case SUM:
-                    computationResponse.value = ((Sum)aggregations.get(0)).getValue();
-                    break;
-                case GEOBBOX:
-                    computationResponse.geometry = createBox(((GeoBounds)aggregations.get(0)));
-                    break;
-                case GEOCENTROID:
-                    GeoPoint centroid = ((GeoCentroid) aggregations.get(0)).centroid();
-                    computationResponse.geometry = new Point(centroid.getLon(), centroid.getLat());
-                    break;
+                }
+                case SUM -> computationResponse.value = aggregations.get(FIELD_SUM_VALUE).sum().value();
+                case GEOBBOX ->
+                        computationResponse.geometry = createBox(aggregations.get(FIELD_GEOBBOX_VALUE).geoBounds().bounds());
+                case GEOCENTROID -> {
+                    GeoLocation centroid = aggregations.get(FIELD_GEOCENTROID_VALUE).geoCentroid().location();
+                    computationResponse.geometry = new Point(centroid.latlon().lon(), centroid.latlon().lat());
+                }
             }
         }
 
@@ -151,24 +137,24 @@ public class ElasticExploreService extends ExploreService {
 
     @Override
     public Hits search(MixedRequest request, CollectionReference collectionReference, Boolean flat, UriInfo uriInfo, String method) throws ArlasException {
-        SearchHits searchHits = getSearchHits(request, collectionReference);
+        HitsMetadata<Map> searchHits = getSearchHits(request, collectionReference);
         Search searchRequest  = (Search)request.basicRequest;
         Hits hits = new Hits(collectionReference.collectionName);
-        hits.totalnb = searchHits.getTotalHits().value;
-        hits.nbhits = searchHits.getHits().length;
+        hits.totalnb = searchHits.total().value();
+        hits.nbhits = searchHits.hits().size();
         hits.hits = new ArrayList<>((int) hits.nbhits);
-        List<SearchHit> searchHitList = Arrays.asList(searchHits.getHits());
+        List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> searchHitList = searchHits.hits();
         if(searchRequest.page != null && searchRequest.page.before != null ){
             Collections.reverse(searchHitList);
         }
-        for (SearchHit hit : searchHitList) {
-            hits.hits.add(new Hit(collectionReference, hit.getSourceAsMap(), searchRequest.returned_geometries, flat, false));
+        for (Hit<Map> hit : searchHitList) {
+            hits.hits.add(new ArlasHit(collectionReference, hit.source(), searchRequest.returned_geometries, flat, false));
         }
         hits.links = getLinks(searchRequest, collectionReference, hits.nbhits, searchHitList, uriInfo, method);
         return hits;
     }
 
-    private HashMap<String, Link> getLinks(Search searchRequest, CollectionReference collectionReference, long nbhits, List<SearchHit> searchHitList, UriInfo uriInfo, String method) {
+    private HashMap<String, Link> getLinks(Search searchRequest, CollectionReference collectionReference, long nbhits, List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> searchHitList, UriInfo uriInfo, String method) {
         HashMap<String, Link> links = new HashMap<>();
         UriInfoWrapper uriInfoUtil = new UriInfoWrapper(uriInfo, getBaseUri());
         Link self = new Link();
@@ -187,38 +173,41 @@ public class ElasticExploreService extends ExploreService {
             next = new Link();
             next.method = method;
             // Use sorted value of last element return by ES to build after param of next & previous link
-            lastHitAfter = Arrays.stream(searchHitList.get(lastIndex).getSortValues()).map(Object::toString).collect(Collectors.joining(","));
+            lastHitAfter = searchHitList.get(lastIndex).sort().stream().map(FieldValue::_toJsonString).collect(Collectors.joining(","));
+            LOGGER.debug("lastHitAfter="+lastHitAfter);
+
         }
         if (searchHitList.size() > 0 && sortParam != null && (beforeParam != null || sortParam.contains(collectionReference.params.idPath))) {
             previous = new Link();
             previous.method = method;
-            firstHitAfter = Arrays.stream(searchHitList.get(0).getSortValues()).map(Object::toString).collect(Collectors.joining(","));
+            firstHitAfter = searchHitList.get(0).sort().stream().map(FieldValue::_toJsonString).collect(Collectors.joining(","));
+            LOGGER.debug("firstHitAfter="+firstHitAfter);
         }
 
-        switch (method){
-            case"GET":
+        switch (method) {
+            case "GET" -> {
                 links.put("self", self);
-                if (next != null){
+                if (next != null) {
                     next.href = uriInfoUtil.getNextHref(lastHitAfter);
                     links.put("next", next);
                 }
-                if (previous != null){
+                if (previous != null) {
                     previous.href = uriInfoUtil.getPreviousHref(firstHitAfter);
                     links.put("previous", previous);
                 }
-                break;
-            case"POST":
+            }
+            case "POST" -> {
                 self.body = searchRequest;
                 links.put("self", self);
-                if (next != null){
+                if (next != null) {
                     Page nextPage = new Page();
                     Search search = new Search();
                     search.filter = searchRequest.filter;
                     search.form = searchRequest.form;
                     search.projection = searchRequest.projection;
                     search.returned_geometries = searchRequest.returned_geometries;
-                    nextPage.sort= searchRequest.page.sort;
-                    nextPage.size= searchRequest.page.size;
+                    nextPage.sort = searchRequest.page.sort;
+                    nextPage.size = searchRequest.page.size;
                     nextPage.from = searchRequest.page.from;
                     nextPage.after = lastHitAfter;
                     search.page = nextPage;
@@ -226,7 +215,7 @@ public class ElasticExploreService extends ExploreService {
                     next.body = search;
                     links.put("next", next);
                 }
-                if (previous != null){
+                if (previous != null) {
                     Page previousPage = new Page();
                     Search search = new Search();
                     search.filter = searchRequest.filter;
@@ -242,40 +231,46 @@ public class ElasticExploreService extends ExploreService {
                     previous.body = search;
                     links.put("previous", previous);
                 }
-                break;
+            }
         }
         return links;
     }
 
     @Override
-    public List<Map<String, Object>> searchAsRaw(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
-        return Arrays.stream(getSearchHits(request, collectionReference).getHits()).map(SearchHit::getSourceAsMap).collect(Collectors.toList());
+    public List<Map<String, JsonData>> searchAsRaw(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
+        List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> searchHitList = getSearchHits(request, collectionReference).hits();
+        List<Map<String, JsonData>> rawList = new ArrayList<>( searchHitList.size());
+        for (Hit<Map> hit : searchHitList) {
+            rawList.add(hit.source());
+        }
+        return rawList;
+
     }
 
-    private SearchHits getSearchHits(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
+    private HitsMetadata<Map> getSearchHits(MixedRequest request, CollectionReference collectionReference) throws ArlasException {
         ElasticFluidSearch fluidSearch = (ElasticFluidSearch) getSearchRequest(request, collectionReference);
-        return fluidSearch.exec().getHits();
+        return fluidSearch.exec().hits();
     }
 
     @Override
     public FeatureCollection getFeatures(MixedRequest request, CollectionReference collectionReference,
                                          boolean flat, UriInfo uriInfo, String method,
                                          HashMap<String, Object> context) throws ArlasException {
-        SearchHits searchHits = getSearchHits(request, collectionReference);
-        long totalnb = searchHits.getTotalHits().value;
+        HitsMetadata<Map> searchHits = getSearchHits(request, collectionReference);
+        long totalnb = searchHits.total().value();
         Search searchRequest = (Search) request.basicRequest;
         FeatureCollection fc = new FeatureCollection();
-        List<SearchHit> results = Arrays.asList(searchHits.getHits());
+        List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> results = searchHits.hits();
         if (context != null) {
-            context.putAll(getLinks(searchRequest, collectionReference, searchHits.getHits().length, results, uriInfo, method));
-            context.put("matched", Long.valueOf(totalnb));
+            context.putAll(getLinks(searchRequest, collectionReference, results.size(), results, uriInfo, method));
+            context.put("matched", totalnb);
         }
         if (searchRequest.page != null && searchRequest.page.before != null) {
             Collections.reverse(results);
         }
-        for (SearchHit hit : results) {
-            Map<String, Object> source = hit.getSourceAsMap();
-            Hit arlasHit = new Hit(collectionReference, source, searchRequest.returned_geometries, flat, true);
+        for (Hit<Map> hit : results) {
+            Map<String, JsonData> source = hit.source();
+            ArlasHit arlasHit = new ArlasHit(collectionReference, source, searchRequest.returned_geometries, flat, true);
             if (searchRequest.returned_geometries != null) {
                 for (String path : searchRequest.returned_geometries.split(",")) {
                     GeoJsonObject g = arlasHit.getGeometry(path);
@@ -301,43 +296,45 @@ public class ElasticExploreService extends ExploreService {
         return new ElasticDocument(client).getSource(collectionReference, identifier, includes);
     }
 
-
     @Override
     public AggregationResponse aggregate(CollectionReference collectionReference,
                                          List<Aggregation> aggregationsRequests,
                                          int aggTreeDepth,
                                          Long startQuery,
                                          FluidSearchService fluidSearch) throws ArlasException {
-        SearchResponse response = ((ElasticFluidSearch) fluidSearch).exec();
+        SearchResponse<Map> response = ((ElasticFluidSearch) fluidSearch).exec();
 
         AggregationResponse aggregationResponse = new AggregationResponse();
-        aggregationResponse.totalnb = response.getHits().getTotalHits().value;
+        aggregationResponse.totalnb = response.hits().total().value();
         aggregationResponse.queryTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startQuery);
-        return formatAggregationResult((MultiBucketsAggregation) response.getAggregations().asList().get(0), aggregationResponse, collectionReference, aggregationsRequests, aggTreeDepth);
+        return formatAggregationResult(response.aggregations().get("mainAgg"), aggregationResponse, collectionReference, aggregationsRequests, aggTreeDepth);
     }
 
-
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private AggregationResponse formatAggregationResult(MultiBucketsAggregation aggregation, AggregationResponse aggregationResponse,
+    private AggregationResponse formatAggregationResult(Aggregate aggregate, AggregationResponse aggregationResponse,
                                                         CollectionReference collection, List<Aggregation> aggregationsRequest, int aggTreeDepth) {
-        aggregationResponse.name = aggregation.getName();
-        if (aggregationResponse.name.equals(TERM_AGG)) {
-            aggregationResponse.sumotherdoccounts = ((Terms) aggregation).getSumOfOtherDocCounts();
+        aggregationResponse.name = aggregate._kind().name();
+        if (aggregate.isSterms()) {
+            aggregationResponse.sumotherdoccounts = aggregate.sterms().sumOtherDocCount();
+        }
+        if (aggregate.isDterms()) {
+            aggregationResponse.sumotherdoccounts = aggregate.dterms().sumOtherDocCount();
+        }
+        if (aggregate.isLterms()) {
+            aggregationResponse.sumotherdoccounts = aggregate.lterms().sumOtherDocCount();
         }
         List<RawGeometry> rawGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).rawGeometries : null;
         List<AggregatedGeometryEnum> aggregatedGeometries = aggregationsRequest.size() > aggTreeDepth ? aggregationsRequest.get(aggTreeDepth).aggregatedGeometries : null;
         aggregationResponse.elements = new ArrayList<>();
-        List<MultiBucketsAggregation.Bucket> buckets = (List<MultiBucketsAggregation.Bucket>) aggregation.getBuckets();
-        buckets.forEach(bucket -> {
-            AggregationResponse element = new AggregationResponse();
-            element.keyAsString = bucket.getKeyAsString();
-            // if it is a `geohash` aggregation type, we set the GEOHASHCENTER and GEOHASH aggregated geometries if they're requested
-            if (aggregationResponse.name.equals(GEOHASH_AGG)) {
-                GeoPoint geoPoint = getGeohashCentre(element.keyAsString.toString());
-                element.key = geoPoint;
+        if(aggregate.isGeohashGrid()){
+            aggregate.geohashGrid().buckets().array().forEach(geoHashGridBucket -> {
+                AggregationResponse element = new AggregationResponse();
+                element.keyAsString = geoHashGridBucket.key();
+                LatLonGeoLocation geoPoint = getGeohashCentre(element.keyAsString.toString()).latlon();
+                element.key = new LatLon(geoPoint.lat(),geoPoint.lon());
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
-                            .filter(g -> g.isCellOrCellCenterAgg())
+                            .filter(AggregatedGeometryEnum::isCellOrCellCenterAgg)
                             .forEach(g -> {
                                 ReturnedGeometry returnedGeometry = new ReturnedGeometry();
                                 returnedGeometry.reference = g.value();
@@ -345,7 +342,7 @@ public class ElasticExploreService extends ExploreService {
                                 if (g.isCellAgg()) {
                                     returnedGeometry.geometry = createPolygonFromGeohash(element.keyAsString.toString());
                                 } else {
-                                    returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
+                                    returnedGeometry.geometry = new Point(geoPoint.lon(), geoPoint.lat());
                                 }
                                 if (element.geometries == null) {
                                     element.geometries = new ArrayList<>();
@@ -354,16 +351,20 @@ public class ElasticExploreService extends ExploreService {
 
                             });
                 }
-            } else if (aggregationResponse.name.equals(GEOTILE_AGG)) {
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, geoHashGridBucket);
+            });
+        } else if (aggregate.isGeotileGrid()){
+            aggregate.geotileGrid().buckets().array().forEach(geoTileGridBucket -> {
+                AggregationResponse element = new AggregationResponse();
+                element.keyAsString = geoTileGridBucket.key();
                 List<Integer> zxy = Stream.of(element.keyAsString.toString().split("/"))
-                        .map (elem -> Integer.valueOf(elem))
-                        .collect(Collectors.toList());
+                        .map(Integer::valueOf).toList();
                 BoundingBox tile = GeoTileUtil.getBoundingBox(zxy.get(1), zxy.get(2), zxy.get(0));
-                GeoPoint geoPoint = getTileCentre(tile);
-                element.key = geoPoint;
+                LatLonGeoLocation geoPoint = getTileCentre(tile).latlon();
+                element.key = new LatLon(geoPoint.lat(),geoPoint.lon());
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
-                            .filter(g -> g.isCellOrCellCenterAgg())
+                            .filter(AggregatedGeometryEnum::isCellOrCellCenterAgg)
                             .forEach(g -> {
                                 ReturnedGeometry returnedGeometry = new ReturnedGeometry();
                                 returnedGeometry.reference = g.value();
@@ -371,7 +372,7 @@ public class ElasticExploreService extends ExploreService {
                                 if (g.isCellAgg()) {
                                     returnedGeometry.geometry = createBox(tile);
                                 } else {
-                                    returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
+                                    returnedGeometry.geometry = new Point(geoPoint.lon(), geoPoint.lat());
                                 }
                                 if (element.geometries == null) {
                                     element.geometries = new ArrayList<>();
@@ -380,12 +381,20 @@ public class ElasticExploreService extends ExploreService {
 
                             });
                 }
-            } else if (aggregationResponse.name.equals(H3_AGG)){
-                GeoPoint geoPoint = getH3Centre(element.keyAsString.toString());
-                element.key = geoPoint;
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, geoTileGridBucket);
+            });
+        } else if (aggregate.isGeohexGrid()){
+            aggregate.geohexGrid().buckets().array().forEach(geohexGridBucket -> {
+                AggregationResponse element = new AggregationResponse();
+                element.keyAsString = geohexGridBucket.key();
+                List<Integer> zxy = Stream.of(element.keyAsString.toString().split("/"))
+                        .map(Integer::valueOf).toList();
+                BoundingBox tile = GeoTileUtil.getBoundingBox(zxy.get(1), zxy.get(2), zxy.get(0));
+                LatLonGeoLocation geoPoint = getH3Centre(element.keyAsString.toString()).latlon();
+                element.key = new LatLon(geoPoint.lat(),geoPoint.lon());
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
                     aggregatedGeometries.stream()
-                            .filter(g -> g.isCellOrCellCenterAgg())
+                            .filter(AggregatedGeometryEnum::isCellOrCellCenterAgg)
                             .forEach(g -> {
                                 ReturnedGeometry returnedGeometry = new ReturnedGeometry();
                                 returnedGeometry.reference = g.value();
@@ -393,7 +402,7 @@ public class ElasticExploreService extends ExploreService {
                                 if (g.isCellAgg()) {
                                     returnedGeometry.geometry = createPolygonFromH3(element.keyAsString.toString());
                                 } else {
-                                    returnedGeometry.geometry = new Point(geoPoint.getLon(), geoPoint.getLat());
+                                    returnedGeometry.geometry = new Point(geoPoint.lon(), geoPoint.lat());
                                 }
                                 if (element.geometries == null) {
                                     element.geometries = new ArrayList<>();
@@ -402,151 +411,222 @@ public class ElasticExploreService extends ExploreService {
 
                             });
                 }
-            } else if (aggregationResponse.name.startsWith(DATEHISTOGRAM_AGG)){
-                element.key = ((ZonedDateTime)bucket.getKey()).withZoneSameInstant(ZoneOffset.UTC).toInstant().toEpochMilli();
-            } else {
-                element.key = bucket.getKey();
-            }
-            element.count = bucket.getDocCount();
-            element.elements = new ArrayList<>();
-            if (bucket.getAggregations().asList().size() == 0) {
-                element.elements = null;
-            } else {
-                bucket.getAggregations().forEach(subAggregation -> {
-                    AggregationResponse subAggregationResponse = new AggregationResponse();
-                    subAggregationResponse.name = subAggregation.getName();
-                    if (subAggregationResponse.name.equals(TERM_AGG)) {
-                        subAggregationResponse.sumotherdoccounts = ((Terms) subAggregation).getSumOfOtherDocCounts();
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, geohexGridBucket);
+            });
+        } else if (aggregate.isDateHistogram()){
+            aggregate.dateHistogram().buckets().array().forEach(dateHistogramBucket -> {
+                AggregationResponse element = new AggregationResponse();
+                element.keyAsString = dateHistogramBucket.keyAsString();
+                element.key = dateHistogramBucket.key();
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, dateHistogramBucket);
+            });
+        } else if (aggregate.isHistogram()) {
+            aggregate.histogram().buckets().array().forEach(histogramBucket -> {
+                AggregationResponse element = new AggregationResponse();
+                element.keyAsString = histogramBucket.keyAsString();
+                element.key = histogramBucket.key();
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, histogramBucket);
+            });
+
+        } else if (aggregate.isDterms()) {
+            aggregate.dterms().buckets().array().forEach(bucket -> {
+                AggregationResponse element = new AggregationResponse();
+                element.keyAsString = bucket.keyAsString();
+                element.key = bucket.key();
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, bucket);
+        });
+        } else if (aggregate.isLterms()) {
+            aggregate.lterms().buckets().array().forEach(bucket -> {
+                AggregationResponse element = new AggregationResponse();
+                element.keyAsString = bucket.keyAsString();
+                element.key = bucket.key();
+                buildResponseFromBucket(element,aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, bucket);
+
+            });
+        } else if (aggregate.isSterms()) {
+            aggregate.sterms().buckets().array().forEach(bucket -> {
+                AggregationResponse element = new AggregationResponse();
+                element.keyAsString = bucket.key().stringValue();
+                element.key = bucket.key().stringValue();
+                buildResponseFromBucket(element, aggregationResponse, collection, aggregationsRequest, aggTreeDepth, rawGeometries, aggregatedGeometries, bucket);
+            });
+        }
+        return aggregationResponse;
+    }
+
+    private void buildResponseFromBucket(AggregationResponse element, AggregationResponse aggregationResponse, CollectionReference collection, List<Aggregation> aggregationsRequest, int aggTreeDepth, List<RawGeometry> rawGeometries, List<AggregatedGeometryEnum> aggregatedGeometries, MultiBucketBase bucket) {
+        element.count = bucket.docCount();
+        element.elements = new ArrayList<>();
+        if (bucket.aggregations().size() == 0) {
+            element.elements = null;
+        } else {
+            bucket.aggregations().forEach((key, subAgg) -> {
+                AggregationResponse subAggregationResponse = new AggregationResponse();
+                if (key.contains(TERM_AGG)) {
+                    if (subAgg.isSterms()) {
+                        subAggregationResponse.sumotherdoccounts = subAgg.sterms().sumOtherDocCount();
                     }
-                    if (subAggregation.getName().equals(FETCH_HITS_AGG)) {
-                        subAggregationResponse = null;
-                        element.hits = Optional.ofNullable(((TopHits)subAggregation).getHits().getHits())
-                                .map(Arrays::asList)
-                                .map(hitsList -> hitsList.stream().map(SearchHit::getSourceAsMap).collect(Collectors.toList()))
-                                .orElse(new ArrayList());
-                    } else if (Arrays.asList(DATEHISTOGRAM_AGG, HISTOGRAM_AGG, TERM_AGG, GEOHASH_AGG, GEOTILE_AGG, H3_AGG).contains(subAggregation.getName())) {
-                        subAggregationResponse = formatAggregationResult(((MultiBucketsAggregation) subAggregation), subAggregationResponse, collection, aggregationsRequest, aggTreeDepth+1);
-                    } else if (isAggregatedGeometry(subAggregation.getName(), aggregatedGeometries)) {
-                        subAggregationResponse = null;
-                        ReturnedGeometry returnedGeometry = new ReturnedGeometry();
-                        returnedGeometry.isRaw = false;
-                        if (subAggregation.getName().equals(AggregatedGeometryEnum.BBOX.value() + AGGREGATED_GEOMETRY_SUFFIX)) {
-                            Polygon box = createBox((GeoBounds) subAggregation);
-                            returnedGeometry.reference = AggregatedGeometryEnum.BBOX.value();
-                            returnedGeometry.geometry = box;
-                        } else if (subAggregation.getName().equals(AggregatedGeometryEnum.CENTROID.value() + AGGREGATED_GEOMETRY_SUFFIX)) {
-                            GeoPoint centroid = ((GeoCentroid) subAggregation).centroid();
-                            GeoJsonObject g = new Point(centroid.getLon(), centroid.getLat());
-                            returnedGeometry.reference = AggregatedGeometryEnum.CENTROID.value();
-                            returnedGeometry.geometry = g;
+                    if (subAgg.isDterms()) {
+                        subAggregationResponse.sumotherdoccounts = subAgg.dterms().sumOtherDocCount();
+                    }
+                    if (subAgg.isLterms()) {
+                        subAggregationResponse.sumotherdoccounts = subAgg.lterms().sumOtherDocCount();
+                    }
+                }
+                if (key.equals(FETCH_HITS_AGG)) {
+                    subAggregationResponse = null;
+                    element.hits = new ArrayList<>();
+                    for (int i = 0; i < subAgg.topHits().hits().hits().size(); i++) {
+                        try {
+                            element.hits.add(mapper.readValue(subAgg.topHits().hits().hits().get(i).source().toString(), Map.class));
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
                         }
-                        if (element.geometries == null) {
-                            element.geometries = new ArrayList<>();
-                        }
-                        element.geometries.add(returnedGeometry);
-                    } else if (subAggregation.getName().startsWith(RAW_GEOMETRY_SUFFIX)) {
-                        boolean includeFetchHits = subAggregation.getName().contains(FETCH_HITS_AGG);
-                        String sort = !includeFetchHits ? subAggregation.getName().substring(RAW_GEOMETRY_SUFFIX.length()) :
-                                subAggregation.getName().substring(RAW_GEOMETRY_SUFFIX.length()+FETCH_HITS_AGG.length()) ;
-                        subAggregationResponse = null;
-                        long nbHits = ((TopHits) subAggregation).getHits().getTotalHits().value;
-                        if (nbHits > 0) {
-                            SearchHit[] hits = ((TopHits) subAggregation).getHits().getHits();
-                            if(includeFetchHits){
-                                element.hits = Optional.ofNullable(hits)
-                                        .map(Arrays::asList)
-                                        .map(hitsList -> hitsList.stream()
-                                                .map(SearchHit::getSourceAsMap)
-                                                .collect(Collectors.toList()))
-                                        .orElse(new ArrayList());
-                            }
-                            for (SearchHit hit: hits) {
-                                Map source = hit.getSourceAsMap();
-                                if (rawGeometries != null) {
-                                    List<String> geometries;
-                                    if(includeFetchHits){
-                                        geometries = rawGeometries.stream().filter(rg -> rg.signedSort.equals(sort)).map(rg -> rg.geometry).collect(Collectors.toList());
-                                    }else {
-                                         geometries = rawGeometries.stream().filter(rg -> rg.sort.equals(sort)).map(rg -> rg.geometry).collect(Collectors.toList());
-                                    }
-                                    geometries.forEach(g -> {
-                                        GeoJsonObject geometryGeoJson;
-                                        try {
-                                            CollectionReferenceManager.setCollectionGeometriesType(source, collection, String.join(",", geometries));
-                                            GeoTypeEnum geometryType;
-                                            Object geometry = MapExplorer.getObjectFromPath(g, source);
-                                            ReturnedGeometry returnedGeometry = null;
-                                            if (geometry != null) {
-                                                returnedGeometry = new ReturnedGeometry();
-                                                geometryType = collection.params.getGeometryType(g);
-                                                returnedGeometry.reference = g;
-                                            } else {
-                                                geometry = MapExplorer.getObjectFromPath(collection.params.centroidPath, source);
-                                                geometryType = collection.params.getGeometryType(collection.params.centroidPath);
-                                                if (geometry != null) {
-                                                    returnedGeometry = new ReturnedGeometry();
-                                                    returnedGeometry.reference = collection.params.centroidPath;
-                                                }
-                                            }
-                                            geometryGeoJson = geometry != null ?
-                                                    GeoTypeMapper.getGeoJsonObject(geometry, geometryType) : null;
-                                            if (geometryGeoJson != null) {
-                                                // "old-style crs member is not recommended" so we remove it
-                                                geometryGeoJson.setCrs(null);
-                                                returnedGeometry.geometry = geometryGeoJson;
-                                                returnedGeometry.isRaw = true;
-                                                returnedGeometry.sort = sort;
-                                                if (element.geometries == null) {
-                                                    element.geometries = new ArrayList<>();
-                                                }
-                                                element.geometries.add(returnedGeometry);
-                                            }
-                                        } catch (ArlasException e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
+                    }
+                } else if (key.contains(TERM_AGG) || key.contains(DATEHISTOGRAM_AGG) || key.contains(HISTOGRAM_AGG)
+                        || key.contains(GEOTILE_AGG) || key.contains(GEOHASH_AGG)) {
+                    subAggregationResponse = formatAggregationResult(subAgg, subAggregationResponse, collection, aggregationsRequest, aggTreeDepth + 1);
+
+                } else if (isAggregatedGeometry(key, aggregatedGeometries)) {
+                    subAggregationResponse = null;
+                    ReturnedGeometry returnedGeometry = new ReturnedGeometry();
+                    returnedGeometry.isRaw = false;
+                    if (key.equals(AggregatedGeometryEnum.BBOX.value() + AGGREGATED_GEOMETRY_SUFFIX)) {
+                        Polygon box = createBox(subAgg.geoBounds().bounds());
+                        returnedGeometry.reference = AggregatedGeometryEnum.BBOX.value();
+                        returnedGeometry.geometry = box;
+                    } else if (key.equals(AggregatedGeometryEnum.CENTROID.value() + AGGREGATED_GEOMETRY_SUFFIX)) {
+                        GeoLocation centroid = subAgg.geoCentroid().location();
+                        GeoJsonObject g = new Point(centroid.latlon().lon(), centroid.latlon().lat());
+                        returnedGeometry.reference = AggregatedGeometryEnum.CENTROID.value();
+                        returnedGeometry.geometry = g;
+                    }
+                    if (element.geometries == null) {
+                        element.geometries = new ArrayList<>();
+                    }
+                    element.geometries.add(returnedGeometry);
+                } else if (key.startsWith(RAW_GEOMETRY_SUFFIX)) {
+                    boolean includeFetchHits = key.contains(FETCH_HITS_AGG);
+                    String sort = !includeFetchHits ? key.substring(RAW_GEOMETRY_SUFFIX.length()) :
+                            key.substring(RAW_GEOMETRY_SUFFIX.length()+FETCH_HITS_AGG.length()) ;
+                    subAggregationResponse = null;
+                    long nbHits = subAgg.topHits().hits().total().value();
+
+                    if (nbHits > 0) {
+                        List<Hit<JsonData>> hits = subAgg.topHits().hits().hits();
+                        if(includeFetchHits){
+                            element.hits = new ArrayList<>();
+                            for (int i = 0; i < hits.size(); i++) {
+                                try {
+                                    element.hits.add(mapper.readValue(hits.get(i).source().toString(),Map.class));
+                                } catch (JsonProcessingException e) {
+                                    e.printStackTrace();
                                 }
                             }
                         }
-                        if (bucket.getAggregations().asList().size() == 1) {
-                            element.metrics = null;
-                            element.elements = null;
+                        for (Hit<JsonData> hit: hits) {
+                            JsonData source = hit.source();
+                            if (rawGeometries != null) {
+                                List<String> geometries;
+                                if(includeFetchHits){
+                                    geometries = rawGeometries.stream().filter(rg -> rg.signedSort.equals(sort)).map(rg -> rg.geometry).collect(Collectors.toList());
+                                }else {
+                                    geometries = rawGeometries.stream().filter(rg -> rg.sort.equals(sort)).map(rg -> rg.geometry).collect(Collectors.toList());
+                                }                                geometries.forEach(g -> {
+                                    GeoJsonObject geometryGeoJson;
+                                    try {
+                                        CollectionReferenceManager.setCollectionGeometriesType(source, collection, String.join(",", geometries));
+                                        GeoTypeEnum geometryType;
+                                        Object geometry = MapExplorer.getObjectFromPath(g, source);
+                                        ReturnedGeometry returnedGeometry = null;
+                                        if (geometry != null) {
+                                            returnedGeometry = new ReturnedGeometry();
+                                            geometryType = collection.params.getGeometryType(g);
+                                            returnedGeometry.reference = g;
+                                        } else {
+                                            geometry = MapExplorer.getObjectFromPath(collection.params.centroidPath, source);
+                                            geometryType = collection.params.getGeometryType(collection.params.centroidPath);
+                                            if (geometry != null) {
+                                                returnedGeometry = new ReturnedGeometry();
+                                                returnedGeometry.reference = collection.params.centroidPath;
+                                            }
+                                        }
+                                        geometryGeoJson = geometry != null ?
+                                                GeoTypeMapper.getGeoJsonObject(geometry, geometryType) : null;
+                                        if (geometryGeoJson != null) {
+                                            // "old-style crs member is not recommended" so we remove it
+                                            geometryGeoJson.setCrs(null);
+                                            returnedGeometry.geometry = geometryGeoJson;
+                                            returnedGeometry.isRaw = true;
+                                            returnedGeometry.sort = sort;
+                                            if (element.geometries == null) {
+                                                element.geometries = new ArrayList<>();
+                                            }
+                                            element.geometries.add(returnedGeometry);
+                                        }
+
+
+
+                                    } catch (ArlasException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    if (bucket.aggregations().size() == 1) {
+                        element.metrics = null;
+                        element.elements = null;
+                    }
+                } else {
+                    //metric
+                    if (element.metrics == null) {
+                        element.metrics = new ArrayList<>();
+                    }
+                    subAggregationResponse = null;
+                    AggregationMetric aggregationMetric = new AggregationMetric();
+                    aggregationMetric.type = key.split(":")[0];
+                    if (!subAgg.isGeoBounds() && !subAgg.isGeoCentroid()) {
+                        aggregationMetric.field = key.split(":")[1];
+                        if (subAgg.isAvg()) {
+                            aggregationMetric.value = subAgg.avg().value();
+                        }
+                        if (subAgg.isMax()) {
+                            aggregationMetric.value = subAgg.max().value();
+                        }
+                        if (subAgg.isMin()) {
+                            aggregationMetric.value = subAgg.min().value();
+                        }
+                        if (subAgg.isSum()) {
+                            aggregationMetric.value = subAgg.sum().value();
+                        }
+                        if (subAgg.isCardinality()) {
+                            aggregationMetric.value = (double) subAgg.cardinality().value();
                         }
                     } else {
-                        if (element.metrics == null) {
-                            element.metrics = new ArrayList<>();
+                        FeatureCollection fc = new FeatureCollection();
+                        Feature feature = new Feature();
+                        aggregationMetric.field = key.split(":")[1];
+                        if (subAgg.isGeoBounds()) {
+                            GeoJsonObject g = createBox(subAgg.geoBounds().bounds());
+                            feature.setGeometry(g);
+                            fc.add(feature);
+                        } else if (subAgg.isGeoCentroid()) {
+                            GeoLocation centroid = subAgg.geoCentroid().location();
+                            GeoJsonObject g = new Point(centroid.latlon().lon(), centroid.latlon().lat());
+                            feature.setGeometry(g);
+                            fc.add(feature);
                         }
-                        subAggregationResponse = null;
-                        AggregationMetric aggregationMetric = new AggregationMetric();
-                        aggregationMetric.type = subAggregation.getName().split(":")[0];
-                        aggregationMetric.field = subAggregation.getName().split(":")[1];
-                        if (!aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase()) && !aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                            aggregationMetric.value = (((NumericMetricsAggregation.SingleValue) subAggregation).value());
-                        } else {
-                            FeatureCollection fc = new FeatureCollection();
-                            Feature feature = new Feature();
-                            if (aggregationMetric.type.equals(CollectionFunction.GEOBBOX.name().toLowerCase())) {
-                                GeoJsonObject g = createBox((GeoBounds) subAggregation);
-                                feature.setGeometry(g);
-                                fc.add(feature);
-                            } else if (aggregationMetric.type.equals(CollectionFunction.GEOCENTROID.name().toLowerCase())) {
-                                GeoPoint centroid = ((GeoCentroid) subAggregation).centroid();
-                                GeoJsonObject g = new Point(centroid.getLon(), centroid.getLat());
-                                feature.setGeometry(g);
-                                fc.add(feature);
-                            }
-                            aggregationMetric.value = fc;
-                        }
-                        element.metrics.add(aggregationMetric);
+                        aggregationMetric.value = fc;
                     }
-                    if (subAggregationResponse != null) {
-                        element.elements.add(subAggregationResponse);
-                    }
-                });
-            }
-            aggregationResponse.elements.add(element);
-        });
-        return aggregationResponse;
+                    element.metrics.add(aggregationMetric);
+                }
+                if (subAggregationResponse != null) {
+                    element.elements.add(subAggregationResponse);
+                }
+            });
+        }
+        aggregationResponse.elements.add(element);
     }
 
 
@@ -557,9 +637,8 @@ public class ElasticExploreService extends ExploreService {
         return false;
     }
 
-    private GeoPoint getGeohashCentre(String geohash) {
+    private GeoLocation getGeohashCentre(String geohash) {
         Rectangle bbox = GeohashUtils.decodeBoundary(geohash, SpatialContext.GEO);
-
         Double maxLon = bbox.getMaxX();
         Double minLon = bbox.getMinX();
         double lon = (maxLon + minLon) / 2;
@@ -568,33 +647,36 @@ public class ElasticExploreService extends ExploreService {
         Double minLat = bbox.getMinY();
         double lat = (maxLat + minLat) / 2;
 
-        return new GeoPoint(lat, lon);
+        return GeoLocation.of(builder -> builder.latlon(builder1 -> builder1.lat(lat).lon(lon)));
     }
 
-    private GeoPoint getH3Centre(String h3) {
+    private GeoLocation getH3Centre(String h3) {
         Pair<Double, Double> latLon = H3Util.getInstance().getCellCenterAsLatLon(h3);
-        return new GeoPoint(latLon.getLeft(), latLon.getRight());
+        return GeoLocation.of(builder -> builder.latlon(builder1 -> builder1.lat(latLon.getLeft()).lon(latLon.getRight())));
     }
 
-    private GeoPoint getTileCentre(BoundingBox bbox) {
+    private GeoLocation getTileCentre(BoundingBox bbox) {
         double lon = (bbox.getEast() + bbox.getWest()) / 2;
         double lat = (bbox.getNorth() + bbox.getSouth()) / 2;
 
-        return new GeoPoint(lat, lon);
+        return GeoLocation.of(builder -> builder.latlon(builder1 -> builder1.lat(lat).lon(lon)));
     }
 
     private Polygon createBox(GeoBounds subAggregation) {
-        Polygon box = new Polygon();
-        GeoPoint topLeft = subAggregation.topLeft();
-        GeoPoint bottomRight = subAggregation.bottomRight();
-        List<LngLatAlt> bounds = new ArrayList<>();
-        bounds.add(new LngLatAlt(topLeft.getLon(), topLeft.getLat()));
-        bounds.add(new LngLatAlt(bottomRight.getLon(), topLeft.getLat()));
-        bounds.add(new LngLatAlt(bottomRight.getLon(), bottomRight.getLat()));
-        bounds.add(new LngLatAlt(topLeft.getLon(), bottomRight.getLat()));
-        bounds.add(new LngLatAlt(topLeft.getLon(), topLeft.getLat()));
-        box.add(bounds);
+        double bottom = subAggregation.tlbr().bottomRight().latlon().lat();
+        double top = subAggregation.tlbr().topLeft().latlon().lat();
+        double right = subAggregation.tlbr().bottomRight().latlon().lon();
+        double left = subAggregation.tlbr().topLeft().latlon().lon();
 
+        List<LngLatAlt> bounds = new ArrayList<>();
+        bounds.add(new LngLatAlt(left, top));
+        bounds.add(new LngLatAlt(right, top));
+        bounds.add(new LngLatAlt(right, bottom));
+        bounds.add(new LngLatAlt(left, bottom));
+        bounds.add(new LngLatAlt(left, top));
+
+        Polygon box = new Polygon();
+        box.add(bounds);
         return box;
     }
 }

@@ -82,14 +82,10 @@ logging:
 arlas-index:  ${ARLAS_ELASTIC_INDEX:-.arlas}
 elastic:
   elastic-nodes: ${ARLAS_ELASTIC_NODES:-localhost:9200}
-  elastic-sniffing: ${ARLAS_ELASTIC_SNIFFING:-false}
   elastic-enable-ssl: ${ARLAS_ELASTIC_ENABLE_SSL:-false}
   elastic-credentials: ${ARLAS_ELASTIC_CREDENTIALS}
-  elastic-skip-master: ${ARLAS_ELASTIC_SKIP_MASTER:-true}
   elastic-socket-timeout: ${ARLAS_ELASTIC_SOCKET_TIMEOUT:-30000}
   elastic-max-precision-threshold: ${ARLAS_ELASTIC_MAX_PRECISON_THRESHOLD:-3000}
-
-
 ########################################################
 ############ CACHE                       ###############
 ########################################################
@@ -110,7 +106,6 @@ collection-auto-discover:
   preferred-timestamp-field-name: params.startdate
   preferred-centroid-field-name: geo_params.centroid
   preferred-geometry-field-name: geo,geo_params.geometry
-  preferred-h3-field-name: geo_params.h3
   schedule: ${ARLAS_COLLECTION_AUTODISCOVER_SCHEDULE:-0} # Set to 0 to disable the discovery
 
 ########################################################

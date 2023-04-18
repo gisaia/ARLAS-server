@@ -29,17 +29,11 @@ public class ElasticConfiguration {
     @JsonProperty("elastic-nodes")
     public String elasticnodes;
 
-    @JsonProperty("elastic-sniffing")
-    public Boolean elasticsniffing;
-
     @JsonProperty("elastic-enable-ssl")
     public Boolean elasticEnableSsl;
 
     @JsonProperty("elastic-credentials")
     public String elasticCredentials;
-
-    @JsonProperty("elastic-skip-master")
-    public Boolean elasticSkipMaster;
 
     @JsonProperty("elastic-socket-timeout")
     public Integer elasticSocketTimeout;
@@ -54,13 +48,10 @@ public class ElasticConfiguration {
         if (elasticEnableSsl == null) {
             elasticEnableSsl = false;
         }
-        if (elasticSkipMaster == null) {
-            elasticSkipMaster = true;
-        }
     }
 
     public static String[] getCredentials(String elasticCredentials) {
-        return elasticCredentials.indexOf(":") != -1 ?
+        return elasticCredentials.contains(":") ?
                 new String[]{ elasticCredentials.substring(0, elasticCredentials.indexOf(":")),
                         elasticCredentials.substring(elasticCredentials.indexOf(":") + 1) } :
                 new String[]{ elasticCredentials, "" };
@@ -76,7 +67,7 @@ public class ElasticConfiguration {
 
     public static HttpHost[] getElasticNodes(String esNodes, boolean enableSsl) {
         return Arrays.stream(esNodes.split(","))
-                .map(e -> e.indexOf(":") != -1 ?
+                .map(e -> e.contains(":") ?
                         new HttpHost(e.substring(0, e.indexOf(":")), Integer.parseInt(e.substring(e.indexOf(":") + 1)), enableSsl ? "https" : "http") :
                         new HttpHost(e, enableSsl ? 9243 : 9200, enableSsl ? "https" : "http"))
                 .toArray(HttpHost[]::new);

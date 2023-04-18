@@ -18,16 +18,23 @@
  */
 package io.arlas.server.core.utils;
 
+import co.elastic.clients.elasticsearch._types.mapping.Property;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.NotFoundException;
 import org.apache.commons.collections4.IteratorUtils;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings({"rawtypes"})
 public class CollectionUtil {
-    public static Map getFieldFromProperties(String field, LinkedHashMap properties) throws ArlasException {
+
+    public static boolean matches(String indexPattern, String indexName) {
+        return (indexPattern.endsWith("*") && indexName.startsWith(indexPattern.substring(0, indexPattern.indexOf("*"))))
+                            || indexPattern.equals(indexName);
+    }
+
+    public static Map getFieldFromProperties(String field, Map properties) throws ArlasException {
         if (properties == null) {
             throw new NotFoundException("Unable to find properties in index");
         }
@@ -47,11 +54,11 @@ public class CollectionUtil {
         return res;
     }
 
-    public static Map<String, LinkedHashMap> checkAliasMappingFields(Map<String, LinkedHashMap> mappings,
-                                                                     String... fields) throws ArlasException {
+    public static Map<String, Map<String, Object>> checkAliasMappingFields(Map<String, Map<String, Object>> mappings,
+                                                                             String... fields) throws ArlasException {
         List<String> indices = IteratorUtils.toList(mappings.keySet().iterator());
         for (String index : indices) {
-            LinkedHashMap properties = mappings.get(index);
+            Map properties = mappings.get(index);
             for (String field : fields) {
                 getFieldFromProperties(field, properties);
             }

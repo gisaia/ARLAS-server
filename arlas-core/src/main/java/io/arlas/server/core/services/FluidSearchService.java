@@ -54,7 +54,7 @@ public abstract class FluidSearchService {
     public static final String TERM_AGG = "Term aggregation";
     public static final String GEOHASH_AGG = "Geohash aggregation";
     public static final String GEOTILE_AGG = "Geotile aggregation";
-    public static final String H3_AGG = "H3 aggregation";
+    public static final String GEOHEX_AGG = "Geohex aggregation";
     public static final String FETCH_HITS_AGG = "fetched_hits";
     public static final String GEO_DISTANCE = "geodistance";
     public static final String NO_INCLUDE_TO_SPECIFY = "'include-' should not be specified for this aggregation";
@@ -99,7 +99,6 @@ public abstract class FluidSearchService {
         return Arrays.asList(collectionReference.params.idPath,
                 collectionReference.params.geometryPath,
                 collectionReference.params.centroidPath,
-                collectionReference.params.h3Path,
                 collectionReference.params.timestampPath);
     }
 
@@ -176,8 +175,8 @@ public abstract class FluidSearchService {
                 return HISTOGRAM_AGG;
             case term:
                 return TERM_AGG;
-            case h3:
-                return H3_AGG;
+            case geohex:
+                return GEOHEX_AGG;
             default:
                 LOGGER.warn("Getting name for a non defined aggregation type: " + aggName);
                 return aggName;
@@ -190,7 +189,7 @@ public abstract class FluidSearchService {
 
     public abstract FluidSearchService compute(String field, ComputationEnum metric, int precisionThresold) throws ArlasException;
 
-    abstract public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat) throws ArlasException;
+    abstract public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat, Boolean rightHand) throws ArlasException;
 
     abstract public FluidSearchService filterQ(MultiValueFilter<String> q) throws ArlasException;
 

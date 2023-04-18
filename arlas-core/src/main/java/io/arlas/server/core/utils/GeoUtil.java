@@ -34,6 +34,9 @@ import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.locationtech.jts.operation.valid.IsValidOp;
 import org.locationtech.jts.operation.valid.TopologyValidationError;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.io.GeohashUtils;
+import org.locationtech.spatial4j.shape.Rectangle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -198,7 +201,7 @@ public class GeoUtil {
         Geometry middleEast = geometryFactory.toGeometry(new Envelope(0, 180, -90, 90));
         if (envelopeEast <= 180 && envelopeWest >= -180) {
             /** longitudes between -180 and 180**/
-            if ((envelopeEast - envelopeWest) > 180) {
+            if ((envelopeEast - envelopeWest) > 360) {
                 geometries = Arrays.asList(middleWest.intersection(polygon), middleEast.intersection(polygon))
                         .stream().filter(g ->!isPolygonEmpty(g) && CheckParams.isPolygon(g)).map(g -> (Polygon)g).collect(Collectors.toList());
             } else {
@@ -346,5 +349,18 @@ public class GeoUtil {
         res.setSRID(res.getSRID());
         res.setUserData(ring.getUserData());
         return res;
+    }
+
+    public static org.geojson.Point getGeohashCentre(String geohash) {
+        Rectangle bbox = GeohashUtils.decodeBoundary(geohash, SpatialContext.GEO);
+        Double maxLon = bbox.getMaxX();
+        Double minLon = bbox.getMinX();
+        double lon = (maxLon + minLon) / 2;
+
+        Double maxLat = bbox.getMaxY();
+        Double minLat = bbox.getMinY();
+        double lat = (maxLat + minLat) / 2;
+
+        return new org.geojson.Point(lat, lon);
     }
 }
