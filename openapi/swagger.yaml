@@ -1866,7 +1866,7 @@ paths:
         "200":
           description: "Successful operation"
           schema:
-            $ref: "#/definitions/Hit"
+            $ref: "#/definitions/ArlasHit"
         "500":
           description: "Arlas Server Error."
           schema:
@@ -3170,6 +3170,8 @@ definitions:
         type: "string"
       centroid_path:
         type: "string"
+      h3_path:
+        type: "string"
       timestamp_path:
         type: "string"
       exclude_fields:
@@ -3670,6 +3672,7 @@ definitions:
         - "geotile"
         - "histogram"
         - "term"
+        - "geohex"
       field:
         type: "string"
       interval:
@@ -3834,6 +3837,13 @@ definitions:
         - "SPANNING"
         - "GEOBBOX"
         - "GEOCENTROID"
+  ArlasHit:
+    type: "object"
+    properties:
+      md:
+        $ref: "#/definitions/MD"
+      data:
+        type: "object"
   Geo:
     type: "object"
     properties:
@@ -3841,13 +3851,6 @@ definitions:
         type: "string"
       geometry:
         $ref: "#/definitions/GeoJsonObject"
-  Hit:
-    type: "object"
-    properties:
-      md:
-        $ref: "#/definitions/MD"
-      data:
-        type: "object"
   Hits:
     type: "object"
     properties:
@@ -3856,7 +3859,7 @@ definitions:
       hits:
         type: "array"
         items:
-          $ref: "#/definitions/Hit"
+          $ref: "#/definitions/ArlasHit"
       nbhits:
         type: "integer"
         format: "int64"

@@ -1428,7 +1428,7 @@
           "200" : {
             "description" : "Successful operation",
             "schema" : {
-              "$ref" : "#/definitions/Hit"
+              "$ref" : "#/definitions/ArlasHit"
             }
           },
           "500" : {
@@ -2562,6 +2562,9 @@
         "centroid_path" : {
           "type" : "string"
         },
+        "h3_path" : {
+          "type" : "string"
+        },
         "timestamp_path" : {
           "type" : "string"
         },
@@ -3289,7 +3292,7 @@
       "properties" : {
         "type" : {
           "type" : "string",
-          "enum" : [ "datehistogram", "geohash", "geotile", "histogram", "term", "h3" ]
+          "enum" : [ "datehistogram", "geohash", "geotile", "histogram", "term", "geohex" ]
         },
         "field" : {
           "type" : "string"
@@ -3474,6 +3477,17 @@
         }
       }
     },
+    "ArlasHit" : {
+      "type" : "object",
+      "properties" : {
+        "md" : {
+          "$ref" : "#/definitions/MD"
+        },
+        "data" : {
+          "type" : "object"
+        }
+      }
+    },
     "Geo" : {
       "type" : "object",
       "properties" : {
@@ -3482,17 +3496,6 @@
         },
         "geometry" : {
           "$ref" : "#/definitions/GeoJsonObject"
-        }
-      }
-    },
-    "Hit" : {
-      "type" : "object",
-      "properties" : {
-        "md" : {
-          "$ref" : "#/definitions/MD"
-        },
-        "data" : {
-          "type" : "object"
         }
       }
     },
@@ -3505,7 +3508,7 @@
         "hits" : {
           "type" : "array",
           "items" : {
-            "$ref" : "#/definitions/Hit"
+            "$ref" : "#/definitions/ArlasHit"
           }
         },
         "nbhits" : {

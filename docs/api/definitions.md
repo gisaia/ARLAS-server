@@ -18,7 +18,7 @@
 |**order**  <br>*optional*|enum (asc, desc)|
 |**raw_geometries**  <br>*optional*|< [RawGeometry](#rawgeometry) > array|
 |**size**  <br>*optional*|string|
-|**type**  <br>*optional*|enum (datehistogram, geohash, geotile, histogram, term, h3)|
+|**type**  <br>*optional*|enum (datehistogram, geohash, geotile, histogram, term, geohex)|
 
 
 <a name="aggregationmetric"></a>
@@ -59,6 +59,15 @@
 |**aggregations**  <br>*optional*|< [Aggregation](#aggregation) > array|
 |**filter**  <br>*optional*|[Filter](#filter)|
 |**form**  <br>*optional*|[Form](#form)|
+
+
+<a name="arlashit"></a>
+### ArlasHit
+
+|Name|Schema|
+|---|---|
+|**data**  <br>*optional*|object|
+|**md**  <br>*optional*|[MD](#md)|
 
 
 <a name="bbox"></a>
@@ -138,6 +147,7 @@
 |**exclude_wfs_fields**  <br>*optional*|string|
 |**filter**  <br>*optional*|[Filter](#filter)|
 |**geometry_path**  <br>*required*|string|
+|**h3_path**  <br>*optional*|string|
 |**id_path**  <br>*required*|string|
 |**index_name**  <br>*required*|string|
 |**inspire**  <br>*optional*|[Inspire](#inspire)|
@@ -335,22 +345,13 @@
 |**geometries**  <br>*optional*|< [GeoJsonObject](#geojsonobject) > array|
 
 
-<a name="hit"></a>
-### Hit
-
-|Name|Schema|
-|---|---|
-|**data**  <br>*optional*|object|
-|**md**  <br>*optional*|[MD](#md)|
-
-
 <a name="hits"></a>
 ### Hits
 
 |Name|Schema|
 |---|---|
 |**collection**  <br>*optional*|string|
-|**hits**  <br>*optional*|< [Hit](#hit) > array|
+|**hits**  <br>*optional*|< [ArlasHit](#arlashit) > array|
 |**links**  <br>*optional*|< string, [Link](#link) > map|
 |**nbhits**  <br>*optional*|integer (int64)|
 |**totalnb**  <br>*optional*|integer (int64)|

@@ -1277,7 +1277,7 @@ Returns a raw indexed document.
 
 |HTTP Code|Description|Schema|
 |---|---|---|
-|**200**|Successful operation|[Hit](#hit)|
+|**200**|Successful operation|[ArlasHit](#arlashit)|
 |**400**|Bad request.|[Error](#error)|
 |**404**|Not Found Error.|[Error](#error)|
 |**500**|Arlas Server Error.|[Error](#error)|

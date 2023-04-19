@@ -1,5 +1,13 @@
 # Change Log
 
+## [v24.0.0](https://github.com/gisaia/ARLAS-server/tree/v24.0.0) (2023-04-18)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.9...v24.0.0)
+
+**New stuff:**
+
+- Show only public collections to anonymous users [\#889](https://github.com/gisaia/ARLAS-server/issues/889)
+
 ## [v23.0.9](https://github.com/gisaia/ARLAS-server/tree/v23.0.9) (2023-02-10)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.8-doc.2...v23.0.9)
