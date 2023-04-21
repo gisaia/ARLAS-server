@@ -1,6 +1,14 @@
 # Change Log
 
-## [v24.0.0](https://github.com/gisaia/ARLAS-server/tree/v24.0.0) (2023-04-18)
+## [v24.0.1](https://github.com/gisaia/ARLAS-server/tree/v24.0.1) (2023-04-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.0.0...v24.0.1)
+
+**Miscellaneous:**
+
+- \[es\] Migrate to new Java ES client [\#765](https://github.com/gisaia/ARLAS-server/issues/765)
+
+## [v24.0.0](https://github.com/gisaia/ARLAS-server/tree/v24.0.0) (2023-04-19)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.9...v24.0.0)
 
