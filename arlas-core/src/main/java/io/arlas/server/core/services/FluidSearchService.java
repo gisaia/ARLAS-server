@@ -139,9 +139,6 @@ public abstract class FluidSearchService {
                     .toArray(new String[0]): new String[]{"*"};
         }
         String[] excludeFields = exclude.toArray(new String[exclude.size()]);
-        if (excludeFields.length == 0) {
-            excludeFields = null;
-        }
         return Pair.of(includeFields, excludeFields);
     }
 
