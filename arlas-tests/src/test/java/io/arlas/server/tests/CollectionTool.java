@@ -69,6 +69,10 @@ public class CollectionTool extends AbstractTestContext {
     }
 
     public  void load(long sleepAfter) throws ArlasException {
+        load(sleepAfter, true);
+    }
+
+    public  void load(long sleepAfter, boolean exclude) throws ArlasException {
 
         try {
             DataSetTool.loadDataSet();
@@ -87,7 +91,7 @@ public class CollectionTool extends AbstractTestContext {
         params.geometryPath = DataSetTool.WKT_GEOMETRIES ? DataSetTool.DATASET_WKT_GEOMETRY_PATH:DataSetTool.DATASET_GEOMETRY_PATH;
         params.centroidPath = DataSetTool.DATASET_CENTROID_PATH;
         params.timestampPath = DataSetTool.DATASET_TIMESTAMP_PATH;
-        params.excludeFields = DataSetTool.DATASET_EXCLUDE_FIELDS;
+        if (exclude) params.excludeFields = DataSetTool.DATASET_EXCLUDE_FIELDS;
         params.excludeWfsFields = DataSetTool.DATASET_EXCLUDE_WFS_FIELDS;
         params.rasterTileURL = DataSetTool.DATASET_TILE_URL;
         params.rasterTileWidth=256;
