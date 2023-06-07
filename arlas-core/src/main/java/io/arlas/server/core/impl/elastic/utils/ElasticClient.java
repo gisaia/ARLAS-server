@@ -290,7 +290,6 @@ public class ElasticClient {
                     CollectionReferenceParameters.class);
             if (cr.found()) {
                 collection.params = cr.source();
-                LOGGER.debug("****** getCollectionReferenceFromES cr=" + collection.params);
             } else {
                 throw new NotFoundException("Collection " + ref + " not found.");
             }

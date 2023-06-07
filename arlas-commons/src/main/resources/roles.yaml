@@ -20,13 +20,15 @@ technicalRoles:
 # ARLAS permissions
     - r:authorize/resources:GET
 # ARLAS IAM session management
-    - r:session:POST,DELETE
-    - r:session/.*:PUT
+    - r:session:DELETE
     - r:permissions:GET
 
   role/arlas/tagger:
     - r:write/.*:POST
     - r:status/.*:GET
+
+  role/arlas/datasets:
+    - r:datasets/.*:GET,PUT,POST,DELETE
 
   role/arlas/builder:
     - r:collections:GET
@@ -36,27 +38,28 @@ technicalRoles:
     - r:persist/resource/.*:PUT,POST,DELETE
 
   role/arlas/owner:
-# ARLAS city
+    - r:permissions:GET
+    - r:collections:GET
+    - r:organisations:GET,POST
+    - r:organisations/.*:GET,POST,PUT,DELETE
+    - r:users/.*:GET,PUT,DELETE
+    - r:session:DELETE
+
+  role/city/user:
     - r:storage/.*:GET,DELETE
     - r:data/.*:GET,POST,DELETE
     - r:process/.*:GET,POST
     - r:usage:GET
-# ARLAS IAM
-    - r:organisations:GET,POST
-    - r:organisations/.*:GET,POST,PUT,DELETE
-    - r:users:POST
-    - r:users/.*:GET,PUT,POST,DELETE
 
 # M2M role
-  role/arlas/importer:
+  role/m2m/importer:
     - r:collections/_import:POST
+    - r:organisations/.*:GET
 
 # IAM super admin role
   role/iam/admin:
     - r:organisations:GET,POST
     - r:organisations/.*:GET,POST,DELETE
-    - r:users:POST
-    - r:users/.*:GET,PUT,POST,DELETE
-    - r:session:POST,DELETE
-    - r:session/.*:PUT
+    - r:users/.*:GET,PUT,DELETE
+    - r:session:DELETE
     - r:permissions:GET
