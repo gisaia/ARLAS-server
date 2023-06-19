@@ -24,6 +24,9 @@ public final class ServerConstants {
     public static final String PARTITION_FILTER = "partition-filter";
     public static final String ARLAS_ORGANISATION = "arlas-organization";
     public static final String ARLAS_ORG_FILTER = "arlas-org-filter";
+    public static final String ARLAS_API_KEY = "apiKey";
+    public static final String ARLAS_API_KEY_ID = "arlas-api-key-id";
+    public static final String ARLAS_API_KEY_SECRET = "arlas-api-key-secret";
     public static final String NO_ORG = "";
 
     private ServerConstants() { }

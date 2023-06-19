@@ -44,8 +44,7 @@ import javax.ws.rs.ext.Provider;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORG_FILTER;
-import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.*;
 import static io.arlas.filter.config.TechnicalRoles.VAR_ORG;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
@@ -160,22 +159,31 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
         try {
             Transaction transaction = ElasticApm.currentTransaction();
             boolean isPublic = ctx.getUriInfo().getPath().concat(":").concat(ctx.getMethod()).matches(authConf.getPublicRegex());
-            String header = ctx.getHeaderString(HttpHeaders.AUTHORIZATION);
-            if (header == null || !header.toLowerCase().startsWith("bearer ")) {
-                if (!isPublic && !"OPTIONS".equals(ctx.getMethod())) {
-                    logUAM(DENIED, "unauthorized (no token): " + log);
-                    ctx.abortWith(Response.status(UNAUTHORIZED).build());
-                } else {
-                    if (!"OPTIONS".equals(ctx.getMethod())) {
-                        logUAM(ALLOWED, "public (no token): " + log);
+            boolean isApiKey = false;
+            String keyIdHeader = ctx.getHeaderString(ARLAS_API_KEY_ID);
+            String keySecretHeader = ctx.getHeaderString(ARLAS_API_KEY_SECRET);
+            String authHeader = ctx.getHeaderString(HttpHeaders.AUTHORIZATION);
+            if (keyIdHeader != null && keySecretHeader != null) {
+                isApiKey = true;
+            } else {
+                if (authHeader == null || !authHeader.toLowerCase().startsWith("bearer ")) {
+                    if (!isPublic && !"OPTIONS".equals(ctx.getMethod())) {
+                        logUAM(DENIED, "unauthorized (no token): " + log);
+                        ctx.abortWith(Response.status(UNAUTHORIZED).build());
+                    } else {
+                        if (!"OPTIONS".equals(ctx.getMethod())) {
+                            logUAM(ALLOWED, "public (no token): " + log);
+                        }
+                        // use a dummy CF in order to bypass the CFUtil and give access to public collections
+                        ctx.getHeaders().add(COLUMN_FILTER, "ThisIsADummyColumnFilter");
                     }
-                    // use a dummy CF in order to bypass the CFUtil and give access to public collections
-                    ctx.getHeaders().add(COLUMN_FILTER, "ThisIsADummyColumnFilter");
+                    return;
                 }
-                return;
             }
 
-            String accessToken = header.substring(7);
+            String accessToken = isApiKey ?
+                    String.join(":", ARLAS_API_KEY, keyIdHeader, keySecretHeader)
+                    : authHeader.substring(7);
             try {
                 Boolean ok = cacheManager.getDecision(getDecisionCacheKey(ctx, accessToken));
                 if (ok != null && !ok) {
