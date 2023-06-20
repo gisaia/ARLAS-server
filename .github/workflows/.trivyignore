@@ -1,6 +1,0 @@
-# update com.fasterxml.jackson.dataformat:jackson-dataformat-cbor to 2.11.4, 2.12.1
-CVE-2020-28491
-# update org.yaml:snakeyaml to 2.0
-CVE-2022-1471
-# A stack overflow in the XML.toJSONObject component of hutool-json v5.8.10 allows attackers to cause a Denial of Service (DoS) via crafted JSON or XML data.
-CVE-2022-45688
