@@ -83,6 +83,7 @@ arlas-index:  ${ARLAS_ELASTIC_INDEX:-.arlas}
 elastic:
   elastic-nodes: ${ARLAS_ELASTIC_NODES:-localhost:9200}
   elastic-enable-ssl: ${ARLAS_ELASTIC_ENABLE_SSL:-false}
+  elastic-ignore-certs: ${ARLAS_ELASTIC_IGNORE_CERTS:-true}
   elastic-credentials: ${ARLAS_ELASTIC_CREDENTIALS}
   elastic-socket-timeout: ${ARLAS_ELASTIC_SOCKET_TIMEOUT:-30000}
   elastic-max-precision-threshold: ${ARLAS_ELASTIC_MAX_PRECISON_THRESHOLD:-3000}

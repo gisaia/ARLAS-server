@@ -29,6 +29,7 @@ import co.elastic.clients.elasticsearch.indices.GetMappingResponse;
 import co.elastic.clients.elasticsearch.indices.get_field_mapping.TypeFieldMappings;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.TransportUtils;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,15 +48,26 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509ExtendedTrustManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.Socket;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,17 +82,71 @@ public class ElasticClient {
     private final ElasticsearchClient client;
     private final JacksonJsonpMapper mapper;
 
+    private static final X509ExtendedTrustManager TRUST_MANAGER = new X509ExtendedTrustManager() {
+        @Override
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s, Socket socket) throws CertificateException {
+
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s, Socket socket) throws CertificateException {
+
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s, SSLEngine sslEngine) throws CertificateException {
+
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s, SSLEngine sslEngine) throws CertificateException {
+
+        }
+    };
+
     public ElasticClient(ElasticConfiguration configuration) {
         // disable JVM default policies of caching positive hostname resolutions indefinitely
         // because the Elastic load balancer can change IP addresses
         java.security.Security.setProperty("networkaddress.cache.ttl", "60");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "0");
 
+        SSLContext context = null;
+        try {
+            context = SSLContext.getInstance("TLS");
+            context.init(null, new TrustManager[]{TRUST_MANAGER}, new SecureRandom());
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            throw new RuntimeException("Could not create SSL context", e);
+        }
+        final SSLContext finalContext = context;
+
         // Create the low-level client
         RestClientBuilder restClientBuilder = RestClient.builder(configuration.getElasticNodes());
         restClientBuilder.setHttpClientConfigCallback(
-                httpClientBuilder -> httpClientBuilder
-                        .setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(configuration.elasticSocketTimeout).build()));
+                httpClientBuilder -> {
+                    httpClientBuilder
+                        .setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(configuration.elasticSocketTimeout).build());
+                    if (configuration.elasticIgnoreCerts) {
+                        httpClientBuilder.setSSLContext(finalContext);
+                    }
+                    return httpClientBuilder;
+                }
+        );
+
         // Authentication needed ?
         if (!StringUtil.isNullOrEmpty(configuration.elasticCredentials)) {
             String[] credentials = ElasticConfiguration.getCredentials(configuration.elasticCredentials);
@@ -88,8 +154,16 @@ public class ElasticClient {
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(credentials[0], credentials[1]));
 
             restClientBuilder.setHttpClientConfigCallback(
-                    httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
-                            .setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(configuration.elasticSocketTimeout).build()));
+                    httpClientBuilder -> {
+                        httpClientBuilder
+                                .setDefaultCredentialsProvider(credentialsProvider)
+                                .setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(configuration.elasticSocketTimeout).build());
+                        if (configuration.elasticIgnoreCerts) {
+                            httpClientBuilder.setSSLContext(finalContext);
+                        }
+                        return httpClientBuilder;
+                    }
+            );
         }
         mapper = new JacksonJsonpMapper();
         // Create the transport with a Jackson mapper
