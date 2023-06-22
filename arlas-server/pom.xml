@@ -4,21 +4,21 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.arlas</groupId>
   <artifactId>arlas-server</artifactId>
-  <version>24.0.2-SNAPSHOT</version>
+  <version>24.0.2</version>
   <packaging>jar</packaging>
   <name>ARLAS server</name>
 
   <parent>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-server-parent</artifactId>
-    <version>24.0.2-SNAPSHOT</version>
+    <version>24.0.2</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-rest</artifactId>
-      <version>24.0.2-SNAPSHOT</version>
+      <version>24.0.2</version>
       <exclusions>
         <exclusion>
           <artifactId>jackson-dataformat-yaml</artifactId>
@@ -34,7 +34,7 @@
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-opensearch</artifactId>
-      <version>24.0.2-SNAPSHOT</version>
+      <version>24.0.2</version>
       <exclusions>
         <exclusion>
           <artifactId>jakarta.xml.bind-api</artifactId>
@@ -45,22 +45,22 @@
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>ogc-csw</artifactId>
-      <version>24.0.2-SNAPSHOT</version>
+      <version>24.0.2</version>
     </dependency>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>ogc-wfs</artifactId>
-      <version>24.0.2-SNAPSHOT</version>
+      <version>24.0.2</version>
     </dependency>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>stac-api</artifactId>
-      <version>24.0.2-SNAPSHOT</version>
+      <version>24.0.2</version>
     </dependency>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-admin</artifactId>
-      <version>24.0.2-SNAPSHOT</version>
+      <version>24.0.2</version>
     </dependency>
 
     <dependency>
