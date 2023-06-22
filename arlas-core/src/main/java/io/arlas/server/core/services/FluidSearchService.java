@@ -139,6 +139,7 @@ public abstract class FluidSearchService {
                     .toArray(new String[0]): new String[]{"*"};
         }
         String[] excludeFields = exclude.toArray(new String[exclude.size()]);
+        // returning null tiggers a null pointer exception if we apply 'pair.getRight()'
         return Pair.of(includeFields, excludeFields);
     }
 

@@ -22,6 +22,7 @@ package io.arlas.server.core.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.model.enumerations.GeoTypeEnum;
 import io.arlas.server.core.model.request.Filter;
 
@@ -120,6 +121,10 @@ public class CollectionReferenceParameters implements Serializable {
     }
 
     public GeoTypeEnum getGeometryType(String path) {
+        // if the path is not defined, return null
+        if (StringUtil.isNullOrEmpty(path)) {
+            return null;
+        }
         return this.geoTypes.get(path);
     }
 
