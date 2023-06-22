@@ -143,7 +143,8 @@ public class ElasticExploreService extends ExploreService {
         hits.totalnb = searchHits.total().value();
         hits.nbhits = searchHits.hits().size();
         hits.hits = new ArrayList<>((int) hits.nbhits);
-        List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> searchHitList = searchHits.hits();
+        // searchHitList should be a modifiable list in order to apply the Collections.reverse.
+        ArrayList<co.elastic.clients.elasticsearch.core.search.Hit<Map>> searchHitList = new ArrayList<>(searchHits.hits());
         if(searchRequest.page != null && searchRequest.page.before != null ){
             Collections.reverse(searchHitList);
         }
