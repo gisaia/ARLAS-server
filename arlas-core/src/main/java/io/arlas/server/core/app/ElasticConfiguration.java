@@ -32,6 +32,9 @@ public class ElasticConfiguration {
     @JsonProperty("elastic-enable-ssl")
     public Boolean elasticEnableSsl;
 
+    @JsonProperty("elastic-ignore-certs")
+    public Boolean elasticIgnoreCerts = true;
+
     @JsonProperty("elastic-credentials")
     public String elasticCredentials;
 
