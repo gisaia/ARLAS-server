@@ -157,6 +157,10 @@ public abstract class FluidSearchService {
         return collectionReferenceManager.getCollectionReferenceService().isDateField(field, collectionReference.params.indexName);
     }
 
+    public boolean isTextField(String field) throws ArlasException {
+        return collectionReferenceManager.getCollectionReferenceService().isTextField(field, collectionReference.params.indexName);
+    }
+
     public boolean isGeoField(String field) throws ArlasException {
         return collectionReferenceManager.getCollectionReferenceService().isGeoField(field, collectionReference.params.indexName);
     }

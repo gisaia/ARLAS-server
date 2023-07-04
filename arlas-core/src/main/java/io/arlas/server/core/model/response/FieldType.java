@@ -69,6 +69,10 @@ public enum FieldType {
         return Arrays.asList(DATE, TIMESTAMP, TIME).contains(this);
     }
 
+    public boolean isTextField() {
+        return Arrays.asList(TEXT).contains(this);
+    }
+
     public boolean isGeoField() {
         return Arrays.asList(GEO_POINT, GEO_SHAPE).contains(this);
     }

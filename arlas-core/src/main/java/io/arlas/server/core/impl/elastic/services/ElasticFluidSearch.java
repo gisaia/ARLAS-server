@@ -174,8 +174,11 @@ public class ElasticFluidSearch extends FluidSearchService {
                 ret = ret.filter(ltRangeQuery.build()._toQuery());
                 break;
             case like:
-                // TODO: if field type is fullText, use matchPhraseQuery instead of regexQuery
-                ret = ret.filter(QueryBuilders.regexp().field(field).value(".*" + value + ".*").build()._toQuery());
+                if (isTextField(field)) {
+                    ret = ret.filter(QueryBuilders.matchPhrasePrefix().field(field).query(value).build()._toQuery());
+                } else {
+                    ret = ret.filter(QueryBuilders.regexp().field(field).value(".*" + value + ".*").build()._toQuery());
+                }
                 break;
             case ne:
                 for (String valueInValues : fieldValues) {

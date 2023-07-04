@@ -25,14 +25,11 @@ import co.elastic.clients.elasticsearch._types.HealthStatus;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.indices.GetFieldMappingResponse;
-import co.elastic.clients.elasticsearch.indices.GetMappingResponse;
 import co.elastic.clients.elasticsearch.indices.get_field_mapping.TypeFieldMappings;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
-import co.elastic.clients.transport.TransportUtils;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.BadRequestException;
 import io.arlas.commons.exceptions.InternalServerErrorException;
@@ -48,7 +45,6 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
@@ -71,6 +67,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.arlas.server.core.model.CollectionReference.INCLUDE_FIELDS;
@@ -240,10 +237,20 @@ public class ElasticClient {
         try {
             final Map<String, Map<String, Object>> res = new HashMap<>();
             if (index != null) {
+                AtomicBoolean isPattern = new AtomicBoolean(true);
+                AtomicReference<Map> lastMapping = new AtomicReference<>(new HashMap());
                 client.indices()
                         .getMapping(b -> b.index(index))
                         .result()
-                        .forEach((_index, _record) -> res.put(_index, toMap(_record.mappings().properties())));
+                        .forEach((_index, _record) -> {
+                            isPattern.set(!_index.equals(index));
+                            res.put(_index, toMap(_record.mappings().properties()));
+                            lastMapping.set(toMap(_record.mappings().properties()));
+                        });
+                if (isPattern.get()) {
+                    /** This line gives the index pattern a mapping as well, this will allow us know the field type for collections declared with index_name as patterns.*/
+                    res.put(index, lastMapping.get());
+                }
             } else {
                 client.indices()
                         .getMapping()
