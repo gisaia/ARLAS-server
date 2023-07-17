@@ -94,6 +94,13 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     }
 
     @Override
+    protected void handleTextFieldLikeFilter(ValidatableResponse then, int nbResults, String searchedText) throws Exception {
+        then.statusCode(200)
+                .body("features.properties.text_search", everyItem(containsString(searchedText)))
+                .body("features.properties.feature_type", everyItem(equalTo("hit")));
+    }
+
+    @Override
     protected void handleMatchingQueryFilter(ValidatableResponse then, int nbResults) throws Exception {
         then.statusCode(200)
                 .body("features.size()", equalTo(Math.min(nbResults, 10)));//get only default sized result array

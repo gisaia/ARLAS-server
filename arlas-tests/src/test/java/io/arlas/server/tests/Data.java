@@ -24,6 +24,7 @@ import org.geojson.Polygon;
 public class Data {
     public String id;
     public String fullname;
+    public String text_search;
     public DataParams params = new DataParams();
     public GeometryParams geo_params = new GeometryParams();
 

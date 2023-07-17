@@ -76,6 +76,8 @@ public class DataSetTool {
             "Australia",
             "Austria"
     };
+    public static final String[] words = {"Ice cream", "Ice", "Bubble", "Cookie", "Cupcake", "Candy", "Brownie", "Chocolate", "Jellybean", "Donut", "Lollipop"};
+
 
     public static ElasticClient client;
     public static boolean ALIASED_COLLECTION;
@@ -136,6 +138,7 @@ public class DataSetTool {
                 data = new Data();
                 data.id = ("ID_" + i + "_" + j + "DI").replace("-", "_");
                 data.fullname = "My name is " + data.id;
+                data.text_search = "Search the word " + words[((Math.abs(i) + Math.abs(j)) / 10) % (words.length - 1)];
                 data.params.age = Math.abs(i * j);
                 data.params.startdate = (long) (i + 1000) * (j + 1000);
                 if (data.params.startdate >= 1013600) {

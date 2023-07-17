@@ -69,6 +69,11 @@ public class CountServiceIT extends AbstractFilteredTest {
     protected void handleFieldFilter(ValidatableResponse then, int nbResults) throws Exception {
         handleMatchingFilter(then, nbResults);
     }
+    @Override
+    protected void handleTextFieldLikeFilter(ValidatableResponse then, int nbResults, String searchedText) throws Exception {
+        handleFieldFilter(then, nbResults);
+    }
+
 
 
     @Override

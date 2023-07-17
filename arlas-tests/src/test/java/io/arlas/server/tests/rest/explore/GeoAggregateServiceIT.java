@@ -351,6 +351,12 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
+    protected void handleTextFieldLikeFilter(ValidatableResponse then, int nbResults, String searchedText) throws Exception {
+        handleFieldFilter(then, nbResults);
+    }
+
+
+    @Override
     protected void handleMatchingQueryFilter(ValidatableResponse then, int nbResults) throws Exception {
         then.statusCode(200)
                 .body("features.size()", equalTo(nbResults));

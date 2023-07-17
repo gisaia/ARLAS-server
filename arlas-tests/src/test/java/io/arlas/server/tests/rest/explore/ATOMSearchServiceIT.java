@@ -113,6 +113,20 @@ public class ATOMSearchServiceIT extends AbstractProjectedTest {
     }
 
     @Override
+    protected void handleTextFieldLikeFilter(ValidatableResponse then, int nbResults, String searchedText) throws Exception {
+        if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
+            then.statusCode(200)
+                    .body(ATOM.XML_PREFIX + ":feed.totalResults", equalTo("" + nbResults))
+                    .body(ATOM.XML_PREFIX + ":feed.entry.content.text_search", everyItem(containsString(searchedText)));
+        } else {
+            then.statusCode(200)
+                    .body("totalnb", equalTo(nbResults))
+                    .body("hits.data.text_search", everyItem(containsString(searchedText)));
+        }
+    }
+
+
+    @Override
     protected void handleFieldFilter(ValidatableResponse then, int nbResults) throws Exception {
         if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
             then.statusCode(200)
