@@ -54,11 +54,7 @@ public class MapExplorer {
                 return getObjectFromPath(newPath.toString(), ((CollectionReferenceDescriptionProperty) source).properties.get(pathLevels[0]));
             } else if(source instanceof JsonData && ((JsonData) source).toJson().asJsonObject().containsKey(pathLevels[0])) {
                 Map<String,JsonData> data = null;
-                try {
-                    data = mapper.readValue(source.toString(), Map.class);
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
+                data = ((JsonData) source).to(Map.class);
                 return getObjectFromPath(newPath.toString(), ((Map) data).get(pathLevels[0]));
             }
                 return null;

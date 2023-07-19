@@ -478,11 +478,7 @@ public class ElasticExploreService extends ExploreService {
                     subAggregationResponse = null;
                     element.hits = new ArrayList<>();
                     for (int i = 0; i < subAgg.topHits().hits().hits().size(); i++) {
-                        try {
-                            element.hits.add(mapper.readValue(subAgg.topHits().hits().hits().get(i).source().toString(), Map.class));
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        }
+                        element.hits.add(subAgg.topHits().hits().hits().get(i).source().to(Map.class));
                     }
                 } else if (key.contains(TERM_AGG) || key.contains(DATEHISTOGRAM_AGG) || key.contains(HISTOGRAM_AGG)
                         || key.contains(GEOTILE_AGG) || key.contains(GEOHASH_AGG)) {
@@ -518,11 +514,7 @@ public class ElasticExploreService extends ExploreService {
                         if(includeFetchHits){
                             element.hits = new ArrayList<>();
                             for (int i = 0; i < hits.size(); i++) {
-                                try {
-                                    element.hits.add(mapper.readValue(hits.get(i).source().toString(),Map.class));
-                                } catch (JsonProcessingException e) {
-                                    e.printStackTrace();
-                                }
+                                element.hits.add(hits.get(i).source().to(Map.class));
                             }
                         }
                         for (Hit<JsonData> hit: hits) {
