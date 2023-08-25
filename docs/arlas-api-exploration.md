@@ -285,7 +285,7 @@ When dealing with multi collections, filter can also be specified in a JSON map 
 
 #### Column filtering
 
-A coma-separated list of columns can be passed in request header `column-filter`. Wildcards are supported.
+A comma-separated list of columns can be passed in request header `column-filter`. Wildcards are supported.
 
 A column filter stands for the fields that are available to a request body:
 

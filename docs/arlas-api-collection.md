@@ -46,7 +46,7 @@ A **collection reference** is the description of the elasticsearch index and the
 
 ## Filtering
 
-A coma-separated list of columns can be passed in request header `column-filter`. Wildcards are supported.
+A comma-separated list of columns can be passed in request header `column-filter`. Wildcards are supported.
 
 A column filter stands for the fields that are available to a request body:
 - if a request body field doesn't belong to the column filter, a 403 is returned with the message `The field '%s' isn't available` or `The fields '%s' aren't available`;

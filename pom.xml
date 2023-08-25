@@ -50,12 +50,12 @@
     <!-- TESTS -->
     <junit.version>4.13.2</junit.version>
     <org.hamcrest.version>2.2</org.hamcrest.version>
-    <io.rest-assured.version>5.3.0</io.rest-assured.version>
+    <io.rest-assured.version>5.3.1</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
     <dropwizard.version>2.1.7</dropwizard.version>
     <dropwizard.swagger.version>2.0.12-1</dropwizard.swagger.version>
-    <swaggerv3.version>2.2.12</swaggerv3.version>
+    <swaggerv3.version>2.2.15</swaggerv3.version>
     <jaxb.version>2.3.8</jaxb.version>
     <jersey-media-jaxb.version>2.39</jersey-media-jaxb.version>
     <activation.version>2.1.0</activation.version>
@@ -65,20 +65,20 @@
     <hazelcast.version>5.3.1</hazelcast.version>
 
     <!-- ELASTICSEARCH-->
-    <elastic.version>8.8.2</elastic.version>
+    <elastic.version>8.9.1</elastic.version>
 
     <!-- GEO-->
-    <geotools.version>29.0</geotools.version>
-    <protobuf.version>3.23.3</protobuf.version>
+    <geotools.version>29.2</geotools.version>
+    <protobuf.version>3.24.0</protobuf.version>
     <geojson.jackson.version>1.14</geojson.jackson.version>
     <spatial4j.version>0.8</spatial4j.version>
     <jts.version>1.19.0</jts.version>
-    <h3.version>4.0.2</h3.version>
+    <h3.version>4.1.1</h3.version>
 
     <!-- AUTH -->
     <jwt.version>3.19.2</jwt.version>
-    <elastic-apm.version>1.36.0</elastic-apm.version>
-    <keycloak.version>22.0.0</keycloak.version>
+    <elastic-apm.version>1.41.1</elastic-apm.version>
+    <keycloak.version>22.0.1</keycloak.version>
 
     <nv-i18n.version>1.29</nv-i18n.version>
 
