@@ -94,7 +94,7 @@ rule:/collection/.*:GET,
 rule:/explore/.*/_search:GET
 ```
 
-* will be able to explore the `collections` and to `search` in all of them, but won’t be able to add or delete collections (only `GET` verb is allowed for collections) and won’t be able to make aggregations (the resource `_aggregate` is not defined).*
+* will be able to explore the `collections` and to `search` in all of them, but won’t be able to add or delete collections (only `GET` verb is allowed for collections) and won’t be able to make aggregations (the resource `_aggregate` is not defined).
  
 ## Protect data access
 
@@ -109,7 +109,7 @@ Only the collections and fields present in this list are visible in the response
 This allows certain collections and fields to be restricted to certain users.
 
 !!! info "column-filter syntax"
-    See the `column-filter` syntax in [ARLAS Exploration API configuration section](http://docs.arlas.io/arlas-tech/current/arlas-api-exploration/#column-filtering).
+    See the `column-filter` syntax in [ARLAS Exploration API configuration section](https://docs.arlas.io/arlas-api-exploration/#column-filtering).
 
 
 #### Partition-filter
@@ -119,9 +119,12 @@ The header `partition-filter` allows you to pass an ARLAS filter to apply to the
 This allows certain data to be restricted to certain users.
 
 !!! info "partition-filter syntax"
-    See the `partition-filter` syntax in [ARLAS Exploration API configuration section](http://docs.arlas.io/arlas-tech/current/arlas-api-exploration/#column-filtering).
+    See the `partition-filter` syntax in [ARLAS Exploration API configuration section](https://docs.arlas.io/arlas-api-exploration/#partition-filtering).
 
 #### Organisation filter
 If a header `arlas-organization` is present (can be empty, or be a comma separated list of values), it will be used
-to check if the collection's organisations (owner or shared with) match one of the provided values.
-If no header `arlas-organization` then no check is done on the collection's organisations.
+to check if the collection's organisations (owner or shared with) match one of the provided values.  
+If the collection is defined as public in its organisation parameters, it will be visible no matter what.  
+If the collection has been defined without organisation parameters, it will not be visible.  
+
+If no header `arlas-organization` is present then no check is done on the collection's organisations.

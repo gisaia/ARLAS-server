@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * A filter here is a coma-separated list of fields or pattern.
+ * A filter here is a comma-separated list of fields or pattern.
  * This util provides functions to check json paths against a filter .
  */
 public class FilterMatcherUtil {
@@ -85,7 +85,7 @@ public class FilterMatcherUtil {
 
     /**
      * Convert the filter to regexp predicates that can be used later to check if a field is allowed.
-     * @param filter a list of coma separated fields. Wildcards are supported
+     * @param filter a list of comma separated fields. Wildcards are supported
      * @return
      */
     public static Optional<Stream<String>> filterToPredicatesAsStream(Optional<String> filter) {
