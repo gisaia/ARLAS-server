@@ -261,7 +261,7 @@ public class ElasticFluidSearch extends FluidSearchService {
             max = ParamsParser.parseDate(max, dateFormat);
         }
 
-        if (field.equals(collectionReference.params.timestampPath)) {
+        if (isDateField(field) && (field.equals(collectionReference.params.timestampPath) || StringUtil.isNullOrEmpty(dateFormat))) {
             CheckParams.checkTimestampFormatValidity(min);
             CheckParams.checkTimestampFormatValidity(max);
         }
@@ -276,7 +276,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         } else {
             ret.lt(JsonData.of(max));
         }
-        if (field.equals(collectionReference.params.timestampPath)) {
+        if (isDateField(field) && (field.equals(collectionReference.params.timestampPath) || StringUtil.isNullOrEmpty(dateFormat))) {
             ret.format(TimestampType.epoch_millis.name());
         }
         return ret;

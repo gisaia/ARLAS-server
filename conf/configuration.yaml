@@ -149,7 +149,7 @@ arlas_stac:
   description: ${ARLAS_STAC_DESCRIPTION:-Catalog for Arlas Exploration items}
   conforms_to:
     - https://api.stacspec.org/v1.0.0/core
-    - https://api.stacspec.org/v1.0.0-beta.2/core
+#    - https://api.stacspec.org/v1.0.0-beta.2/core
     - https://api.stacspec.org/v1.0.0/item-search
     - https://api.stacspec.org/v1.0.0/ogcapi-features
     - https://api.stacspec.org/v1.0.0/collections
