@@ -1,8 +1,16 @@
 # Change Log
 
+## [v24.0.3](https://github.com/gisaia/ARLAS-server/tree/v24.0.3) (2023-09-01)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.0.2...v24.0.3)
+
 ## [v24.0.2](https://github.com/gisaia/ARLAS-server/tree/v24.0.2) (2023-06-22)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.0.1...v24.0.2)
+
+**Fixed bugs:**
+
+- Paginating to previous pages throws an unhandled operation exception [\#900](https://github.com/gisaia/ARLAS-server/issues/900)
 
 ## [v24.0.1](https://github.com/gisaia/ARLAS-server/tree/v24.0.1) (2023-04-21)
 
