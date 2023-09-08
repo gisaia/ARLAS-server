@@ -1,7 +1,13 @@
 technicalRoles:
-  group/public: []
+  group/public:
+    description:
+    - "Public group"
+    permissions: []
 
   role/arlas/user:
+    description:
+    - "Viewing data in ARLAS"
+    permissions:
 # ARLAS explore
     - h:arlas-organization:${org}
     - h:arlas-workspace:${ws}
@@ -24,13 +30,22 @@ technicalRoles:
     - r:permissions:GET
 
   role/arlas/tagger:
+    description:
+    - "Tagging data in ARLAS"
+    permissions:
     - r:write/.*:POST
     - r:status/.*:GET
 
   role/arlas/datasets:
+    description:
+    - "Managing dataset in ARLAS"
+    permissions:
     - r:datasets/.*:GET,PUT,POST,DELETE
 
   role/arlas/builder:
+    description:
+    - "Building dashboards in ARLAS"
+    permissions:
     - r:collections:GET
     - r:collections/.*:PUT,DELETE
     - r:collections/_export:GET
@@ -38,6 +53,9 @@ technicalRoles:
     - r:persist/resource/.*:PUT,POST,DELETE
 
   role/arlas/owner:
+    description:
+    - "Managing users and permissions of ARLAS"
+    permissions:
     - r:permissions:GET
     - r:collections:GET
     - r:organisations:GET,POST
@@ -45,19 +63,27 @@ technicalRoles:
     - r:users/.*:GET,PUT,DELETE
     - r:session:DELETE
 
-  role/city/user:
-    - r:storage/.*:GET,DELETE
-    - r:data/.*:GET,POST,DELETE
-    - r:process/.*:GET,POST
-    - r:usage:GET
+#  role/city/user:
+#    description: "Using city features of ARLAS"
+#    permissions:
+#    - r:storage/.*:GET,DELETE
+#    - r:data/.*:GET,POST,DELETE
+#    - r:process/.*:GET,POST
+#    - r:usage:GET
 
 # M2M role
   role/m2m/importer:
+    description:
+    - "M2M account for importing collections"
+    permissions:
     - r:collections/_import:POST
     - r:organisations/.*:GET
 
 # IAM super admin role
   role/iam/admin:
+    description:
+    - "IAM admin"
+    permissions:
     - r:organisations:GET,POST
     - r:organisations/.*:GET,POST,DELETE
     - r:users/.*:GET,PUT,DELETE

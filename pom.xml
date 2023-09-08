@@ -77,7 +77,7 @@
 
     <!-- AUTH -->
     <jwt.version>3.19.2</jwt.version>
-    <elastic-apm.version>1.41.1</elastic-apm.version>
+    <elastic-apm.version>1.42.0</elastic-apm.version>
     <keycloak.version>22.0.1</keycloak.version>
 
     <nv-i18n.version>1.29</nv-i18n.version>
