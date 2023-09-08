@@ -127,8 +127,8 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     + permissions);
             roles.forEach((key, value) -> TechnicalRoles.getTechnicalRolesPermissions().entrySet().stream()
                     .filter(rolesPerm -> ((List<String>) value).contains(rolesPerm.getKey()))
-                    .filter(rolesPerm -> rolesPerm.getValue().size() > 0)
-                    .forEach(rolesPerm -> permissions.addAll(rolesPerm.getValue().stream()
+                    .filter(rolesPerm -> rolesPerm.getValue().get("permissions").size() > 0)
+                    .forEach(rolesPerm -> permissions.addAll(rolesPerm.getValue().get("permissions").stream()
                             .map(rp -> ArlasClaims.replaceVar(rp, VAR_ORG, key)).toList())));
         }
     }

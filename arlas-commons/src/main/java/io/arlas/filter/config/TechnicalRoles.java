@@ -37,16 +37,16 @@ public class TechnicalRoles {
     public static final String ROLE_ARLAS_USER = "role/arlas/user";
     public static final String ROLE_ARLAS_BUILDER = "role/arlas/builder";
     public static final String ROLE_ARLAS_TAGGER = "role/arlas/tagger";
-    public static final String ROLE_ARLAS_IMPORTER = "role/arlas/importer";
+    public static final String ROLE_ARLAS_IMPORTER = "role/m2m/importer";
     public static final String GROUP_PUBLIC = "group/public";
     public static final String VAR_ORG = "org";
     private static final Logger LOGGER = LoggerFactory.getLogger(TechnicalRoles.class);
     private static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    private static Map<String, List<String>> technicalRolesPermissions;
+    private static Map<String, Map<String, List<String>>> technicalRolesPermissions;
 
     static {
         try {
-            technicalRolesPermissions = (Map<String, List<String>>) mapper.readValue(
+            technicalRolesPermissions = (Map<String, Map<String, List<String>>>) mapper.readValue(
                             TechnicalRoles.class.getClassLoader().getResourceAsStream("roles.yaml"), Map.class)
                     .get("technicalRoles");
         } catch (IOException e) {
@@ -55,7 +55,7 @@ public class TechnicalRoles {
         }
     }
 
-    public static Map<String, List<String>> getTechnicalRolesPermissions() {
+    public static Map<String, Map<String, List<String>>> getTechnicalRolesPermissions() {
         return technicalRolesPermissions;
     }
 
