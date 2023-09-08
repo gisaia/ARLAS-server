@@ -261,7 +261,11 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
     }
 
     private String getDecisionCacheKey(ContainerRequestContext ctx, String accessToken) {
-        return StringUtil.concat(ctx.getMethod(), ":", ctx.getUriInfo().getPath(), ":", accessToken);
+        return Integer.toString(Objects.hash(
+                ctx.getMethod(),
+                ctx.getUriInfo().getRequestUri(),
+                ctx.getHeaders(),
+                accessToken));
     }
 
     protected String decodeToken(String token) {
