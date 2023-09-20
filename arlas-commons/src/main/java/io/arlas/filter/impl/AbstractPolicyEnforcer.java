@@ -41,6 +41,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -140,16 +141,37 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
         MDC.remove(EVENT_TYPE);
         MDC.remove(EVENT_CATEGORY);
     }
+
     @Override
-    public void filter(ContainerRequestContext ctx) {
-        String log = String.join(" ", request.getMethod(), request.getRequestURI());
+    public void filter(ContainerRequestContext ctx) throws IOException  {
+        String path = ctx.getUriInfo().getPath();
+        if (path.equals("auth")) {
+            LOGGER.debug("Applying forward auth");
+            String fullTargetPath = ctx.getHeaderString("X-Forwarded-Uri");
+            if (fullTargetPath.startsWith("/") && fullTargetPath.indexOf("/", 1) != -1) {
+                // if target path is of the form /prefix/path, remove prefix to get short path
+                path = fullTargetPath.substring(fullTargetPath.indexOf("/", 1) + 1);
+            } else {
+                path = fullTargetPath;
+            }
+            LOGGER.debug(String.format("Calling filter for : %s %s %s", ctx.getHeaderString("X-Forwarded-Method"), path, fullTargetPath));
+            filter(ctx, ctx.getHeaderString("X-Forwarded-Method"), path, fullTargetPath);
+        } else {
+            LOGGER.debug("Ignoring forward auth");
+            LOGGER.debug(String.format("Calling filter for : %s %s %s", ctx.getMethod(), path, request.getRequestURI()));
+            filter(ctx, ctx.getMethod(), path, request.getRequestURI());
+        }
+    }
+
+    public void filter(ContainerRequestContext ctx, String method, String path, String fullPath) {
+        String log = String.join(" ", method, fullPath);
         String ip = Optional.ofNullable(ctx.getHeaderString(X_FORWARDED_FOR))
                 .orElseGet(() -> request.getRemoteAddr())
                 .split(",")[0].trim();
         // Using Mapped Diagnostic Context to set attribute for Elasticsearch ECS format
         MDC.put(EVENT_KIND, EVENT);
-        MDC.put(HTTP_REQUEST_METHOD, request.getMethod());
-        MDC.put(URL_PATH, request.getRequestURI());
+        MDC.put(HTTP_REQUEST_METHOD, method);
+        MDC.put(URL_PATH, fullPath);
         MDC.put(URL_QUERY, request.getQueryString());
         MDC.put(USER_AGENT_ORIGINAL, ctx.getHeaderString(HttpHeaders.USER_AGENT));
         MDC.put(HTTP_REQUEST_REFERRER, ctx.getHeaderString(REFERER));
@@ -158,7 +180,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
 
         try {
             Transaction transaction = ElasticApm.currentTransaction();
-            boolean isPublic = ctx.getUriInfo().getPath().concat(":").concat(ctx.getMethod()).matches(authConf.getPublicRegex());
+            boolean isPublic = path.concat(":").concat(method).matches(authConf.getPublicRegex());
             boolean isApiKey = false;
             String keyIdHeader = ctx.getHeaderString(ARLAS_API_KEY_ID);
             String keySecretHeader = ctx.getHeaderString(ARLAS_API_KEY_SECRET);
@@ -167,11 +189,11 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                 isApiKey = true;
             } else {
                 if (authHeader == null || !authHeader.toLowerCase().startsWith("bearer ")) {
-                    if (!isPublic && !"OPTIONS".equals(ctx.getMethod())) {
+                    if (!isPublic && !"OPTIONS".equals(method)) {
                         logUAM(DENIED, "unauthorized (no token): " + log);
                         ctx.abortWith(Response.status(UNAUTHORIZED).build());
                     } else {
-                        if (!"OPTIONS".equals(ctx.getMethod())) {
+                        if (!"OPTIONS".equals(method)) {
                             logUAM(ALLOWED, "public (no token): " + log);
                         }
                         // use a dummy CF in order to bypass the CFUtil and give access to public collections
@@ -185,7 +207,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     String.join(":", ARLAS_API_KEY, keyIdHeader, keySecretHeader)
                     : authHeader.substring(7);
             try {
-                Boolean ok = cacheManager.getDecision(getDecisionCacheKey(ctx, accessToken));
+                Boolean ok = cacheManager.getDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken));
                 if (ok != null && !ok) {
                     logUAM(DENIED,"forbidden (from cache): " + log);
                     ctx.abortWith(Response.status(FORBIDDEN).build());
@@ -230,15 +252,15 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                 if (!permissions.isEmpty()) {
                     ArlasClaims arlasClaims = new ArlasClaims(permissions.stream().toList());
                     ctx.setProperty("claims", arlasClaims.getRules());
-                    if ((ok != null && ok) || arlasClaims.isAllowed(ctx.getMethod(), ctx.getUriInfo().getPath())) {
+                    if ((ok != null && ok) || arlasClaims.isAllowed(method, path)) {
                         arlasClaims.injectHeaders(ctx.getHeaders(), transaction);
-                        cacheManager.putDecision(getDecisionCacheKey(ctx, accessToken), Boolean.TRUE);
+                        cacheManager.putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.TRUE);
                         logUAM(ALLOWED, "granted: " + log);
                         return;
                     }
                 }
                 if (isPublic) {
-                    cacheManager.putDecision(getDecisionCacheKey(ctx, accessToken), Boolean.TRUE);
+                    cacheManager.putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.TRUE);
                     logUAM(ALLOWED, "public (with token): " + log);
                     return;
                 }
@@ -252,7 +274,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                 }
                 return;
             }
-            cacheManager.putDecision(getDecisionCacheKey(ctx, accessToken), Boolean.FALSE);
+            cacheManager.putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.FALSE);
             logUAM(DENIED,"forbidden (with token): " + log);
             ctx.abortWith(Response.status(FORBIDDEN).build());
         } finally {
@@ -260,11 +282,11 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
         }
     }
 
-    private String getDecisionCacheKey(ContainerRequestContext ctx, String accessToken) {
+    private String getDecisionCacheKey(ContainerRequestContext ctx, String method, String uri, String accessToken) {
         return Integer.toString(Objects.hash(
-                ctx.getMethod(),
-                ctx.getUriInfo().getRequestUri(),
-                ctx.getHeaders(),
+                method,
+                uri,
+                ctx.getHeaderString(ARLAS_ORG_FILTER),
                 accessToken));
     }
 
