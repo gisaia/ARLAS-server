@@ -146,19 +146,19 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
     public void filter(ContainerRequestContext ctx) throws IOException  {
         String path = ctx.getUriInfo().getPath();
         if (path.equals("auth")) {
+            String targetPath = ctx.getHeaderString("X-Forwarded-Uri");
             LOGGER.debug("Applying forward auth");
-            String fullTargetPath = ctx.getHeaderString("X-Forwarded-Uri");
-            if (fullTargetPath.startsWith("/") && fullTargetPath.indexOf("/", 1) != -1) {
-                // if target path is of the form /prefix/path, remove prefix to get short path
-                path = fullTargetPath.substring(fullTargetPath.indexOf("/", 1) + 1);
-            } else {
-                path = fullTargetPath;
-            }
-            LOGGER.debug(String.format("Calling filter for : %s %s %s", ctx.getHeaderString("X-Forwarded-Method"), path, fullTargetPath));
-            filter(ctx, ctx.getHeaderString("X-Forwarded-Method"), path, fullTargetPath);
+            LOGGER.debug(String.format("Calling filter for : %s %s",
+                    ctx.getHeaderString("X-Forwarded-Method"),
+                    targetPath));
+            // in forward auth context, we check the full path
+            filter(ctx, ctx.getHeaderString("X-Forwarded-Method"), targetPath, targetPath);
         } else {
             LOGGER.debug("Ignoring forward auth");
-            LOGGER.debug(String.format("Calling filter for : %s %s %s", ctx.getMethod(), path, request.getRequestURI()));
+            LOGGER.debug(String.format("Calling filter for : %s %s (path=%s)",
+                    ctx.getMethod(),
+                    request.getRequestURI(),
+                    path));
             filter(ctx, ctx.getMethod(), path, request.getRequestURI());
         }
     }
