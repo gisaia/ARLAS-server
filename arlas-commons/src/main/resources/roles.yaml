@@ -36,6 +36,13 @@ technicalRoles:
     - r:write/.*:POST
     - r:status/.*:GET
 
+  role/arlas/downloader:
+    description:
+    - "Download data from ARLAS"
+    permissions:
+    - r:/aproc/processes/download/.*:POST
+    - r:/arlas/aproc/processes/download/.*:POST
+
   role/arlas/datasets:
     description:
     - "Managing dataset in ARLAS"
@@ -62,6 +69,8 @@ technicalRoles:
     - r:organisations/.*:GET,POST,PUT,DELETE
     - r:users/.*:GET,PUT,DELETE
     - r:session:DELETE
+    - r:/airs/collections/.*:POST
+    - r:/arlas/airs/collections/.*:POST
 
 #  role/city/user:
 #    description: "Using city features of ARLAS"
