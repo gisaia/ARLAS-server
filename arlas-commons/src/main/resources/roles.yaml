@@ -28,6 +28,7 @@ technicalRoles:
 # ARLAS IAM session management
     - r:session:DELETE
     - r:permissions:GET
+    - r:organisations:GET
 
   role/arlas/tagger:
     description:
