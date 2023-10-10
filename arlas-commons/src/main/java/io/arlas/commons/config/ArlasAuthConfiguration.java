@@ -39,9 +39,6 @@ public class ArlasAuthConfiguration {
     @JsonProperty("header_user")
     public String headerUser;
 
-    @JsonProperty("header_email")
-    public String headerEmail = "arlas-user-email";
-
     @JsonProperty("header_group")
     public String headerGroup;
 
