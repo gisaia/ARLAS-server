@@ -103,11 +103,6 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
         return ((DecodedJWT) token).getSubject();
     }
 
-    protected Optional<String> getSubjectEmail(Object token) {
-        Claim emailClaim = ((DecodedJWT) token).getClaim("email");
-        return emailClaim.isNull() ? Optional.empty() : Optional.of(emailClaim.asString());
-    }
-
     protected Map<String, Object> getRolesClaim(Object token, Optional<String> org) {
         Claim jwtClaimRoles = ((DecodedJWT) token).getClaim(authConf.claimRoles);
         if (!jwtClaimRoles.isNull()) {
@@ -233,12 +228,6 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     if (orgFilter != null) {
                         MDC.put(ORGANIZATION_NAME, orgFilter);
                     }
-                }
-                ctx.getHeaders().remove(authConf.headerEmail); // remove it in case it's been set manually
-                Optional<String> email = getSubjectEmail(token);
-                if (email.isPresent()) {
-                    ctx.getHeaders().putSingle(authConf.headerEmail, email.get());
-                    LOGGER.debug("Add Header [" + authConf.headerEmail + "]");
                 }
 
                 ctx.getHeaders().remove(authConf.headerGroup); // remove it in case it's been set manually

@@ -42,7 +42,6 @@ Further configuration may be required depending on the chosen implementation:
 |------------------------------|----------------------------------------|-----------------------------------------------------------|-----------------|
 | ARLAS_AUTH_PUBLIC_URIS       | arlas_auth.public_uris                 | swagger.\*:\*                                             | All             |
 | ARLAS_HEADER_USER            | arlas_auth.header_user                 | arlas-user                                                | All             |
-| ARLAS_HEADER_EMAIL           | arlas_auth.header_email                | arlas-user-email                                          | All             |
 | ARLAS_HEADER_GROUP           | arlas_auth.header_group                | arlas-groups                                              | All             |
 | ARLAS_ANONYMOUS_VALUE        | arlas_auth.anonymous_value             | anonymous                                                 | All             |
 | ARLAS_CLAIM_ROLES            | arlas_auth.claim_roles                 | http://arlas.io/roles                                     | Auth0,HTTP      |

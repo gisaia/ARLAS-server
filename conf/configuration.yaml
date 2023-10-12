@@ -184,7 +184,6 @@ arlas_auth:
   certificate_file: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}
   certificate_url: ${ARLAS_AUTH_CERT_URL:-}
   header_user: ${ARLAS_HEADER_USER:-arlas-user}
-  header_email: ${ARLAS_HEADER_EMAIL:-arlas-user-email}
   header_group: ${ARLAS_HEADER_GROUP:-arlas-groups}
   anonymous_value: ${ARLAS_ANONYMOUS_VALUE:-anonymous}
   claim_roles: ${ARLAS_CLAIM_ROLES:-http://arlas.io/roles}
