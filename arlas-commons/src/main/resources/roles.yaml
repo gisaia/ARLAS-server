@@ -41,8 +41,10 @@ technicalRoles:
     description:
     - "Download data from ARLAS"
     permissions:
-    - r:/aproc/processes/download/.*:POST
-    - r:/arlas/aproc/processes/download/.*:POST
+    - r:/aproc/processes/download/execution:POST
+    - r:/arlas/aproc/processes/download/execution:POST
+    - r:/aproc/jobs/.*:GET
+    - r:/arlas/aproc/jobs/.*:GET
 
   role/arlas/datasets:
     description:
