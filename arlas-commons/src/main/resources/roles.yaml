@@ -46,9 +46,10 @@ technicalRoles:
 
   role/arlas/datasets:
     description:
-    - "Managing dataset in ARLAS"
+    - "Managing data (ingest, update) in ARLAS"
     permissions:
     - r:datasets/.*:GET,PUT,POST,DELETE
+    - r:/fam/.*:GET,POST
 
   role/arlas/builder:
     description:
