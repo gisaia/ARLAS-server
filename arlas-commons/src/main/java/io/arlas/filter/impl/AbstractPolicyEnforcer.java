@@ -43,6 +43,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static io.arlas.commons.rest.utils.ServerConstants.*;
@@ -134,10 +135,10 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
         }
     }
 
-    private void logUAM(String type, String log) {
+    private void logUAM(Consumer<String> level, String type, String log) {
         MDC.put(EVENT_CATEGORY, IAM);
         MDC.put(EVENT_TYPE, type);
-        LOGGER.info(log);
+        level.accept(log);
         MDC.remove(EVENT_TYPE);
         MDC.remove(EVENT_CATEGORY);
     }
@@ -151,8 +152,10 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
             LOGGER.debug(String.format("Calling filter for : %s %s",
                     ctx.getHeaderString("X-Forwarded-Method"),
                     targetPath));
+            int q = targetPath.indexOf("?");
+            String pathWithoutQueryParams = q != -1 ? targetPath.substring(0, q) : targetPath;
             // in forward auth context, we check the full path
-            filter(ctx, ctx.getHeaderString("X-Forwarded-Method"), targetPath, targetPath);
+            filter(ctx, ctx.getHeaderString("X-Forwarded-Method"), pathWithoutQueryParams, pathWithoutQueryParams);
         } else {
             LOGGER.debug("Ignoring forward auth");
             LOGGER.debug(String.format("Calling filter for : %s %s (path=%s)",
@@ -190,11 +193,11 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
             } else {
                 if (authHeader == null || !authHeader.toLowerCase().startsWith("bearer ")) {
                     if (!isPublic && !"OPTIONS".equals(method)) {
-                        logUAM(DENIED, "unauthorized (no token): " + log);
+                        logUAM(LOGGER::warn, DENIED, "unauthorized (no token): " + log);
                         ctx.abortWith(Response.status(UNAUTHORIZED).build());
                     } else {
                         if (!"OPTIONS".equals(method)) {
-                            logUAM(ALLOWED, "public (no token): " + log);
+                            logUAM(LOGGER::debug, ALLOWED, "public (no token): " + log);
                         }
                         // use a dummy CF in order to bypass the CFUtil and give access to public collections
                         ctx.getHeaders().add(COLUMN_FILTER, "ThisIsADummyColumnFilter");
@@ -209,7 +212,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
             try {
                 Boolean ok = cacheManager.getDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken));
                 if (ok != null && !ok) {
-                    logUAM(DENIED,"forbidden (from cache): " + log);
+                    logUAM(LOGGER::warn, DENIED,"forbidden (from cache): " + log);
                     ctx.abortWith(Response.status(FORBIDDEN).build());
                     return;
                 }
@@ -254,27 +257,27 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     if ((ok != null && ok) || arlasClaims.isAllowed(method, path)) {
                         arlasClaims.injectHeaders(ctx.getHeaders(), transaction);
                         cacheManager.putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.TRUE);
-                        logUAM(ALLOWED, "granted: " + log);
+                        logUAM(LOGGER::debug, ALLOWED, "granted: " + log);
                         return;
                     }
                 }
                 if (isPublic) {
                     cacheManager.putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.TRUE);
-                    logUAM(ALLOWED, "public (with token): " + log);
+                    logUAM(LOGGER::debug, ALLOWED, "public (with token): " + log);
                     return;
                 }
             } catch (Exception e) {
                 LOGGER.warn("JWT verification failed.", e);
                 if (!isPublic) {
-                    logUAM(DENIED,"unauthorized (invalid token): " + log);
+                    logUAM(LOGGER::warn, DENIED,"unauthorized (invalid token): " + log);
                     ctx.abortWith(Response.status(UNAUTHORIZED).build());
                 } else {
-                    logUAM(ALLOWED,"public (invalid token): " + log);
+                    logUAM(LOGGER::debug, ALLOWED,"public (invalid token): " + log);
                 }
                 return;
             }
             cacheManager.putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.FALSE);
-            logUAM(DENIED,"forbidden (with token): " + log);
+            logUAM(LOGGER::warn, DENIED,"forbidden (with token): " + log);
             ctx.abortWith(Response.status(FORBIDDEN).build());
         } finally {
             MDC.clear();
