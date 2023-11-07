@@ -49,7 +49,12 @@ technicalRoles:
     - "Managing data (ingest, update) in ARLAS"
     permissions:
     - r:datasets/.*:GET,PUT,POST,DELETE
+    - r:/aproc/processes/ingest/execution:POST
+    - r:/aproc/processes/directory_ingest/execution:POST
     - r:/fam/.*:GET,POST
+    - r:/aproc/jobs/.*:GET
+    - r:/aproc/jobs:GET
+    - r:/airs/collections/.*:GET,POST,PUT,DELETE
 
   role/arlas/builder:
     description:
@@ -71,8 +76,6 @@ technicalRoles:
     - r:organisations/.*:GET,POST,PUT,DELETE
     - r:users/.*:GET,PUT,DELETE
     - r:session:DELETE
-    - r:/airs/collections/.*:POST
-    - r:/arlas/airs/collections/.*:POST
 
 #  role/city/user:
 #    description: "Using city features of ARLAS"
@@ -87,6 +90,8 @@ technicalRoles:
     description:
     - "M2M account for importing collections"
     permissions:
+    - r:collections:GET
+    - r:collections/.*:PUT,DELETE
     - r:collections/_import:POST
     - r:organisations/.*:GET
 
