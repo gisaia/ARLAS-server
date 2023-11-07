@@ -279,19 +279,20 @@ public class ParamsParser {
                 }
             }
             // if not null and parsing ok then we have at least one filter
-            Filter retFilter = fList.get(0);
-            if (retFilter.righthand == null) {
-                retFilter.righthand = Boolean.TRUE;
-            }
+            if (fList != null && fList.size() > 0) {
+                Filter retFilter = fList.get(0);
+                if (retFilter.righthand == null) {
+                    retFilter.righthand = Boolean.TRUE;
+                }
 
-            for (int i=1; i<fList.size(); i++) {
-                // for now, a list of partition filters is combined with OR. TODO: support more complex combination
-                retFilter.f.get(0).addAll(fList.get(i).f.get(0));
+                for (int i = 1; i < fList.size(); i++) {
+                    // for now, a list of partition filters is combined with OR. TODO: support more complex combination
+                    retFilter.f.get(0).addAll(fList.get(i).f.get(0));
+                }
+                return retFilter;
             }
-            return retFilter;
-        } else {
-            return null;
         }
+        return null;
     }
 
     public static Filter getFilter(CollectionReference collectionReference,
