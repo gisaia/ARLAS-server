@@ -53,19 +53,19 @@
     <io.rest-assured.version>5.3.1</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
-    <dropwizard.version>2.1.8</dropwizard.version>
+    <dropwizard.version>2.1.10</dropwizard.version>
     <dropwizard.swagger.version>2.0.12-1</dropwizard.swagger.version>
     <swaggerv3.version>2.2.15</swaggerv3.version>
     <jaxb.version>2.3.8</jaxb.version>
-    <jersey-media-jaxb.version>2.40</jersey-media-jaxb.version>
+    <jersey-media-jaxb.version>2.41</jersey-media-jaxb.version>
     <activation.version>2.1.0</activation.version>
     <jackson.dataformat.version>2.15.2</jackson.dataformat.version>
 
     <!-- CACHE-->
-    <hazelcast.version>5.3.2</hazelcast.version>
+    <hazelcast.version>5.3.5</hazelcast.version>
 
     <!-- ELASTICSEARCH-->
-    <elastic.version>8.10.2</elastic.version>
+    <elastic.version>8.11.0</elastic.version>
 
     <!-- GEO-->
     <geotools.version>29.2</geotools.version>
