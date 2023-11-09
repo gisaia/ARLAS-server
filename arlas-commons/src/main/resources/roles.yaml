@@ -94,6 +94,7 @@ technicalRoles:
     - r:collections/.*:PUT,DELETE
     - r:collections/_import:POST
     - r:organisations/.*:GET
+    - r:persist/resource/.*:POST,PUT
 
 # IAM super admin role
   role/iam/admin:
