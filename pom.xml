@@ -57,7 +57,7 @@
     <dropwizard.swagger.version>2.0.12-1</dropwizard.swagger.version>
     <swaggerv3.version>2.2.15</swaggerv3.version>
     <jaxb.version>2.3.8</jaxb.version>
-    <jersey-media-jaxb.version>2.40</jersey-media-jaxb.version>
+    <jersey-media-jaxb.version>2.41</jersey-media-jaxb.version>
     <activation.version>2.1.0</activation.version>
     <jackson.dataformat.version>2.15.2</jackson.dataformat.version>
 
