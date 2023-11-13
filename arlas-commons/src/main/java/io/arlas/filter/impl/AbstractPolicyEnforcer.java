@@ -72,6 +72,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
     public static final String X_FORWARDED_FOR = "X-Forwarded-For";
     public static final String ORGANIZATION_NAME = "organization.name";
     public static final String USER_ID = "user.id";
+    public static final String USER_EMAIL = "user.emaild";
 
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractPolicyEnforcer.class);
     protected ArlasAuthConfiguration authConf;
@@ -104,6 +105,11 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
         return ((DecodedJWT) token).getSubject();
     }
 
+    protected Optional<String> getSubjectEmail(Object token) {
+        Claim emailClaim = ((DecodedJWT) token).getClaim("email");
+        return emailClaim.isNull() ? Optional.empty() : Optional.of(emailClaim.asString());
+    }
+
     protected Map<String, Object> getRolesClaim(Object token, Optional<String> org) {
         Claim jwtClaimRoles = ((DecodedJWT) token).getClaim(authConf.claimRoles);
         if (!jwtClaimRoles.isNull()) {
@@ -124,14 +130,14 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
 
     private void addTechnicalRolesToPermissions(Set<String> permissions, Map<String, Object> roles) {
         if (injectPermissions) {
-            LOGGER.debug("Adding permissions of org/roles " + roles.toString() + " from map technical roles "
-                    + TechnicalRoles.getTechnicalRolesPermissions().toString() + " in existing permissions "
+            LOGGER.debug("Adding permissions of org/roles " + roles.toString() + " in existing permissions "
                     + permissions);
             roles.forEach((key, value) -> TechnicalRoles.getTechnicalRolesPermissions().entrySet().stream()
                     .filter(rolesPerm -> ((List<String>) value).contains(rolesPerm.getKey()))
                     .filter(rolesPerm -> rolesPerm.getValue().get("permissions").size() > 0)
                     .forEach(rolesPerm -> permissions.addAll(rolesPerm.getValue().get("permissions").stream()
                             .map(rp -> ArlasClaims.replaceVar(rp, VAR_ORG, key)).toList())));
+            LOGGER.debug("Resulting permissions: " + permissions);
         }
     }
 
@@ -148,7 +154,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
         String path = ctx.getUriInfo().getPath();
         if (path.equals("auth")) {
             String targetPath = ctx.getHeaderString("X-Forwarded-Uri");
-            LOGGER.debug("Applying forward auth");
+            LOGGER.debug("==============  Applying forward auth");
             LOGGER.debug(String.format("Calling filter for : %s %s",
                     ctx.getHeaderString("X-Forwarded-Method"),
                     targetPath));
@@ -157,7 +163,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
             // in forward auth context, we check the full path
             filter(ctx, ctx.getHeaderString("X-Forwarded-Method"), pathWithoutQueryParams, pathWithoutQueryParams);
         } else {
-            LOGGER.debug("Ignoring forward auth");
+            LOGGER.debug("============== Ignoring forward auth");
             LOGGER.debug(String.format("Calling filter for : %s %s (path=%s)",
                     ctx.getMethod(),
                     request.getRequestURI(),
@@ -217,6 +223,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     return;
                 }
                 String orgFilter = ctx.getHeaders().getFirst(ARLAS_ORG_FILTER);
+                LOGGER.debug("ARLAS_ORG_FILTER=" + orgFilter);
                 Object token = getObjectToken(accessToken, orgFilter);
                 Set<String> permissions = getPermissionsClaim(token);
                 Optional<String> org = Optional.ofNullable(new ArlasClaims(permissions.stream().toList()).getVariables().get(VAR_ORG));
@@ -228,6 +235,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     LOGGER.debug("Add Header [" + authConf.headerUser + ": " + userId + "]");
                     transaction.setUser(userId, "", "");
                     MDC.put(USER_ID, userId);
+                    getSubjectEmail(token).ifPresent(s -> MDC.put(USER_EMAIL, s));
                     if (orgFilter != null) {
                         MDC.put(ORGANIZATION_NAME, orgFilter);
                     }

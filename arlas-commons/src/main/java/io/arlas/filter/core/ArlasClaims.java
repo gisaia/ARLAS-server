@@ -79,18 +79,19 @@ public class ArlasClaims {
     public boolean isAllowed(String method, String path) {
         for (RuleClaim rule : rules) {
             if (rule.match(method, path)) {
-                LOGGER.debug("Matching rule '" + rule +"' for path '" + path + "' with method " + method);
+                LOGGER.trace("Matching rule '" + rule +"' for path '" + path + "' with method " + method);
                 return true; // stop at first matching rule
             }
-            LOGGER.debug("NON Matching rule '" + rule +"' for path '" + path + "' with method " + method);
+            LOGGER.trace("NON Matching rule '" + rule +"' for path '" + path + "' with method " + method);
         }
+        LOGGER.debug("NO Matching rule found path '" + path + "' with method " + method);
         return false;
     }
 
     public void injectHeaders(MultivaluedMap<String, String> requestHeaders, Transaction transaction) {
         headers.forEach((k,v) -> {
             String value = String.join(",", v);
-            LOGGER.debug("Injecting header '" + k +"' with value '" + value + "'");
+            LOGGER.trace("Injecting header '" + k +"' with value '" + value + "'");
             requestHeaders.add(k, value);
             transaction.setLabel(k, value);
         });
@@ -106,7 +107,7 @@ public class ArlasClaims {
 
     public static String replaceVar(String original, String var, String val) {
         String result = original.replaceAll("\\$\\{" + var + "}", val);
-        LOGGER.debug(String.format("Injecting variable '%s' (val='%s') in  '%s' results in '%s'", var, val, original, result));
+        LOGGER.trace(String.format("Injecting variable '%s' (val='%s') in  '%s' results in '%s'", var, val, original, result));
         return result;
     }
 
