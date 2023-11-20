@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.ethlo.time</groupId>
             <artifactId>itu</artifactId>
-            <version>1.7.0</version>
+            <version>${itu.version}</version>
         </dependency>
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
