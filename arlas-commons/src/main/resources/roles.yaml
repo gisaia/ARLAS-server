@@ -2,7 +2,11 @@ technicalRoles:
   group/public:
     description:
     - "Public group"
-    permissions: []
+    permissions:
+    # ARLAS IAM session management
+    - r:session:DELETE
+    - r:permissions:GET
+    - r:organisations:GET
 
   role/arlas/user:
     description:
@@ -25,10 +29,6 @@ technicalRoles:
     - r:persist/resources/.*:GET
 # ARLAS permissions
     - r:authorize/resources:GET
-# ARLAS IAM session management
-    - r:session:DELETE
-    - r:permissions:GET
-    - r:organisations:GET
 
   role/arlas/tagger:
     description:
