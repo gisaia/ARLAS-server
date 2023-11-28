@@ -6,7 +6,9 @@ technicalRoles:
     # ARLAS IAM session management
     - r:session:DELETE
     - r:permissions:GET
-    - r:organisations:GET
+    - r:organisations:GET,POST
+    - r:organisations/check:GET
+    - r:users/.*:GET,PUT,DELETE
 
   role/arlas/user:
     description:
