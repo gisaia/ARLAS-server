@@ -42,7 +42,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORG_FILTER;
+import static io.arlas.commons.rest.utils.ServerConstants.*;
 
 @Provider
 @Priority(Priorities.AUTHORIZATION)
@@ -76,11 +76,17 @@ public class HTTPPolicyEnforcer extends AbstractPolicyEnforcer {
 
     @Override
     protected Object getObjectToken(String accessToken, String orgFilter) throws Exception {
-        LOGGER.debug("accessToken=" + decodeToken(accessToken));
+        boolean isApiKey = accessToken.startsWith(ARLAS_API_KEY);
+        LOGGER.debug("accessToken=" + (isApiKey ? accessToken.split(":")[1] : decodeToken(accessToken)));
         String token = cacheManager.getPermission(accessToken + orgFilter);
         if (token == null) {
             Invocation.Builder request = orgFilter == null ? resource.request() : resource.queryParam(ARLAS_ORG_FILTER, orgFilter).request();
-            request.header(HttpHeaders.AUTHORIZATION, "bearer " + accessToken);
+            if (isApiKey) {
+                request.header(ARLAS_API_KEY_ID, accessToken.split(":")[1]);
+                request.header(ARLAS_API_KEY_SECRET, accessToken.split(":")[2]);
+            } else {
+                request.header(HttpHeaders.AUTHORIZATION, "bearer " + accessToken);
+            }
             request.accept(MediaType.APPLICATION_JSON);
             Response response = request.get();
 
