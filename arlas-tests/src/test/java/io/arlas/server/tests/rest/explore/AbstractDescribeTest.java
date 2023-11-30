@@ -51,30 +51,30 @@ public abstract class AbstractDescribeTest extends AbstractTestWithCollection {
 
     @Test
     public void testDescribeFeatureWithFullnameAndParamsInColumFilter() throws Exception {
-        handleMatchingResponse(get(Optional.of("fullname,params,,geo_params.wktgeomet")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("*fullname*,params.*,geo_params.metry")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("fullname,params.country,params.not_indexed,params.not_enabled,params.weight,params.job,params.age,params.tags,params.keywords,params.stopdate")),
+        handleMatchingResponse(get(Optional.of("fullname,text_search,params,,geo_params.wktgeomet")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("*fullname*,text_search,params.*,geo_params.metry")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("fullname,text_search,params.country,params.not_indexed,params.not_enabled,params.weight,params.job,params.age,params.tags,params.keywords,params.stopdate")),
                 new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("fullnam*,param*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("fullname,*.country,*arams.weight,param*.job,*age,*ags,params.*eywor*,*arams.stopdate*,*enabled,*indexed")),
+        handleMatchingResponse(get(Optional.of("fullnam*,text_search,param*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("fullname,text_search,*.country,*arams.weight,param*.job,*age,*ags,params.*eywor*,*arams.stopdate*,*enabled,*indexed")),
                 new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("fullname,params.*ountry,params.weigh*,params.*o*,*aram*.age,params.tags,params.keywords*,params.stopdate")),
+        handleMatchingResponse(get(Optional.of("fullname,text_search,params.*ountry,params.weigh*,params.*o*,*aram*.age,params.tags,params.keywords*,params.stopdate")),
                 new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));
     }
 
     @Test
     public void testDescribeFeatureWithColumFilter() throws Exception {
-        handleMatchingResponse(get(Optional.of("*ullname,*arams")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("*ullnam*,*aram*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("*ullnam*,*aram*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("*ullname,text_search,*arams")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("*ullnam*,text_search,*aram*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("*ullnam*,text_search,*aram*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
         handleMatchingResponse(get(Optional.of("*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
     }
 
     @Test
     public void testDescribeFeatureWithSpecificColumFilter() throws Exception {
         handleNotMatchingResponse(get(Optional.of("*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of("fullname,*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
-        handleNotMatchingResponse(get(Optional.of("fullname,params.")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of("fullname,text_search,*.*")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleNotMatchingResponse(get(Optional.of("fullname,text_search,params.")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
 
         //anti regression - this used to work
         handleNotMatchingResponse(get(Optional.of("fullname.unknown,params,,geo_params.wktgeomet")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getFilteredDescribeResultPath())));

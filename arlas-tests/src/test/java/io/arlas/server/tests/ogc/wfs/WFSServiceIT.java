@@ -281,7 +281,7 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
                         new ImmutablePair<>("VERSION", "2.0.0"),
                         new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
                         new Filter(),
-                        Optional.of("params,fullname,geo_params")));
+                        Optional.of("params,text_search,fullname,geo_params")));
 
         handleDescribeFeatureColumnFilter(
                 get(Arrays.asList(
@@ -308,7 +308,7 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
                         new ImmutablePair<>("VERSION", "2.0.0"),
                         new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
                         new Filter(),
-                        Optional.of("params,fullname,geo_params")));
+                        Optional.of("params,text_search,fullname,geo_params")));
 
         handleDescribeFeature(
                 get(Arrays.asList(
@@ -316,7 +316,7 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
                         new ImmutablePair<>("VERSION", "2.0.0"),
                         new ImmutablePair<>("REQUEST", "DescribeFeatureType")),
                         new Filter(),
-                        Optional.of(COLLECTION_NAME + ":params," + COLLECTION_NAME + ":fullname," + COLLECTION_NAME + ":geo_params")));
+                        Optional.of(COLLECTION_NAME + ":params," + COLLECTION_NAME + ":text_search," + COLLECTION_NAME + ":fullname," + COLLECTION_NAME + ":geo_params")));
 
         handleDescribeFeatureColumnFilter(
                 get(Arrays.asList(
@@ -375,10 +375,10 @@ public class WFSServiceIT extends AbstractWFSServiceTest {
     public void handleDescribeFeature(ValidatableResponse then) throws Exception {
         if(!DataSetTool.ALIASED_COLLECTION) {
             then.statusCode(200)
-                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(9));
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(10));
         } else {
             then.statusCode(200)
-                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(10));
+                    .body("xs:schema.complexType.complexContent.extension.sequence.element.size()", equalTo(11));
         }
     }
 

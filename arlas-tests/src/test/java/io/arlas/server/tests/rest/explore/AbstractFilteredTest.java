@@ -1537,7 +1537,7 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[840000<915200]")));
         handleTextFieldLikeFilter(post(request), 13, "Brownie");
         handleTextFieldLikeFilter(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
-                        .param("f", "params.startdate:range:[1009799<1009801]")
+                        .param("f", "params.startdate:range:[840000<915200]")
                         .when().get(getUrlPath("geodata"))
                         .then(),
                 13, "Brownie");

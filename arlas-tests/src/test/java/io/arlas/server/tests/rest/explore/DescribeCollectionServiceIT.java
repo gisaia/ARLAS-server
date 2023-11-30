@@ -36,8 +36,8 @@ public class DescribeCollectionServiceIT extends AbstractDescribeTest {
 
     @Override
     public void testDescribeFeatureWithCollectionBasedColumFiltering() throws Exception {
-        handleMatchingResponse(get(Optional.of("fullname,params,geo_params")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
-        handleMatchingResponse(get(Optional.of(COLLECTION_NAME + ":fullname," + COLLECTION_NAME + ":params," + COLLECTION_NAME + ":geo_params")),
+        handleMatchingResponse(get(Optional.of("fullname,text_search,params,geo_params")), new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
+        handleMatchingResponse(get(Optional.of(COLLECTION_NAME + ":fullname," +COLLECTION_NAME + ":text_search," + COLLECTION_NAME + ":params," + COLLECTION_NAME + ":geo_params")),
                 new JsonPath(this.getClass().getClassLoader().getResourceAsStream(getDescribeResultPath())));
         handleNotMatchingResponse(
                 get(Optional.of("notExisting:fullname,notExisting:params,notExisting:geo_params,params.startdate")),

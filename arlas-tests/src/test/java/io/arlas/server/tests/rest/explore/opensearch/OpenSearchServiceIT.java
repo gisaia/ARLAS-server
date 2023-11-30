@@ -43,6 +43,8 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
     static {
         AVAILABLE_COLUMNS.put("fullname", 4);
         AVAILABLE_COLUMNS.put("id", 2);
+        AVAILABLE_COLUMNS.put("text_search", 4);
+
         AVAILABLE_COLUMNS.put("params.country", 2);
         AVAILABLE_COLUMNS.put("params.keywords", 2);
         AVAILABLE_COLUMNS.put("params.weight", 14);
@@ -84,7 +86,7 @@ public class OpenSearchServiceIT extends AbstractTestWithCollection {
     @Test
     public void testOpenSearchFeatureWithAvailableColumns() throws Exception {
         handleOpenSearchFeature(get());
-        handleOpenSearchFeature(get("fullname,params,geo_params.h3"));
+        handleOpenSearchFeature(get("fullname,text_search,params,geo_params.h3"));
 
     }
 
