@@ -90,6 +90,13 @@ public class SearchServiceIT extends AbstractProjectedTest {
                 .body("totalnb", equalTo(nbResults));
     }
 
+    @Override
+    protected void handleTextFieldLikeFilter(ValidatableResponse then, int nbResults, String searchedText) throws Exception {
+        then.statusCode(200)
+                .body("totalnb", equalTo(nbResults))
+                .body("hits.data.text_search", everyItem(containsString(searchedText)));
+    }
+
     //----------------------------------------------------------------
     //----------------------- TEXT QUERY -----------------------------
     //----------------------------------------------------------------

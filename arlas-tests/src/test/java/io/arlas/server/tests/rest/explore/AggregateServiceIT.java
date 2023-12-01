@@ -22,6 +22,7 @@ package io.arlas.server.tests.rest.explore;
 import io.arlas.server.core.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.core.model.enumerations.CollectionFunction;
 import io.arlas.server.core.model.request.*;
+import io.arlas.server.core.ns.ATOM;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
@@ -33,6 +34,7 @@ import java.util.Arrays;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.core.Every.everyItem;
 
 public class AggregateServiceIT extends AbstractAggregatedTest {
 
@@ -353,6 +355,11 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     protected void handleFieldFilter(ValidatableResponse then, int nbResults) throws Exception {
         then.statusCode(200)
                 .body("elements.size()", equalTo(nbResults));
+    }
+
+    @Override
+    protected void handleTextFieldLikeFilter(ValidatableResponse then, int nbResults, String searchedText) throws Exception {
+        handleFieldFilter(then, nbResults);
     }
 
     @Override

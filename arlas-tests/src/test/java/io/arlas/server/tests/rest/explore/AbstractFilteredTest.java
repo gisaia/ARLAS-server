@@ -75,6 +75,22 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString()), 59, "Actor");
         handleFieldFilter(header(request.filter), 59, "Actor");
 
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("text_search", OperatorEnum.like, "the word")));//"text_search:like:the word");
+        handleTextFieldLikeFilter(post(request), 595, "Search the word");
+        handleTextFieldLikeFilter(get("f", request.filter.f.get(0).get(0).toString()), 595, "Search the word");
+        handleTextFieldLikeFilter(header(request.filter), 595, "Search the word");
+
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("text_search", OperatorEnum.like, "Ice")));//"text_search:like:Ice");
+        handleTextFieldLikeFilter(post(request), 117, "Search the word Ice");
+        handleTextFieldLikeFilter(get("f", request.filter.f.get(0).get(0).toString()), 117, "Search the word Ice");
+        handleTextFieldLikeFilter(header(request.filter), 117, "Search the word Ice");
+
+        /** same test above but to show the 'like' operation is NOT case-sensitive **/
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("text_search", OperatorEnum.like, "ice")));//"text_search:like:ice");
+        handleTextFieldLikeFilter(post(request), 117, "Search the word Ice");
+        handleTextFieldLikeFilter(get("f", request.filter.f.get(0).get(0).toString()), 117, "Search the word Ice");
+        handleTextFieldLikeFilter(header(request.filter), 117, "Search the word Ice");
+
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.ne, DataSetTool.jobs[0] + "," + DataSetTool.jobs[1])));//"job:ne:" + DataSetTool.jobs[0] + "," + DataSetTool.jobs[1]);
         handleFieldFilter(post(request), 478, "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter");
         handleFieldFilter(get("f", request.filter.f.get(0).get(0).toString()), 478, "Archeologists", "Architect", "Brain Scientist", "Chemist", "Coach", "Coder", "Cost Estimator", "Dancer", "Drafter");
@@ -1517,6 +1533,16 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
                 2, "Architect");
         handleFieldFilter(header(request.filter), 2, "Architect");
 
+        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("text_search", OperatorEnum.like, "brown")),//"text_search:like:brown"
+                new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[840000<915200]")));
+        handleTextFieldLikeFilter(post(request), 13, "Brownie");
+        handleTextFieldLikeFilter(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
+                        .param("f", "params.startdate:range:[840000<915200]")
+                        .when().get(getUrlPath("geodata"))
+                        .then(),
+                13, "Brownie");
+        handleTextFieldLikeFilter(header(request.filter), 13, "Brownie");
+
 
         request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),//"job:eq:Architect"
                 new MultiValueFilter<>(new Expression("params.startdate", OperatorEnum.range, "[1970/01/01 00:16:49:799<1970/01/01 00:16:49:801]")));
@@ -2163,6 +2189,9 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
     protected abstract RequestSpecification givenFilterableRequestBody();
 
     protected abstract void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception;
+
+    protected abstract void handleTextFieldLikeFilter(ValidatableResponse then, int nbResults, String searchedText) throws Exception;
+
     protected abstract void handleFieldFilter(ValidatableResponse then, int nbResults) throws Exception;
 
     protected abstract void handleMatchingQueryFilter(ValidatableResponse then, int nbResults) throws Exception;

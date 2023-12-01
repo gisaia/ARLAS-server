@@ -11,6 +11,11 @@
         "taggable": false,
         "indexed": true
       },
+      "text_search": {
+        "type": "TEXT",
+        "taggable": false,
+        "indexed": true
+      },
       "params": {
         "type": "OBJECT",
         "properties": {
@@ -190,6 +195,11 @@
       },
       "id": {
         "type": "KEYWORD",
+        "taggable": false,
+        "indexed": true
+      },
+      "text_search": {
+        "type": "TEXT",
         "taggable": false,
         "indexed": true
       },

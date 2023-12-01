@@ -12,6 +12,9 @@
       "fullname": {
         "type": "text"
       },
+      "text_search": {
+        "type": "text"
+      },
       "params": {
         "properties": {
           "age": {
