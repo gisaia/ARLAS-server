@@ -1,8 +1,16 @@
 # Change Log
 
+## [v24.1.0](https://github.com/gisaia/ARLAS-server/tree/v24.1.0) (2023-12-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.0.3...v24.1.0)
+
 ## [v24.0.3](https://github.com/gisaia/ARLAS-server/tree/v24.0.3) (2023-09-01)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.0.2...v24.0.3)
+
+**Fixed bugs:**
+
+- Dates should be given in timestamp if dateformat is not specified [\#910](https://github.com/gisaia/ARLAS-server/issues/910)
 
 ## [v24.0.2](https://github.com/gisaia/ARLAS-server/tree/v24.0.2) (2023-06-22)
 

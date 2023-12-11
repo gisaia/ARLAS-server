@@ -4,21 +4,21 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.arlas</groupId>
   <artifactId>ogc-common</artifactId>
-  <version>24.0.4-SNAPSHOT</version>
+  <version>24.1.0</version>
   <packaging>jar</packaging>
   <name>ARLAS ogc common</name>
 
   <parent>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-server-parent</artifactId>
-    <version>24.0.4-SNAPSHOT</version>
+    <version>24.1.0</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-core</artifactId>
-      <version>24.0.4-SNAPSHOT</version>
+      <version>24.1.0</version>
     </dependency>
 
     <dependency>
