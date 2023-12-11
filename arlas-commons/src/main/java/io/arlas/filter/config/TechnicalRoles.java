@@ -62,4 +62,12 @@ public class TechnicalRoles {
     public static Set<String> getTechnicalRolesList() {
         return technicalRolesPermissions.keySet();
     }
+
+    public static String getDefaultGroup(String org) {
+        return String.format("group/config.json/%s", org);
+    }
+
+    public static String getNewDashboardGroupRole(String org, String group) {
+        return String.format("group/config.json/%s/%s", org, group);
+    }
 }
