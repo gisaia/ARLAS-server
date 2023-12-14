@@ -80,6 +80,10 @@ public class ColumnFilterUtil {
                                             Request basicRequest,
                                             RequestFieldsExtractor.IRequestFieldsExtractor requestExtractor)
             throws InternalServerErrorException, ColumnUnavailableException, CollectionUnavailableException {
+        if (CollectionUtil.isCollectionPublic(collectionReference)) {
+            LOGGER.debug("Collection is public");
+            return;
+        }
         LOGGER.debug("Column-Filter value: " + columnFilter.orElse("null"));
         Optional<String> cleanColumnFilter = cleanColumnFilter(columnFilter);
 
@@ -215,14 +219,18 @@ public class ColumnFilterUtil {
      */
     public static Optional<Set<String>> getColumnFilterPredicates(Optional<String> columnFilter, CollectionReference collectionReference) throws CollectionUnavailableException {
         cleanColumnFilter(columnFilter);
-        return FilterMatcherUtil.filterToPredicatesAsStream(columnFilter)
+        Optional<Set<String>> res = FilterMatcherUtil.filterToPredicatesAsStream(columnFilter)
                 .map(getCollectionFilters(collectionReference))
                 .map(cols -> Stream.concat(
-                        cols,
-                        getCollectionMandatoryPaths(collectionReference)
-                                .stream()
-                                .map(c -> c.replaceAll("\\.", "\\\\.")))
+                                cols,
+                                getCollectionMandatoryPaths(collectionReference)
+                                        .stream()
+                                        .map(c -> c.replaceAll("\\.", "\\\\.")))
                         .collect(Collectors.toSet()));
+        if (res.isPresent() && CollectionUtil.isCollectionPublic(collectionReference)) {
+            res.get().add(".*");
+        }
+        return res;
     }
 
     public static List<String> getCollectionMandatoryPaths(CollectionReference collectionReference) {

@@ -19,15 +19,8 @@
 
 package io.arlas.server.core.impl.elastic.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import io.arlas.server.core.exceptions.CollectionUnavailableException;
-import io.arlas.server.core.services.CollectionReferenceService;
 import co.elastic.clients.elasticsearch._types.Result;
 import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
@@ -35,6 +28,7 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InternalServerErrorException;
 import io.arlas.commons.exceptions.NotFoundException;
+import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.model.CollectionReference;
@@ -104,7 +98,7 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
                         .sort(b -> b.field(c -> c.field("_doc").order(SortOrder.Asc)))
                         .query(b -> b.matchAll(c -> c.queryName("matchAllQuery")))
                         .size(100);
-                if (hits != null && hits.size() > 0) {
+                if (hits != null && !hits.isEmpty()) {
                     requestBuilder.searchAfter(hits.get(hits.size() - 1).sort());
                 }
                 hits = client.search(requestBuilder.build(), CollectionReferenceParameters.class).hits().hits();
@@ -112,7 +106,7 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
                     try {
                         CollectionReference colRef = new CollectionReference(hit.id(), hit.source());
                         checkIfAllowedForOrganisations(colRef, organisations);
-                        if (isCollectionPublic(colRef)) {
+                        if (CollectionUtil.isCollectionPublic(colRef)) {
                             collections.add(colRef);
                         } else {
                             for (String c : allowedCollections) {
@@ -127,7 +121,7 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
                                 hit.id(), organisations));
                     }
                 }
-            } while (hits.size() > 0);
+            } while (!hits.isEmpty());
         } catch (NotFoundException e) {
             throw new InternalServerErrorException("Unreachable collections", e);
         }
