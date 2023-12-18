@@ -115,12 +115,12 @@ public abstract class CollectionReferenceService {
         List<CollectionReferenceDescription> res  = new ArrayList<>();
         for (CollectionReference collection : collectionReferenceList) {
             if (ColumnFilterUtil.cleanColumnFilter(columnFilter).isEmpty()
-                    || isCollectionPublic(collection)
+                    || CollectionUtil.isCollectionPublic(collection)
                     || ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collection).isPresent()) {
                 try {
                     CollectionReferenceDescription describe = describeCollection(collection, columnFilter);
                     res.add(describe);
-                } catch (ArlasException e) { }
+                } catch (ArlasException ignored) { }
 
             }
         }
@@ -357,12 +357,6 @@ public abstract class CollectionReferenceService {
         return ret.get();
     }
 
-    protected boolean isCollectionPublic(CollectionReference collection) {
-        // check if collection is public in a context where organisation must be checked
-        return collection.params.collectionOrganisations != null
-                && collection.params.collectionOrganisations.isPublic;
-    }
-
     protected void checkIfAllowedForOrganisations(CollectionReference collection,
                                                Optional<String> organisations)
             throws CollectionUnavailableException {
@@ -381,13 +375,12 @@ public abstract class CollectionReferenceService {
 
         if (collection.params.collectionOrganisations == null) {
             throw new CollectionUnavailableException(
-                    "The collection %s is not available because has no organisation parameters"
-                            .format(collection.collectionName));
+                    String.format("The collection %s is not available because has no organisation parameters",
+                            collection.collectionName));
         }
 
         if (!ownerOnly && collection.params.collectionOrganisations.isPublic) {
-            LOGGER.debug("Collection %s organisation is public."
-                    .format(collection.collectionName));
+            LOGGER.debug(String.format("Collection %s organisation is public.", collection.collectionName));
             return;
         }
 

@@ -18,9 +18,9 @@
  */
 package io.arlas.server.core.utils;
 
-import co.elastic.clients.elasticsearch._types.mapping.Property;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.NotFoundException;
+import io.arlas.server.core.model.CollectionReference;
 import org.apache.commons.collections4.IteratorUtils;
 
 import java.util.List;
@@ -64,5 +64,11 @@ public class CollectionUtil {
             }
         }
         return mappings;
+    }
+
+    public static boolean isCollectionPublic(CollectionReference collection) {
+        // check if collection is public in a context where organisation must be checked
+        return collection.params.collectionOrganisations != null
+                && collection.params.collectionOrganisations.isPublic;
     }
 }
