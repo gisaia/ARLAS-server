@@ -19,12 +19,18 @@
 
 package io.arlas.commons.cache;
 
-public interface BaseCacheManager {
-    Object getObject(String key, String ref);
+import io.arlas.commons.config.ArlasConfiguration;
 
-    void putObject(String key, String ref, Object col, long timeout);
+public class NoBaseCacheFactory extends CacheFactory {
+    private final BaseCacheManager cacheManager;
 
-    void putObject(String key, String ref, Object col);
+    public NoBaseCacheFactory(ArlasConfiguration configuration) {
+        super(configuration);
+        this.cacheManager = new NoBaseCacheManager(configuration.arlasCacheTimeout);
+    }
 
-    void removeObject(String key, String ref);
+    @Override
+    public BaseCacheManager getCacheManager() {
+        return this.cacheManager;
+    }
 }

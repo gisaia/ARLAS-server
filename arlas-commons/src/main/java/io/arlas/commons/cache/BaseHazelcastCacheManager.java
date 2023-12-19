@@ -69,12 +69,13 @@ public class BaseHazelcastCacheManager implements BaseCacheManager {
             init();
             c = this.instance.getReplicatedMap(key).get(ref);
         }
-        LOGGER.debug("Returning object '" + ref + "' from cache (key=" + key + ") with value " + (c == null ? "null" : c.toString()));
+        LOGGER.debug(String.format("Returning {'%s':{'%s': '%s'}}", key, ref, (c == null ? "null" : c.toString())));
         return c;
     }
 
-    private void putObject(String key, String ref, Object o, int timeout) {
-        LOGGER.debug("Inserting object '" + ref + "' with value '" + o.toString() + "' in cache (key=" + key +")");
+    @Override
+    public void putObject(String key, String ref, Object o, long timeout) {
+        LOGGER.debug(String.format("Inserting {'%s':{'%s': '%s'}}", key, ref, o));
         try {
             this.instance.getReplicatedMap(key).put(ref, o, timeout, TimeUnit.SECONDS);
         } catch (HazelcastInstanceNotActiveException e) { // recover from unexpected shutdown
@@ -90,7 +91,7 @@ public class BaseHazelcastCacheManager implements BaseCacheManager {
 
     @Override
     public void removeObject(String key, String ref) {
-        LOGGER.debug("Clearing object '" + ref + "' from cache (key=" + key +")");
+        LOGGER.debug(String.format("Clearing {'%s':{'%s': ''}}", key, ref));
         try {
             this.instance.getReplicatedMap(key).remove(ref);
         } catch (HazelcastInstanceNotActiveException e) { // recover from unexpected shutdown
@@ -98,37 +99,4 @@ public class BaseHazelcastCacheManager implements BaseCacheManager {
             this.instance.getReplicatedMap(key).remove(ref);
         }
     }
-
-    @Override
-    public void putDecision(String path, Boolean decision) {
-        // we don't want IAM decisions to be cached more than 1 minute
-        putObject("decisions", path, decision, cacheTimeout > 60 ? 60 : cacheTimeout);
-    }
-
-    @Override
-    public Boolean getDecision(String path) {
-        return (Boolean) getObject("decisions", path);
-    }
-
-    @Override
-    public void removeDecision(String path) {
-        removeObject("decisions", path);
-    }
-
-    @Override
-    public void putPermission(String token, String rpt) {
-        // we don't want IAM permissions to be cached more than 1 minute
-        putObject("permissions", token, rpt, cacheTimeout > 60 ? 60 : cacheTimeout);
-    }
-
-    @Override
-    public String getPermission(String token) {
-        return (String) getObject("permissions", token);
-    }
-
-    @Override
-    public void removePermission(String token) {
-        removeObject("permissions", token);
-    }
-
 }

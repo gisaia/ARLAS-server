@@ -78,7 +78,7 @@ public class HTTPPolicyEnforcer extends AbstractPolicyEnforcer {
     protected Object getObjectToken(String accessToken, String orgFilter) throws Exception {
         boolean isApiKey = accessToken.startsWith(ARLAS_API_KEY);
         LOGGER.debug("accessToken=" + (isApiKey ? accessToken.split(":")[1] : decodeToken(accessToken)));
-        String token = cacheManager.getPermission(accessToken + orgFilter);
+        String token = getPermission(accessToken + orgFilter);
         if (token == null) {
             Invocation.Builder request = orgFilter == null ? resource.request() : resource.queryParam(ARLAS_ORG_FILTER, orgFilter).request();
             if (isApiKey) {
@@ -96,7 +96,7 @@ public class HTTPPolicyEnforcer extends AbstractPolicyEnforcer {
             } else {
                 throw new ArlasException("Impossible to get permissions with given access token:" + accessToken);
             }
-            cacheManager.putPermission(accessToken + orgFilter, token);
+            putPermission(accessToken + orgFilter, token);
         }
         LOGGER.debug("RPT=" + decodeToken(token));
         return JWT.decode(token);

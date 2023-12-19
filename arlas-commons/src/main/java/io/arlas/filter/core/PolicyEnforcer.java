@@ -30,6 +30,8 @@ public interface PolicyEnforcer extends ContainerRequestFilter {
 
     PolicyEnforcer setAuthConf(ArlasAuthConfiguration conf) throws Exception;
 
+    PolicyEnforcer setCacheTimeout(long timeout) throws Exception;
+
     PolicyEnforcer setCacheManager(BaseCacheManager cacheManager);
 
     default boolean isEnabled() { return true; }

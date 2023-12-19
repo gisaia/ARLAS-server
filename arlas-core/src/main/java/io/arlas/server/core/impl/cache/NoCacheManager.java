@@ -17,19 +17,28 @@
  * under the License.
  */
 
-package io.arlas.commons.cache;
+package io.arlas.server.core.impl.cache;
+
+import io.arlas.server.core.managers.CacheManager;
+import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.response.FieldType;
+
+import java.util.Map;
 
 /**
  * This cache holds a replicated map (named 'collections') for storing the collection references
  * and one replicated map per collection (named '<collection name>') for storing the elastic types.
  */
-public class NoCacheManager implements BaseCacheManager {
-    public NoCacheManager(int cacheTimeout) {
-    }
+public class NoCacheManager implements CacheManager {
+    public NoCacheManager(int cacheTimeout) {}
 
     @Override
     public Object getObject(String key, String ref) {
         return null;
+    }
+
+    @Override
+    public void putObject(String key, String ref, Object col, long timeout) {
     }
 
     @Override
@@ -41,29 +50,37 @@ public class NoCacheManager implements BaseCacheManager {
     }
 
     @Override
-    public void putDecision(String path, Boolean decision) {
-    }
-
-    @Override
-    public Boolean getDecision(String path) {
+    public CollectionReference getCollectionReference(String ref) {
         return null;
     }
 
     @Override
-    public void removeDecision(String path) {
+    public void putCollectionReference(String ref, CollectionReference col) {
     }
 
     @Override
-    public void putPermission(String token, String rpt) {
+    public void removeCollectionReference(String ref) {
     }
 
     @Override
-    public String getPermission(String token) {
+    public FieldType getFieldType(String ref, String name) {
         return null;
     }
 
     @Override
-    public void removePermission(String token) {
+    public void putFieldType(String ref, String name, FieldType type) {
     }
 
+    @Override
+    public void putMapping(String indexName, Map<String, Map<String, Object>> exists) {
+    }
+
+    @Override
+    public Map<String, Map<String, Object>> getMapping(String indexName) {
+        return null;
+    }
+
+    @Override
+    public void removeMapping(String indexName) {
+    }
 }

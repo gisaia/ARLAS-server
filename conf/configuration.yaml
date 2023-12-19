@@ -92,8 +92,9 @@ elastic:
 ############ CACHE                       ###############
 ########################################################
 # Configuration of the cache
-#arlas_cache_factory_class: ${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.commons.cache.NoCacheFactory}
-arlas_cache_factory_class: ${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.server.core.impl.cache.HazelcastCacheFactory}
+#arlas_cache_factory_class: ${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.server.core.impl.cache.NoCacheFactory}
+#arlas_cache_factory_class: ${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.server.core.impl.cache.HazelcastCacheFactory}
+arlas_cache_factory_class: ${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.server.core.impl.cache.LocalCacheFactory}
 arlas-cache-size: ${ARLAS_CACHE_SIZE:-1000}
 arlas-cache-timeout: ${ARLAS_CACHE_TIMEOUT:-300}
 arlas-rest-cache-timeout: ${ARLAS_REST_CACHE_TIMEOUT:-0}
