@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This cache holds a map (named 'collections') for storing the collection references
- * and one map per collection (named '<collection name>') for storing the elastic types.
  * This is a local cache implementation (no network replication)
  */
 public class BaseLocalCacheManager implements BaseCacheManager {

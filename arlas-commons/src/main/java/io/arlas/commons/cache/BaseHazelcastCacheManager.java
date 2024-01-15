@@ -28,10 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * This cache holds a replicated map (named 'collections') for storing the collection references
- * and one replicated map per collection (named '<collection name>') for storing the elastic types.
- */
 public class BaseHazelcastCacheManager implements BaseCacheManager {
     Logger LOGGER = LoggerFactory.getLogger(BaseHazelcastCacheManager.class);
     final private Config hzConfig;

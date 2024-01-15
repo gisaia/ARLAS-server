@@ -19,7 +19,8 @@
 
 package io.arlas.server.core.impl.cache;
 
-import io.arlas.commons.cache.BaseHazelcastCacheManager;
+import io.arlas.commons.cache.BaseLocalCacheManager;
+import io.arlas.commons.utils.SelfExpiringHashMap;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.response.FieldType;
@@ -29,13 +30,13 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * This cache holds a replicated map (named 'collections') for storing the collection references
- * and one replicated map per collection (named '<collection name>') for storing the elastic types.
+ * This cache holds a map (named 'collections') for storing the collection references
+ * and one map per collection (named '<collection name>') for storing the elastic types.
  */
-public class HazelcastCacheManager extends BaseHazelcastCacheManager implements CacheManager {
-    Logger LOGGER = LoggerFactory.getLogger(HazelcastCacheManager.class);
+public class CollectionLocalCacheManager extends BaseLocalCacheManager implements CacheManager {
+    Logger LOGGER = LoggerFactory.getLogger(CollectionLocalCacheManager.class);
 
-    public HazelcastCacheManager(int cacheTimeout) {
+    public CollectionLocalCacheManager(int cacheTimeout) {
         super(cacheTimeout);
     }
 
@@ -48,14 +49,14 @@ public class HazelcastCacheManager extends BaseHazelcastCacheManager implements 
     public void putCollectionReference(String ref, CollectionReference col) {
         putObject("collections", ref, col);
         LOGGER.debug("Clearing field types of collection '" + ref + "' from cache");
-        this.instance.getReplicatedMap(ref).clear();
+        this.cache.computeIfAbsent(ref, k -> new SelfExpiringHashMap<>()).clear();
     }
 
     @Override
     public void removeCollectionReference(String ref) {
         removeObject("collections", ref);
         LOGGER.debug("Clearing field types of collection '" + ref + "' from cache");
-        this.instance.getReplicatedMap(ref).clear();
+        this.cache.computeIfAbsent(ref, k -> new SelfExpiringHashMap<>()).clear();
     }
 
     @Override

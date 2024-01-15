@@ -23,12 +23,12 @@ import io.arlas.commons.cache.CacheFactory;
 import io.arlas.commons.config.ArlasConfiguration;
 import io.arlas.server.core.managers.CacheManager;
 
-public class HazelcastCacheFactory extends CacheFactory {
+public class CollectionHazelcastCacheFactory extends CacheFactory {
     private final CacheManager cacheManager;
 
-    public HazelcastCacheFactory(ArlasConfiguration configuration) {
+    public CollectionHazelcastCacheFactory(ArlasConfiguration configuration) {
         super(configuration);
-        this.cacheManager = new HazelcastCacheManager(configuration.arlasCacheTimeout);
+        this.cacheManager = new CollectionHazelcastCacheManager(configuration.arlasCacheTimeout);
     }
 
     @Override
