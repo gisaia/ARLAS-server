@@ -43,6 +43,11 @@ public class NoPolicyEnforcer implements PolicyEnforcer {
     }
 
     @Override
+    public PolicyEnforcer setCacheTimeout(long timeout) throws Exception {
+        return this;
+    }
+
+    @Override
     public PolicyEnforcer setCacheManager(BaseCacheManager cacheManager) {
         return this;
     }

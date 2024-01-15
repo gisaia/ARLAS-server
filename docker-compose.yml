@@ -8,6 +8,8 @@ services:
     image: gisaia/arlas-server:${ARLAS_VERSION:-latest}
     container_name: arlas-server
     environment:
+      - ARLAS_LOGGING_LEVEL="${ARLAS_LOGGING_LEVEL:-INFO}"
+      - ARLAS_LOGGING_CONSOLE_LEVEL="${ARLAS_LOGGING_CONSOLE_LEVEL:-INFO}"
       - ARLAS_ELASTIC_NODES=${ARLAS_ELASTIC_NODES:-elasticsearch:9200}
       - ARLAS_ELASTIC_ENABLE_SSL="${ARLAS_ELASTIC_ENABLE_SSL:-false}"
       - ARLAS_ELASTIC_IGNORE_CERTS="${ARLAS_ELASTIC_IGNORE_CERTS:-true}"
@@ -24,7 +26,7 @@ services:
       - ARLAS_AUTH_PERMISSION_URL="${ARLAS_AUTH_PERMISSION_URL:-http://arlas-iam-server:9990/arlas_iam_server/permissions}"
       - ARLAS_CORS_ENABLED="${ARLAS_CORS_ENABLED:-false}"
       - ARLAS_AUTH_CERT_URL="${ARLAS_AUTH_CERT_URL}"
-      - ARLAS_CACHE_FACTORY_CLASS="${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.server.core.impl.cache.HazelcastCacheFactory}"
+      - ARLAS_CACHE_FACTORY_CLASS="${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.server.core.impl.cache.CollectionLocalCacheFactory}"
       - ARLAS_CACHE_TIMEOUT="${ARLAS_CACHE_TIMEOUT:-5}"
       - ARLAS_SWAGGER_RESOURCE_PKG="${ARLAS_SWAGGER_RESOURCE_PKG:-io.arlas.server.rest}"
     ports:

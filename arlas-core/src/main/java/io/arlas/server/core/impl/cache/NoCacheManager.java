@@ -19,13 +19,9 @@
 
 package io.arlas.server.core.impl.cache;
 
-import co.elastic.clients.elasticsearch._types.mapping.Property;
-import io.arlas.commons.cache.BaseHazelcastCacheManager;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.response.FieldType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -33,54 +29,58 @@ import java.util.Map;
  * This cache holds a replicated map (named 'collections') for storing the collection references
  * and one replicated map per collection (named '<collection name>') for storing the elastic types.
  */
-public class HazelcastCacheManager extends BaseHazelcastCacheManager implements CacheManager {
-    Logger LOGGER = LoggerFactory.getLogger(HazelcastCacheManager.class);
+public class NoCacheManager implements CacheManager {
+    public NoCacheManager(int cacheTimeout) {}
 
-    public HazelcastCacheManager(int cacheTimeout) {
-        super(cacheTimeout);
+    @Override
+    public Object getObject(String key, String ref) {
+        return null;
+    }
+
+    @Override
+    public void putObject(String key, String ref, Object col, long timeout) {
+    }
+
+    @Override
+    public void putObject(String key, String ref, Object o) {
+    }
+
+    @Override
+    public void removeObject(String key, String ref) {
     }
 
     @Override
     public CollectionReference getCollectionReference(String ref) {
-        return (CollectionReference) getObject("collections", ref);
+        return null;
     }
 
     @Override
     public void putCollectionReference(String ref, CollectionReference col) {
-        putObject("collections", ref, col);
-        LOGGER.debug("Clearing field types of collection '" + ref + "' from cache");
-        this.instance.getReplicatedMap(ref).clear();
     }
 
     @Override
     public void removeCollectionReference(String ref) {
-        removeObject("collections", ref);
-        LOGGER.debug("Clearing field types of collection '" + ref + "' from cache");
-        this.instance.getReplicatedMap(ref).clear();
     }
 
     @Override
     public FieldType getFieldType(String ref, String name) {
-        return (FieldType) getObject(ref, name);
+        return null;
     }
 
     @Override
     public void putFieldType(String ref, String name, FieldType type) {
-        putObject(ref, name, type);
     }
 
     @Override
-    public void putMapping(String indexName, Map<String, Map<String, Object>> mapping) {
-        putObject("mappings", indexName, mapping);
+    public void putMapping(String indexName, Map<String, Map<String, Object>> exists) {
     }
 
     @Override
     public Map<String, Map<String, Object>> getMapping(String indexName) {
-        return (Map<String, Map<String, Object>>) getObject("mappings", indexName);
+        return null;
     }
 
     @Override
     public void removeMapping(String indexName) {
-        removeObject("mappings", indexName);
     }
 }

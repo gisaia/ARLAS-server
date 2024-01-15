@@ -17,14 +17,22 @@
  * under the License.
  */
 
-package io.arlas.commons.cache;
+package io.arlas.server.core.impl.cache;
 
-public interface BaseCacheManager {
-    Object getObject(String key, String ref);
+import io.arlas.commons.cache.CacheFactory;
+import io.arlas.commons.config.ArlasConfiguration;
+import io.arlas.server.core.managers.CacheManager;
 
-    void putObject(String key, String ref, Object col, long timeout);
+public class CollectionLocalCacheFactory extends CacheFactory {
+    private final CacheManager cacheManager;
 
-    void putObject(String key, String ref, Object col);
+    public CollectionLocalCacheFactory(ArlasConfiguration configuration) {
+        super(configuration);
+        this.cacheManager = new CollectionLocalCacheManager(configuration.arlasCacheTimeout);
+    }
 
-    void removeObject(String key, String ref);
+    @Override
+    public CacheManager getCacheManager() {
+        return this.cacheManager;
+    }
 }

@@ -54,12 +54,12 @@ public class KeycloakPolicyEnforcer extends AbstractPolicyEnforcer {
     @Override
     protected Object getObjectToken(String accessToken, String orgFilter) throws Exception {
         LOGGER.debug("accessToken=" + decodeToken(accessToken));
-        String token = cacheManager.getPermission(accessToken);
+        String token = getPermission(accessToken);
         if (token == null) {
             token = authzClient.authorization(accessToken)
                     .authorize(new AuthorizationRequest())
                     .getToken();
-            cacheManager.putPermission(accessToken, token);
+            putPermission(accessToken, token);
         }
         LOGGER.debug("RPT=" + decodeToken(token));
         return TokenVerifier.create(token, AccessToken.class).getToken();
@@ -78,7 +78,7 @@ public class KeycloakPolicyEnforcer extends AbstractPolicyEnforcer {
 
     @Override
     protected Set<String> getPermissionsClaim(Object token){
-        return new HashSet(((AccessToken) token).getAuthorization().getPermissions().stream()
+        return new HashSet<>(((AccessToken) token).getAuthorization().getPermissions().stream()
                 .map(Permission::getResourceName).toList());
     }
 }

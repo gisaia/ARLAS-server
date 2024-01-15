@@ -17,22 +17,29 @@
  * under the License.
  */
 
-package io.arlas.server.core.impl.cache;
+package io.arlas.commons.cache;
 
-import io.arlas.commons.cache.CacheFactory;
-import io.arlas.commons.config.ArlasConfiguration;
-import io.arlas.server.core.managers.CacheManager;
-
-public class HazelcastCacheFactory extends CacheFactory {
-    private final CacheManager cacheManager;
-
-    public HazelcastCacheFactory(ArlasConfiguration configuration) {
-        super(configuration);
-        this.cacheManager = new HazelcastCacheManager(configuration.arlasCacheTimeout);
+/**
+ * This is a No Cache implementation (does nothing)
+ */
+public class NoBaseCacheManager implements BaseCacheManager {
+    public NoBaseCacheManager(int cacheTimeout) {
     }
 
     @Override
-    public CacheManager getCacheManager() {
-        return this.cacheManager;
+    public Object getObject(String key, String ref) {
+        return null;
+    }
+
+    @Override
+    public void putObject(String key, String ref, Object col, long timeout) {
+    }
+
+    @Override
+    public void putObject(String key, String ref, Object o) {
+    }
+
+    @Override
+    public void removeObject(String key, String ref) {
     }
 }

@@ -110,17 +110,17 @@ Refer to [ARLAS IAM configuration](arlas-iam.md) for a comprehensive configurati
     
 ### Collection Cache & Disovery
 
-| Environment variable                   | ARLAS Server configuration variable                     | Default                                               | Description                                                                  |
-|----------------------------------------|---------------------------------------------------------|-------------------------------------------------------|------------------------------------------------------------------------------|
-| ARLAS_CACHE_FACTORY_CLASS              | Cache manager class                                     | io.arlas.server.core.impl.cache.HazelcastCacheFactory | Class to be used for the cache manager                                       |
-| ARLAS_CACHE_SIZE                       | arlas-cache-size                                        | 1000                                                  | Size of the cache used for managing the collections                          |
-| ARLAS_CACHE_TIMEOUT                    | arlas-cache-timeout                                     | 60                                                    | Number of seconds for the cache used for managing the collections            |
-| ARLAS_REST_CACHE_TIMEOUT               | arlas-rest-cache-timeout                                | 0                                                     | Number of seconds for the cache used for managing the REST responses         |
-| ARLAS_COLLECTION_AUTODISCOVER_SCHEDULE | collection-auto-discover.schedule                       | 0                                                     | Number of seconds between two auto discovery tasks                           |
-| N/A                                    | collection-auto-discover.preferred-id-field-name        | id,identifier                                         | Name of the id field for auto discovery                                      |
-| N/A                                    | collection-auto-discover.preferred-timestamp-field-name | params.startdate                                      | Name of the timestamp field for auto discovery                               |
-| N/A                                    | collection-auto-discover.preferred-centroid-field-name  | geo_params.centroid                                   | Name of the centroid field for auto discovery                                |
-| N/A                                    | collection-auto-discover.preferred-geometry-field-name  | geo,geo_params.geometry                               | Name of the geometry field for auto discovery                                |
+| Environment variable                   | ARLAS Server configuration variable                     | Default                                                     | Description                                                          |
+|----------------------------------------|---------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------|
+| ARLAS_CACHE_FACTORY_CLASS              | Cache manager class                                     | io.arlas.server.core.impl.cache.CollectionLocalCacheFactory | Class to be used for the cache manager                               |
+| ARLAS_CACHE_SIZE                       | arlas-cache-size                                        | 1000                                                        | Size of the cache used for managing the collections                  |
+| ARLAS_CACHE_TIMEOUT                    | arlas-cache-timeout                                     | 60                                                          | Number of seconds for the cache used for managing the collections    |
+| ARLAS_REST_CACHE_TIMEOUT               | arlas-rest-cache-timeout                                | 0                                                           | Number of seconds for the cache used for managing the REST responses |
+| ARLAS_COLLECTION_AUTODISCOVER_SCHEDULE | collection-auto-discover.schedule                       | 0                                                           | Number of seconds between two auto discovery tasks                   |
+| N/A                                    | collection-auto-discover.preferred-id-field-name        | id,identifier                                               | Name of the id field for auto discovery                              |
+| N/A                                    | collection-auto-discover.preferred-timestamp-field-name | params.startdate                                            | Name of the timestamp field for auto discovery                       |
+| N/A                                    | collection-auto-discover.preferred-centroid-field-name  | geo_params.centroid                                         | Name of the centroid field for auto discovery                        |
+| N/A                                    | collection-auto-discover.preferred-geometry-field-name  | geo,geo_params.geometry                                     | Name of the geometry field for auto discovery                        |
 
 
 ### Server

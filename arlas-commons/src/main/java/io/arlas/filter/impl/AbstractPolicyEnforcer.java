@@ -77,6 +77,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractPolicyEnforcer.class);
     protected ArlasAuthConfiguration authConf;
     protected BaseCacheManager cacheManager;
+    private long cacheTimeout;
     protected boolean injectPermissions = true;
 
     private final Base64.Decoder decoder = Base64.getUrlDecoder();
@@ -90,6 +91,13 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
     @Override
     public PolicyEnforcer setAuthConf(ArlasAuthConfiguration conf) throws Exception {
         this.authConf = conf;
+        return this;
+    }
+
+    @Override
+    public PolicyEnforcer setCacheTimeout(long timeout) throws Exception {
+        // max cache timeout is 60s for decisions
+        this.cacheTimeout = Math.min(timeout, 60);
         return this;
     }
 
@@ -134,7 +142,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     + permissions);
             roles.forEach((key, value) -> TechnicalRoles.getTechnicalRolesPermissions().entrySet().stream()
                     .filter(rolesPerm -> ((List<String>) value).contains(rolesPerm.getKey()))
-                    .filter(rolesPerm -> rolesPerm.getValue().get("permissions").size() > 0)
+                    .filter(rolesPerm -> !rolesPerm.getValue().get("permissions").isEmpty())
                     .forEach(rolesPerm -> permissions.addAll(rolesPerm.getValue().get("permissions").stream()
                             .map(rp -> ArlasClaims.replaceVar(rp, VAR_ORG, key)).toList())));
             LOGGER.debug("Resulting permissions: " + permissions);
@@ -216,7 +224,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     String.join(":", ARLAS_API_KEY, keyIdHeader, keySecretHeader)
                     : authHeader.substring(7);
             try {
-                Boolean ok = cacheManager.getDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken));
+                Boolean ok = getDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken));
                 if (ok != null && !ok) {
                     logUAM(LOGGER::warn, DENIED,"forbidden (from cache): " + log);
                     ctx.abortWith(Response.status(FORBIDDEN).build());
@@ -264,13 +272,13 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     ctx.setProperty("claims", arlasClaims.getRules());
                     if ((ok != null && ok) || arlasClaims.isAllowed(method, path)) {
                         arlasClaims.injectHeaders(ctx.getHeaders(), transaction);
-                        cacheManager.putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.TRUE);
+                        putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.TRUE);
                         logUAM(LOGGER::debug, ALLOWED, "granted: " + log);
                         return;
                     }
                 }
                 if (isPublic) {
-                    cacheManager.putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.TRUE);
+                    putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.TRUE);
                     logUAM(LOGGER::debug, ALLOWED, "public (with token): " + log);
                     return;
                 }
@@ -284,12 +292,28 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                 }
                 return;
             }
-            cacheManager.putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.FALSE);
+            putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.FALSE);
             logUAM(LOGGER::warn, DENIED,"forbidden (with token): " + log);
             ctx.abortWith(Response.status(FORBIDDEN).build());
         } finally {
             MDC.clear();
         }
+    }
+
+    protected void putPermission(String token, String rpt) {
+        cacheManager.putObject("permissions", token, rpt, this.cacheTimeout);
+    }
+
+    protected String getPermission(String token) {
+        return (String) cacheManager.getObject("permissions", token);
+    }
+
+    private Boolean getDecision(String path) {
+        return (Boolean) cacheManager.getObject("decisions", path);
+    }
+
+    private void putDecision(String path, Boolean decision) {
+        cacheManager.putObject("decisions", path, decision, this.cacheTimeout);
     }
 
     private String getDecisionCacheKey(ContainerRequestContext ctx, String method, String uri, String accessToken) {

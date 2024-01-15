@@ -166,6 +166,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         PolicyEnforcer policyEnforcer = PolicyEnforcer.newInstance(configuration.arlasAuthPolicyClass)
                 .setAuthConf(configuration.arlasAuthConfiguration)
+                .setCacheTimeout(configuration.arlasCacheTimeout)
                 .setCacheManager(cacheFactory.getCacheManager());
         LOGGER.info("PolicyEnforcer: " + policyEnforcer.getClass().getCanonicalName());
         environment.jersey().register(policyEnforcer);
