@@ -28,5 +28,5 @@ EXPOSE 9999
 HEALTHCHECK --interval=5m --timeout=3s \
   CMD curl http://localhost:9999/admin/healthcheck | grep -v "\"healthy\":false" || exit 1
 
-ENV JDK_JAVA_OPTIONS="-Xmx512m -XX:+ExitOnOutOfMemoryError"
+ENV JDK_JAVA_OPTIONS="-Xmx1g -XX:+ExitOnOutOfMemoryError"
 CMD ["arlas-server.jar", "server", "/opt/app/configuration.yaml"]

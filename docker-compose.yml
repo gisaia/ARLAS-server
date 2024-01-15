@@ -8,6 +8,7 @@ services:
     image: gisaia/arlas-server:${ARLAS_VERSION:-latest}
     container_name: arlas-server
     environment:
+      - JDK_JAVA_OPTIONS=${ARLAS_JDK_JAVA_OPTIONS:--Xmx1g -XX:+ExitOnOutOfMemoryError}
       - ARLAS_LOGGING_LEVEL="${ARLAS_LOGGING_LEVEL:-INFO}"
       - ARLAS_LOGGING_CONSOLE_LEVEL="${ARLAS_LOGGING_CONSOLE_LEVEL:-INFO}"
       - ARLAS_ELASTIC_NODES=${ARLAS_ELASTIC_NODES:-elasticsearch:9200}
