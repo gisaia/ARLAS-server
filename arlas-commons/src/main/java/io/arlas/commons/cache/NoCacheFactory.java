@@ -17,22 +17,20 @@
  * under the License.
  */
 
-package io.arlas.server.core.impl.cache;
+package io.arlas.commons.cache;
 
-import io.arlas.commons.cache.CacheFactory;
 import io.arlas.commons.config.ArlasConfiguration;
-import io.arlas.server.core.managers.CacheManager;
 
-public class CollectionLocalCacheFactory extends CacheFactory {
-    private final CacheManager cacheManager;
+public class NoCacheFactory extends CacheFactory {
+    private final BaseCacheManager cacheManager;
 
-    public CollectionLocalCacheFactory(ArlasConfiguration configuration) {
+    public NoCacheFactory(ArlasConfiguration configuration) {
         super(configuration);
-        this.cacheManager = new CollectionLocalCacheManager(configuration.arlasCacheTimeout);
+        this.cacheManager = new NoCacheManager(configuration.arlasCacheTimeout);
     }
 
     @Override
-    public CacheManager getCacheManager() {
+    public BaseCacheManager getCacheManager() {
         return this.cacheManager;
     }
 }
