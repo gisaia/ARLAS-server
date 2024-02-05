@@ -71,6 +71,11 @@ public class KeycloakPolicyEnforcer extends AbstractPolicyEnforcer {
     }
 
     @Override
+    protected Optional<String> getSubjectEmail(Object token) {
+        return Optional.ofNullable(((AccessToken) token).getEmail());
+    }
+
+    @Override
     protected Map<String, Object> getRolesClaim(Object token, Optional<String> org) {
         return Collections.singletonMap(org.orElse(""),
                 ((AccessToken)token).getResourceAccess(authConf.keycloakConfiguration.getResource()).getRoles().stream().toList());
