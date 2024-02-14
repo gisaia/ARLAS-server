@@ -108,6 +108,23 @@ public abstract class CollectionReferenceService {
         return collectionReference;
     }
 
+    public CollectionReference updateCollectionReference(String collection,
+                                                         String organisations,
+                                                         String columnFilter,
+                                                         boolean isPublic,
+                                                         List<String> sharedWith)
+            throws ArlasException {
+        CollectionReference collectionReference = getCollectionReference(collection, Optional.ofNullable(organisations));
+        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), List.of(collectionReference));
+        checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true);
+        collectionReference.params.collectionOrganisations.isPublic = isPublic;
+        collectionReference.params.collectionOrganisations.sharedWith = sharedWith;
+        putCollectionReferenceWithDao(collectionReference);
+        cacheManager.removeCollectionReference(collectionReference.collectionName);
+        cacheManager.removeMapping(collectionReference.params.indexName);
+        return collectionReference;
+    }
+
     public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
                                                                        Optional<String> columnFilter) throws CollectionUnavailableException {
 

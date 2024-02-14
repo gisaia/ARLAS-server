@@ -64,7 +64,7 @@ technicalRoles:
     - "Building dashboards in ARLAS"
     permissions:
     - r:collections:GET
-    - r:collections/.*:PUT,DELETE
+    - r:collections/.*:PATCH,PUT,DELETE
     - r:collections/_export:GET
     - r:collections/_import:POST
     - r:persist/resource/.*:PUT,POST,DELETE
@@ -94,7 +94,7 @@ technicalRoles:
     - "M2M account for importing collections"
     permissions:
     - r:collections:GET
-    - r:collections/.*:PUT,DELETE
+    - r:collections/.*:PATCH,PUT,DELETE
     - r:collections/_import:POST
     - r:organisations/.*:GET
     - r:persist/resource/.*:POST,PUT
