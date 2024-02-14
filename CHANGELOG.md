@@ -1,5 +1,9 @@
 # Change Log
 
+## [v24.1.1](https://github.com/gisaia/ARLAS-server/tree/v24.1.1) (2024-02-05)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.1.0...v24.1.1)
+
 ## [v24.1.0](https://github.com/gisaia/ARLAS-server/tree/v24.1.0) (2023-12-11)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.0.3...v24.1.0)
