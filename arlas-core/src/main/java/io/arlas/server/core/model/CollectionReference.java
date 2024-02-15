@@ -21,9 +21,11 @@ package io.arlas.server.core.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class CollectionReference implements Serializable {
+    @Serial
     private static final long serialVersionUID = 2270763501550669101L;
 
     public static final String COLLECTION_NAME = "collection_name";
@@ -31,7 +33,6 @@ public class CollectionReference implements Serializable {
     public static final String ID_PATH = "id_path";
     public static final String GEOMETRY_PATH = "geometry_path";
     public static final String CENTROID_PATH = "centroid_path";
-    public static final String H3_PATH = "h3_path";
     public static final String TIMESTAMP_PATH = "timestamp_path";
     public static final String TIMESTAMP_FORMAT = "timestamp_format";
     public static final String DEFAULT_TIMESTAMP_FORMAT = "strict_date_optional_time||epoch_millis";

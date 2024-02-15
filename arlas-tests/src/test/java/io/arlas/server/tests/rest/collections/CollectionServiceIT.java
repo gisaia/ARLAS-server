@@ -360,6 +360,55 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
     }
 
+    @Test
+    public void test09Organisations() throws Exception {
+        Map<String, Object> jsonAsMap = getJsonAsMap("bar.com", null, false);
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
+
+        // PUT new collection
+        given().contentType("application/json")
+                .body(jsonAsMap)
+                .when().put(arlasPath + "collections/bar")
+                .then().statusCode(200);
+
+        // GET collection
+        when().get(arlasPath + "collections/bar")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("bar"))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
+                .body("params.organisations.owner", equalTo("bar.com"))
+                .body("params.organisations.shared", hasSize(0))
+                .body("params.organisations.public", equalTo(Boolean.FALSE));
+
+        // PATCH collection
+        given().contentType("application/json")
+                .body(getOrgAsMap(null, List.of("foo.com"), Boolean.TRUE))
+                .when().patch(arlasPath + "collections/bar/organisations")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("bar"))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
+                .body("params.organisations.owner", equalTo("bar.com"))
+                .body("params.organisations.shared", hasItems("foo.com"))
+                .body("params.organisations.public", equalTo(Boolean.TRUE));
+
+        // DELETE collection
+        when().delete(arlasPath + "collections/bar")
+                .then().statusCode(200);
+
+    }
 
     private void handleInvalidCollectionParameters(ValidatableResponse then) throws Exception {
         then.statusCode(400);
@@ -380,6 +429,10 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
     }
 
     private Map<String, Object> getJsonAsMap() {
+        return getJsonAsMap(null, null, null);
+    }
+
+    private Map<String, Object> getJsonAsMap(String orgOwner, List<String> orgShared, Boolean isPublic) {
         Map<String, Object> jsonAsMap = new HashMap<>();
         jsonAsMap.put(CollectionReference.INDEX_NAME, DataSetTool.DATASET_INDEX_NAME);
         jsonAsMap.put(CollectionReference.ID_PATH, DataSetTool.DATASET_ID_PATH);
@@ -388,7 +441,20 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         jsonAsMap.put(CollectionReference.TIMESTAMP_PATH, DataSetTool.DATASET_TIMESTAMP_PATH);
         jsonAsMap.put(CollectionReference.EXCLUDE_FIELDS, DataSetTool.DATASET_EXCLUDE_FIELDS);
         jsonAsMap.put(CollectionReference.EXCLUDE_WFS_FIELDS, DataSetTool.DATASET_EXCLUDE_WFS_FIELDS);
+        if (orgOwner != null) {
+            jsonAsMap.put(CollectionReference.ORGANISATIONS, getOrgAsMap(orgOwner, orgShared, isPublic));
+        }
         return jsonAsMap;
+    }
+
+    private Map<String, Object> getOrgAsMap(String orgOwner, List<String> orgShared, Boolean isPublic) {
+        Map<String, Object> orgAsMap = new HashMap<>();
+        if (orgOwner != null) {
+            orgAsMap.put(CollectionReference.ORGANISATIONS_OWNER, orgOwner);
+        }
+        orgAsMap.put(CollectionReference.ORGANISATIONS_SHARED, Objects.requireNonNullElse(orgShared, Collections.emptyList()));
+        orgAsMap.put(CollectionReference.ORGANISATIONS_PUBLIC, Objects.requireNonNullElse(isPublic, Boolean.FALSE));
+        return orgAsMap;
     }
 
     private Object getCollectionDescriptionJsonAsMap() {

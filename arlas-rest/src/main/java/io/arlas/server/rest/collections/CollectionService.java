@@ -33,7 +33,6 @@ import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.model.*;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.utils.CheckParams;
-import io.arlas.server.core.utils.CollectionUtil;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -45,6 +44,8 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -158,12 +159,11 @@ public class CollectionService extends CollectionRESTServices {
         removeMetacollection(collections);
         Set<String> allowedCollections = ColumnFilterUtil.getAllowedCollections(Optional.ofNullable(columnFilter));
         for (CollectionReference collection : collections) {
-            collectionReferenceService.checkIfAllowedForOrganisations(collection, Optional.ofNullable(organisations), true);
             for (String c : allowedCollections) {
                 if ((c.endsWith("*") && collection.collectionName.startsWith(c.substring(0, c.indexOf("*"))))
                         || collection.collectionName.equals(c)) {
                     try {
-                        savedCollections.add(save(collection.collectionName, collection.params, true));
+                        savedCollections.add(save(collection.collectionName, collection.params, true, organisations));
                     } catch (Exception e) {
                         throw new ArlasException(e.getMessage());
                     }
@@ -245,10 +245,14 @@ public class CollectionService extends CollectionRESTServices {
             @ApiResponse(code = 404, message = "Not Found Error.", response = Error.class),
             @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
     public Response put(
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
+
             @ApiParam(name = "collection",
                     value = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
+
             @ApiParam(name = "collectionParams",
                     value = "collectionParams",
                     required = true)
@@ -269,10 +273,60 @@ public class CollectionService extends CollectionRESTServices {
         if (collection != null && collection.equals(META_COLLECTION_NAME)) {
             throw new NotAllowedException("'" + META_COLLECTION_NAME + "' is not allowed as a name for collections");
         }
-        return ResponseFormatter.getResultResponse(save(collection, collectionReferenceParameters, checkFields == null ? Boolean.TRUE : checkFields));
+        return ResponseFormatter.getResultResponse(save(collection, collectionReferenceParameters,
+                checkFields == null ? Boolean.TRUE : checkFields, organisations));
     }
 
-    public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters, Boolean checkFields) throws ArlasException {
+    @Timed
+    @Path("{collection}/organisations")
+    @PATCH
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @ApiOperation(
+            value = "Update a collection reference's organisations attribute.",
+            produces = UTF8JSON,
+            notes = "Update a collection reference's organisations attribute.",
+            consumes = UTF8JSON,
+            response = CollectionReference.class
+    )
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
+            @ApiResponse(code = 400, message = "JSON parameter malformed.", response = Error.class),
+            @ApiResponse(code = 404, message = "Not Found Error.", response = Error.class),
+            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    public Response patch(
+            @Context HttpHeaders headers,
+            @ApiParam(name = "collection",
+                    value = "collection",
+                    required = true)
+            @PathParam(value = "collection") String collection,
+
+            @ApiParam(name = "collectionParamsUpdate",
+                    value = "collectionParamsUpdate",
+                    required = true)
+            @NotNull CollectionReferenceUpdate cru,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
+
+            @ApiParam(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @ApiParam(name = "pretty",
+                    value = Documentation.FORM_PRETTY,
+                    defaultValue = "false")
+            @QueryParam(value = "pretty") Boolean pretty
+
+    ) throws ArlasException {
+        if (collection != null && collection.equals(META_COLLECTION_NAME)) {
+            throw new NotAllowedException("'" + META_COLLECTION_NAME + "' cannot be updated");
+        }
+        return ResponseFormatter.getResultResponse(collectionReferenceService.updateCollectionReference(collection, organisations, columnFilter, cru.isPublic, cru.sharedWith));
+    }
+
+    public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters,
+                                    Boolean checkFields, String organisations) throws ArlasException {
         CollectionReference collectionReference = new CollectionReference(collection, collectionReferenceParameters);
         setDefaultInspireParameters(collectionReference);
         if (inspireConfigurationEnabled) {
@@ -280,6 +334,7 @@ public class CollectionService extends CollectionRESTServices {
             CheckParams.checkInvalidDublinCoreElementsForInspire(collectionReference);
         }
         CheckParams.checkInvalidInspireParameters(collectionReference);
+        collectionReferenceService.checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true);
         return collectionReferenceService.putCollectionReference(collectionReference, checkFields);
     }
 
@@ -329,26 +384,26 @@ public class CollectionService extends CollectionRESTServices {
         if (collectionReference.params.inspire == null) {
             collectionReference.params.inspire = new Inspire();
         }
-        if (collectionReference.params.inspire.keywords == null ||collectionReference.params.inspire.keywords.size() == 0) {
+        if (collectionReference.params.inspire.keywords == null || collectionReference.params.inspire.keywords.isEmpty()) {
             collectionReference.params.inspire.keywords = new ArrayList<>();
             Keyword k = new Keyword();
             k.value = collectionReference.collectionName;
             collectionReference.params.inspire.keywords.add(k);
         }
-        if (collectionReference.params.inspire.inspireUseConditions == null || collectionReference.params.inspire.inspireUseConditions.equals("")) {
+        if (collectionReference.params.inspire.inspireUseConditions == null || collectionReference.params.inspire.inspireUseConditions.isEmpty()) {
             collectionReference.params.inspire.inspireUseConditions = "no conditions apply";
         }
         if (collectionReference.params.inspire.inspireURI == null) {
             collectionReference.params.inspire.inspireURI = new InspireURI();
         }
-        if (collectionReference.params.inspire.inspireURI.code == null || collectionReference.params.inspire.inspireURI.code.equals("")) {
+        if (collectionReference.params.inspire.inspireURI.code == null || collectionReference.params.inspire.inspireURI.code.isEmpty()) {
             collectionReference.params.inspire.inspireURI.code = collectionReference.params.dublinCoreElementName.identifier;
         }
-        if (collectionReference.params.inspire.inspireURI.namespace == null || collectionReference.params.inspire.inspireURI.namespace.equals("")) {
+        if (collectionReference.params.inspire.inspireURI.namespace == null || collectionReference.params.inspire.inspireURI.namespace.isEmpty()) {
             collectionReference.params.inspire.inspireURI.namespace = "ARLAS." + collectionReference.collectionName.toUpperCase();
         }
         //a default language must be specified
-        if (collectionReference.params.inspire.languages == null || collectionReference.params.inspire.languages.size() == 0) {
+        if (collectionReference.params.inspire.languages == null || collectionReference.params.inspire.languages.isEmpty()) {
             collectionReference.params.inspire.languages = new ArrayList<>();
             collectionReference.params.inspire.languages.add("eng");
         }
