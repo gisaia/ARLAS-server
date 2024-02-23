@@ -173,15 +173,35 @@ public class ElasticExploreService extends ExploreService {
         if (lastIndex >= 0 && sizeParam == nbhits && sortParam != null && (afterParam != null || sortParam.contains(collectionReference.params.idPath))) {
             next = new Link();
             next.method = method;
-            // Use sorted value of last element return by ES to build after param of next & previous link
-            lastHitAfter = searchHitList.get(lastIndex).sort().stream().map(FieldValue::_toJsonString).collect(Collectors.joining(","));
+            if(!sortParam.contains("geodistance")){
+                // We can't use the sort() method because it transforms all the date in timestamp and dont keep the original format
+                // Use sorted value of last element return by ES to build after param of next & previous link
+                lastHitAfter = Arrays.asList(sortParam.split(",")).stream()
+                        .map(v -> v.replace("-","").replace("+",""))
+                        .map(v -> MapExplorer.getObjectFromPath(v, searchHitList.get(lastIndex).source()))
+                        .map(v -> String.valueOf(v))
+                        .collect(Collectors.joining(","));
+            }else{
+                lastHitAfter = getSortValues(sortParam, searchHitList, lastIndex, lastIndex)
+                        .stream().map(v -> String.valueOf(v)).collect(Collectors.joining(","));
+             }
             LOGGER.debug("lastHitAfter="+lastHitAfter);
 
         }
         if (searchHitList.size() > 0 && sortParam != null && (beforeParam != null || sortParam.contains(collectionReference.params.idPath))) {
             previous = new Link();
             previous.method = method;
-            firstHitAfter = searchHitList.get(0).sort().stream().map(FieldValue::_toJsonString).collect(Collectors.joining(","));
+            if(!sortParam.contains("geodistance")){
+                // We can't use the sort() method because it transforms all the date in timestamp and dont keep the original format
+                firstHitAfter = Arrays.asList(sortParam.split(",")).stream()
+                        .map(v -> v.replace("-","").replace("+",""))
+                        .map(v -> MapExplorer.getObjectFromPath(v, searchHitList.get(0).source()))
+                        .map(v -> String.valueOf(v))
+                        .collect(Collectors.joining(","));
+            }else{
+                firstHitAfter = getSortValues(sortParam, searchHitList, 0, lastIndex)
+                        .stream().map(v -> String.valueOf(v)).collect(Collectors.joining(","));
+            }
             LOGGER.debug("firstHitAfter="+firstHitAfter);
         }
 
@@ -235,6 +255,19 @@ public class ElasticExploreService extends ExploreService {
             }
         }
         return links;
+    }
+
+    private List<String> getSortValues(String sortParam, List<Hit<Map>> searchHitList, int index, int lastIndex) {
+        List<String> sortValues = Arrays.asList(sortParam.split(","))
+                .stream()
+                .map(v -> v.replace("-","").replace("+",""))
+                .map(v -> MapExplorer.getObjectFromPath(v, searchHitList.get(index).source()))
+                .map(v -> String.valueOf(v)).collect(Collectors.toList());
+        String geodistanceSortValue = Arrays.asList(sortParam.split(",")).stream().filter(v -> v.contains("geodistance")).findFirst().get();
+        int geodistanceIndex = Arrays.asList(sortParam.split(",")).indexOf(geodistanceSortValue);
+        String geodistanceValue = String.valueOf(searchHitList.get(lastIndex).sort().get(geodistanceIndex).doubleValue());
+        sortValues.set(geodistanceIndex,geodistanceValue);
+        return sortValues;
     }
 
     @Override
