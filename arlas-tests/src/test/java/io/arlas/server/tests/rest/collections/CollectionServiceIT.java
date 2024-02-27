@@ -389,7 +389,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
         // PATCH collection
         given().contentType("application/json")
-                .body(getOrgAsMap(null, List.of("foo.com"), Boolean.TRUE))
+                .body(Map.of("organisations", getOrgAsMap(null, List.of("foo.com"), Boolean.TRUE)))
                 .when().patch(arlasPath + "collections/bar/organisations")
                 .then().statusCode(200)
                 .body("collection_name", equalTo("bar"))

@@ -21,12 +21,17 @@ package io.arlas.server.core.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import static io.arlas.server.core.model.CollectionReference.ORGANISATIONS;
+import java.util.List;
 
-public class CollectionReferenceUpdate {
-    @JsonProperty(value = ORGANISATIONS, required = false)
-    public CollectionReferenceUpdateOrg organisations;
+import static io.arlas.server.core.model.CollectionReference.ORGANISATIONS_PUBLIC;
+import static io.arlas.server.core.model.CollectionReference.ORGANISATIONS_SHARED;
 
-    public CollectionReferenceUpdate() {
+public class CollectionReferenceUpdateOrg {
+    @JsonProperty(value = ORGANISATIONS_PUBLIC, required = false)
+    public Boolean isPublic;
+    @JsonProperty(value = ORGANISATIONS_SHARED, required = false)
+    public List<String> sharedWith;
+
+    public CollectionReferenceUpdateOrg() {
     }
 }

@@ -322,7 +322,7 @@ public class CollectionService extends CollectionRESTServices {
         if (collection != null && collection.equals(META_COLLECTION_NAME)) {
             throw new NotAllowedException("'" + META_COLLECTION_NAME + "' cannot be updated");
         }
-        return ResponseFormatter.getResultResponse(collectionReferenceService.updateCollectionReference(collection, organisations, columnFilter, cru.isPublic, cru.sharedWith));
+        return ResponseFormatter.getResultResponse(collectionReferenceService.updateCollectionReference(collection, organisations, columnFilter, cru.organisations.isPublic, cru.organisations.sharedWith));
     }
 
     public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters,
