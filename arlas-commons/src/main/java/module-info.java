@@ -45,8 +45,8 @@ module arlas.commons {
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.jaxrs.base;
     requires com.hazelcast.core;
-    requires dropwizard.core;
-    requires dropwizard.jackson;
+    requires io.dropwizard.core;
+    requires io.dropwizard.jackson;
     requires dropwizard.swagger;
     requires java.annotation;
     requires java.validation;
@@ -55,4 +55,6 @@ module arlas.commons {
     requires keycloak.core;
     requires org.slf4j;
     requires java.servlet;
+    requires io.swagger.v3.core;
+    requires io.swagger.v3.oas.models;
 }

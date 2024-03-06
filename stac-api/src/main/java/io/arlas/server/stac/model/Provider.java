@@ -22,7 +22,7 @@ package io.arlas.server.stac.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -81,7 +81,7 @@ public enum RolesEnum {
   }
 
   
-  @ApiModelProperty(required = true, value = "The name of the organization or the individual.")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "The name of the organization or the individual.")
   @JsonProperty("name")
   @NotNull
 
@@ -101,7 +101,7 @@ public enum RolesEnum {
   }
 
   
-  @ApiModelProperty(value = "Multi-line description to add further provider information such as processing details for processors and producers, hosting details for hosts or basic contact information.  [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.")
+  @Schema(description = "Multi-line description to add further provider information such as processing details for processors and producers, hosting details for hosts or basic contact information.  [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.")
   @JsonProperty("description")
 
   public String getDescription() {
@@ -120,7 +120,7 @@ public enum RolesEnum {
   }
 
   
-  @ApiModelProperty(value = "Roles of the provider.  The provider's role(s) can be one or more of the following elements:  * licensor: The organization that is licensing the dataset under   the license specified in the collection's license field. * producer: The producer of the data is the provider that   initially captured and processed the source data, e.g. ESA for   Sentinel-2 data. * processor: A processor is any provider who processed data to a   derived product. * host: The host is the actual provider offering the data on their   storage. There should be no more than one host, specified as last   element of the list.")
+  @Schema(description = "Roles of the provider.  The provider's role(s) can be one or more of the following elements:  * licensor: The organization that is licensing the dataset under   the license specified in the collection's license field. * producer: The producer of the data is the provider that   initially captured and processed the source data, e.g. ESA for   Sentinel-2 data. * processor: A processor is any provider who processed data to a   derived product. * host: The host is the actual provider offering the data on their   storage. There should be no more than one host, specified as last   element of the list.")
   @JsonProperty("roles")
 
   public List<RolesEnum> getRoles() {
@@ -139,7 +139,7 @@ public enum RolesEnum {
   }
 
   
-  @ApiModelProperty(value = "Homepage on which the provider describes the dataset and publishes contact information.")
+  @Schema(description = "Homepage on which the provider describes the dataset and publishes contact information.")
   @JsonProperty("url")
 
   public String getUrl() {

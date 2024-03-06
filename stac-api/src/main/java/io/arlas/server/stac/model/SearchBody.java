@@ -20,7 +20,7 @@
 package io.arlas.server.stac.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.geojson.GeoJsonObject;
 
 import javax.validation.Valid;
@@ -56,7 +56,7 @@ public class SearchBody  {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("datetime")
 
   public String getDatetime() {
@@ -74,7 +74,7 @@ public class SearchBody  {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("intersects")
 
   public GeoJsonObject getIntersects() {
@@ -92,7 +92,7 @@ public class SearchBody  {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("bbox")
 
   public List<Double> getBbox() {
@@ -110,7 +110,7 @@ public class SearchBody  {
   }
 
 
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("collections")
 
   public List<String> getCollections() {
@@ -128,7 +128,7 @@ public class SearchBody  {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("ids")
 
   public List<String> getIds() {
@@ -146,7 +146,7 @@ public class SearchBody  {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("limit")
 
   public Integer getLimit() {
@@ -164,7 +164,7 @@ public class SearchBody  {
   }
 
 
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("from")
 
   public Integer getFrom() { return from; }
@@ -178,7 +178,7 @@ public class SearchBody  {
   }
 
 
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("sortby")
 
   public String getSortBy() {
@@ -196,7 +196,7 @@ public class SearchBody  {
   }
 
 
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("after")
 
   public String getAfter() {
@@ -214,7 +214,7 @@ public class SearchBody  {
   }
 
 
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("before")
 
   public String getBefore() {

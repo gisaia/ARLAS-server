@@ -41,7 +41,8 @@ import io.arlas.server.core.utils.*;
 import io.arlas.server.stac.model.Collection;
 import io.arlas.server.stac.model.*;
 import io.dropwizard.jersey.params.IntParam;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
@@ -68,8 +69,8 @@ import static io.arlas.server.core.utils.TimestampTypeMapper.formatDate;
 import static javax.ws.rs.core.UriBuilder.fromUri;
 
 @Path("/stac")
-@Api(value = "/stac")
-
+@Tag(name="stac", description="STAC API")
+@OpenAPIDefinition
 public abstract class StacRESTService {
     protected ExploreService exploreService;
     protected CollectionReferenceService collectionReferenceService;
@@ -117,10 +118,6 @@ public abstract class StacRESTService {
         return getRawLink(url, rel, MediaType.APPLICATION_JSON);
     }
 
-    protected StacLink getRawLink(String url, String rel, String type) {
-        return new StacLink().rel(rel).type(type).href(url);
-    }
-
     protected StacLink getRawLink(String url, String rel, Object body) {
         return new StacLink().method("POST").rel(rel).type(MediaType.APPLICATION_JSON).href(url).body(body);
     }
@@ -130,9 +127,8 @@ public abstract class StacRESTService {
     }
 
     protected StacLink getLink(UriInfo uriInfo, String path, String method, String rel, String type) {
-        StacLink link = new StacLink().method(method).rel(rel).type(type)
+        return new StacLink().method(method).rel(rel).type(type)
                 .href(fromUri(new UriInfoWrapper(uriInfo,baseUri).getBaseUri()).path(StacRESTService.class).path(path).build().toString());
-        return link;
     }
 
     protected String getAggregateUrl(UriInfo uriInfo, CollectionReference collection, String type, String id) {
@@ -151,9 +147,7 @@ public abstract class StacRESTService {
         List<StacLink> cLinks = new ArrayList<>();
         cLinks.add(getRootLink(uriInfo));
         if(collectionReference.params.licenseUrls != null &&  !collectionReference.params.licenseUrls.isEmpty()){
-            collectionReference.params.licenseUrls.forEach(l->{
-                cLinks.add(getRawLink(l, "licence"));
-            });
+            collectionReference.params.licenseUrls.forEach(l -> cLinks.add(getRawLink(l, "licence")));
         }
         String licenseName = collectionReference.params.licenseName;
         if(licenseName == null){
@@ -200,7 +194,7 @@ public abstract class StacRESTService {
         assets.put("shapefile", getAggregateUrl(uriInfo, collection, "_shapesearch", md.id));
 
         // https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md#item-fields
-        Item item = new Item()
+        return new Item()
                 .stacVersion(configuration.stacVersion)
                 .stacExtensions(new ArrayList<>())
                 .id(md.id)
@@ -209,9 +203,7 @@ public abstract class StacRESTService {
                 .properties(feature.getProperties())
                 .links(links)
                 .assets(assets)
-                .collection(collection.collectionName)
-                ;
-        return item;
+                .collection(collection.collectionName);
     }
 
     private static String getCleanSortBy(String idPath, String sortByParam) {
@@ -257,7 +249,7 @@ public abstract class StacRESTService {
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;
-        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);;
+        request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
         HashMap<String, Object> context = new HashMap<>();
         FeatureCollection features = exploreService.getFeatures(request, collectionReference, false,
@@ -271,6 +263,7 @@ public abstract class StacRESTService {
             Arrays.asList("self", "next", "previous").forEach(rel -> {
                 if (context.containsKey(rel)) {
                     if (method.equals("POST")) {
+                        // TODO : fix when body is null!!
                         links.add(getRawLink(((Link)context.get(rel)).href, rel, getSearchBody(body, (Search) ((Link)context.get(rel)).body)));
                     } else {
                         links.add(getRawLink(((Link)context.get(rel)).href, rel));
@@ -292,9 +285,9 @@ public abstract class StacRESTService {
             response.setTimeStamp(ITU.formatUtc(OffsetDateTime.now()));
         } else {
             Map<String, Object> ctx = new HashMap<>();
-            ctx.put("returned", Long.valueOf(items.size()));
-            ctx.put("limit", body.getLimit());
-            ctx.put("matched", (Long)context.get("matched"));
+            ctx.put("returned", (long) items.size());
+            ctx.put("limit", body == null ? 10 : body.getLimit());
+            ctx.put("matched", context.get("matched"));
             response.setContext(ctx);
         }
         return response;
@@ -338,7 +331,7 @@ public abstract class StacRESTService {
         String[] parts = datetime.split("/");
         if (parts.length == 1) {
             try {
-                Long millisecondValue =  Long.valueOf(OffsetDateTime.parse(datetime).toInstant().toEpochMilli());
+                Long millisecondValue = OffsetDateTime.parse(datetime).toInstant().toEpochMilli();
                 dateFormatted = formatDate(millisecondValue,format);
             } catch (DateTimeParseException e) {
                 throw new InvalidParameterException("Datetime value is not RFC 3339 compatible: " + datetime);
@@ -350,8 +343,8 @@ public abstract class StacRESTService {
             } else if (parts[1].equals("..")) {
                 return StringUtil.concat(dateField, ":", OperatorEnum.gte.name(), ":", getTimestamp(parts[0]));
             } else {
-                if (Long.valueOf(OffsetDateTime.parse(parts[0]).toInstant().toEpochMilli()) >
-                        Long.valueOf(OffsetDateTime.parse(parts[1]).toInstant().toEpochMilli())) {
+                if (OffsetDateTime.parse(parts[0]).toInstant().toEpochMilli() >
+                        OffsetDateTime.parse(parts[1]).toInstant().toEpochMilli()) {
                     throw new InvalidParameterException("Interval dates cannot be the same: " + datetime );
                 }
                 return StringUtil.concat(dateField, ":", OperatorEnum.range.name(), ":[", getTimestamp(parts[0]), "<", getTimestamp(parts[1]), "]");
@@ -364,7 +357,7 @@ public abstract class StacRESTService {
     protected String getGeoFilter(GeoJsonObject geojson, CollectionReference collectionReference) throws ArlasException {
         if (geojson != null) {
             try {
-                /** righthand parameter is forced for STAC; therefore, passed righthand WKTs will be used correctly; **/
+                // righthand parameter is forced for STAC; therefore, passed righthand WKTs will be used correctly;
                 Geometry geometry = reader.read(writer.writeValueAsString(geojson));
                 return StringUtil.concat(collectionReference.params.centroidPath, ":", OperatorEnum.intersects.name(), ":",
                         geometry.toText());
@@ -379,7 +372,7 @@ public abstract class StacRESTService {
         List<Double> bboxList = null;
         try {
             if (bbox != null) {
-                bboxList = Stream.of(bbox.split(",")).map(e -> Double.valueOf(e)).collect(Collectors.toList());
+                bboxList = Stream.of(bbox.split(",")).map(Double::valueOf).collect(Collectors.toList());
             }
         } catch (NumberFormatException e) {
             throw new InvalidParameterException("Invalid bbox definition: " + bbox);
@@ -403,9 +396,9 @@ public abstract class StacRESTService {
         }
         return StringUtil.concat(collectionReference.params.centroidPath,
                 ":within:",
-                String.join(",", bbox.stream()
-                        .map(d -> d.toString())
-                        .collect(Collectors.toList())));
+                bbox.stream()
+                        .map(Object::toString)
+                        .collect(Collectors.joining(",")));
     }
 
     protected String getIdFilter(String id, CollectionReference collectionReference) {
@@ -413,7 +406,7 @@ public abstract class StacRESTService {
     }
 
     protected String getIdFilter(List<String> ids, CollectionReference collectionReference) {
-        if (ids != null && ids.size() > 0) {
+        if (ids != null && !ids.isEmpty()) {
             return StringUtil.concat(collectionReference.params.idPath, ":", OperatorEnum.eq.name(), ":",
                     String.join(",", ids));
         }
