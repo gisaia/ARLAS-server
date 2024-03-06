@@ -43,6 +43,11 @@ import io.arlas.server.stac.model.*;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriInfo;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
@@ -51,11 +56,6 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.arlas.server.core.utils.TimestampTypeMapper.formatDate;
-import static javax.ws.rs.core.UriBuilder.fromUri;
+import static jakarta.ws.rs.core.UriBuilder.fromUri;
 
 @Path("/stac")
 @Tag(name="stac", description="STAC API")

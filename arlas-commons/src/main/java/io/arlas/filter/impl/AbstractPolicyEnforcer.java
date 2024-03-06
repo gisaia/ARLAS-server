@@ -29,18 +29,18 @@ import io.arlas.commons.utils.StringUtil;
 import io.arlas.filter.config.TechnicalRoles;
 import io.arlas.filter.core.ArlasClaims;
 import io.arlas.filter.core.PolicyEnforcer;
+import jakarta.annotation.Priority;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Priorities;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import javax.annotation.Priority;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -48,8 +48,8 @@ import java.util.stream.Collectors;
 
 import static io.arlas.commons.rest.utils.ServerConstants.*;
 import static io.arlas.filter.config.TechnicalRoles.VAR_ORG;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 @Provider
 @Priority(Priorities.AUTHORIZATION)

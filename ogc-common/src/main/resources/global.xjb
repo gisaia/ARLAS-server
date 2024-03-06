@@ -1,10 +1,10 @@
-<jxb:bindings version="2.0" xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
-                xmlns:annox="http://annox.dev.java.net"
-               xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
-               xmlns:xs="http://www.w3.org/2001/XMLSchema"
-
-               	>
+<jxb:bindings
+    version="3.0"
+    xmlns:jxb="https://jakarta.ee/xml/ns/jaxb"
+    xmlns:annox="http://annox.dev.java.net"
+    xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
     xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
     <jxb:bindings schemaLocation="http://www.w3.org/1999/xlink.xsd"
         node="/xs:schema">
         <jxb:bindings node="//xs:attributeGroup[@name='locatorAttrs']">
@@ -41,10 +41,10 @@
     </jxb:bindings>
     <jxb:bindings  schemaLocation="csw/ows-1.1/owsCommon.xsd" node="/xs:schema">
     		<jxb:bindings node="xs:complexType[@name='BoundingBoxType']//xs:element[@name='LowerCorner']">
-    			<annox:annotate target="field">@javax.xml.bind.annotation.XmlSchemaType(name="double")</annox:annotate>
+    			<annox:annotate target="field">@jakarta.xml.bind.annotation.XmlSchemaType(name="double")</annox:annotate>
     		</jxb:bindings>
     		<jxb:bindings node="xs:complexType[@name='BoundingBoxType']//xs:element[@name='UpperCorner']">
-    			<annox:annotate target="field">@javax.xml.bind.annotation.XmlSchemaType(name="double")</annox:annotate>
+    			<annox:annotate target="field">@jakarta.xml.bind.annotation.XmlSchemaType(name="double")</annox:annotate>
     		</jxb:bindings>
     	</jxb:bindings>
     <jxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.2.1/coordinateReferenceSystems.xsd" node="/xs:schema">

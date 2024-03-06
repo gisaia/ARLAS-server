@@ -21,11 +21,10 @@ package io.arlas.server.rest.collections;
 
 import io.arlas.server.core.services.ArlasRESTServices;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
 
 @Path("/collections")
 @Tag(name="collections", description="Collections API")

@@ -26,7 +26,7 @@ Date: 12-03-2014
 
 		   targetNamespace="http://a9.com/-/spec/opensearch/1.1/"
 		   elementFormDefault="qualified"
-		   xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"  jaxb:version="2.0">
+		   xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"  jaxb:version="3.0">
 <xs:annotation><xs:appinfo>
     <jaxb:schemaBindings>
       <jaxb:package name="com.a9.opensearch"/>

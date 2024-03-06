@@ -19,20 +19,20 @@
 
 package io.arlas.server.ogc.wfs.operation.getfeature;
 
-import io.arlas.server.core.app.OGCConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.server.core.app.OGCConfiguration;
 import io.arlas.server.core.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
+import io.arlas.server.core.utils.MapExplorer;
 import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.ogc.common.utils.XmlUtils;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
-import io.arlas.server.core.utils.MapExplorer;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.geojson.GeoJsonObject;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.StreamingOutput;
 import javax.xml.namespace.QName;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLOutputFactory;
