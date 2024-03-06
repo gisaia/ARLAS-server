@@ -35,7 +35,7 @@ import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.services.ElasticWFSToolService;
 import io.arlas.server.ogc.wfs.services.WFSToolService;
 import io.arlas.server.core.services.ExploreService;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.setup.Environment;
 
 import java.util.HashMap;
 import java.util.Map;

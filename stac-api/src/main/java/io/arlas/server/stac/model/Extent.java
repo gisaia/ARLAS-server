@@ -20,7 +20,7 @@
 package io.arlas.server.stac.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -42,7 +42,7 @@ public class Extent   {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("spatial")
   @NotNull
 
@@ -61,7 +61,7 @@ public class Extent   {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("temporal")
   @NotNull
 

@@ -171,12 +171,12 @@ i=1; until nc -w 2 ${DOCKER_IP} 19999; do if [ $i -lt 30 ]; then sleep 1; else b
 
 echo "=> Get swagger documentation"
 mkdir -p target/tmp || echo "target/tmp exists"
-i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.json -o target/tmp/swagger.json; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
-i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/swagger.yaml -o target/tmp/swagger.yaml; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
+i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/openapi.json -o target/tmp/openapi.json; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
+i=1; until curl -XGET http://${DOCKER_IP}:19999/arlas/openapi.yaml -o target/tmp/openapi.yaml; do if [ $i -lt 60 ]; then sleep 1; else break; fi; i=$(($i + 1)); done
 
 mkdir -p openapi
-cp target/tmp/swagger.yaml openapi
-cp target/tmp/swagger.json openapi
+cp target/tmp/openapi.yaml openapi
+cp target/tmp/openapi.json openapi
 
 echo "=> Generate API documentation"
 mvn "-Dswagger.output=docs/api" swagger2markup:convertSwagger2markup
@@ -201,19 +201,19 @@ else
     docker run --rm \
         -e GROUP_ID="$(id -g)" \
         -e USER_ID="$(id -u)" \
-        --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
+        --mount dst=/input/api.json,src="$PWD/target/tmp/openapi.json",type=bind,ro \
         --mount dst=/input/config.json,src="$PWD/conf/swagger/java-config.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/java-api",type=bind \
-        gisaia/swagger-codegen-3.0.35 \
+        gisaia/swagger-codegen-3.0.42 \
             -l java --type-mappings GeoJsonObject=Object
 
     mkdir -p target/tmp/typescript-fetch
     docker run --rm \
         -e GROUP_ID="$(id -g)" \
         -e USER_ID="$(id -u)" \
-        --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
+        --mount dst=/input/api.json,src="$PWD/target/tmp/openapi.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
-        gisaia/swagger-codegen-2.4.14 \
+        gisaia/swagger-codegen-3.0.42 \
             -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
 
     echo "=> Build Typescript API "${FULL_API_VERSION}
@@ -288,8 +288,8 @@ if [ "$SIMULATE" == "NO" ]; then
     git tag -d v${ARLAS_VERSION}
     git push origin :v${ARLAS_VERSION}
     echo "=> Commit release version"
-    git add openapi/swagger.json
-    git add openapi/swagger.yaml
+    git add openapi/openapi.json
+    git add openapi/openapi.yaml
     git add docs/api
     git commit -a -m "release version ${ARLAS_VERSION}"
     git tag v${ARLAS_VERSION}
@@ -315,10 +315,10 @@ echo "=> Update REST API version in JAVA source code"
 sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' arlas-rest/src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
 
 if [ "$SIMULATE" == "NO" ]; then
-    sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"'${API_DEV_VERSION}-SNAPSHOT'\"/' openapi/swagger.yaml
-    sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"'${API_DEV_VERSION}-SNAPSHOT'\"/' openapi/swagger.json
-    git add openapi/swagger.json
-    git add openapi/swagger.yaml
+    sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"'${API_DEV_VERSION}-SNAPSHOT'\"/' openapi/openapi.yaml
+    sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"'${API_DEV_VERSION}-SNAPSHOT'\"/' openapi/openapi.json
+    git add openapi/openapi.json
+    git add openapi/openapi.yaml
     git commit -a -m "development version ${ARLAS_DEV_VERSION}-SNAPSHOT"
     git push origin develop
 else echo "=> Skip git push develop"; fi

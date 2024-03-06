@@ -46,7 +46,13 @@ import io.arlas.server.ogc.csw.utils.CSWCheckParam;
 import io.arlas.server.ogc.csw.utils.CSWConstant;
 import io.arlas.server.ogc.csw.utils.CSWRequestType;
 import io.arlas.server.ogc.csw.utils.ElementSetName;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import net.opengis.cat.csw._3.AbstractRecordType;
 import net.opengis.cat.csw._3.CapabilitiesType;
 import net.opengis.cat.csw._3.GetRecordsResponseType;
@@ -70,7 +76,7 @@ import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.arlas.server.core.utils.CheckParams.isBboxLatLonInCorrectRanges;
 
 @Path("/ogc")
-@Api(value = "/ogc")
+@Tag(name="ogc", description="OGC API")
 public class CSWRESTService extends OGCRESTService {
 
     public static final String MIME_TYPE__OPENSEARCH_XML = "application/opensearchdescription+xml";
@@ -88,160 +94,126 @@ public class CSWRESTService extends OGCRESTService {
     @Path("/csw")
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, ATOM.APPLICATION_ATOM_XML, MIME_TYPE__OPENSEARCH_XML})
-    @ApiOperation(
-            value = "CSW",
-
-            produces = MediaType.APPLICATION_XML + "," + MediaType.TEXT_XML + "," + ATOM.APPLICATION_ATOM_XML + "," + MIME_TYPE__OPENSEARCH_XML,
-            notes = "CSW"
+    @Operation(
+            summary = "CSW",
+            description = "CSW"
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response doKVP(
-            @ApiParam(
+            @Parameter(
                     name = "version",
-                    value = "version",
-                    allowMultiple = false,
+                    description = "version",
                     required = true)
             @QueryParam(value = "version") String version,
-            @ApiParam(
+            @Parameter(
                     name = "acceptversions",
-                    value = "acceptversions",
-                    allowMultiple = false,
+                    description = "acceptversions",
                     required = true)
             @QueryParam(value = "acceptversions") String acceptVersions,
-            @ApiParam(
+            @Parameter(
                     name = "service",
-                    value = "service",
-                    allowMultiple = false,
+                    description = "service",
                     required = true)
             @QueryParam(value = "service") String service,
-            @ApiParam(
+            @Parameter(
                     name = "request",
-                    value = "request",
-                    allowMultiple = false,
+                    description = "request",
                     required = true)
             @QueryParam(value = "request") String request,
-            @ApiParam(
+            @Parameter(
                     name = "elementname",
-                    value = "elementname",
-                    allowMultiple = false,
+                    description = "elementname",
                     required = true)
             @QueryParam(value = "elementname") String elementName,
-            @ApiParam(
+            @Parameter(
                     name = "elementsetname",
-                    value = "elementsetname",
-                    allowMultiple = false,
+                    description = "elementsetname",
                     required = true)
             @QueryParam(value = "elementsetname") String elementSetName,
-            @ApiParam(
+            @Parameter(
                     name = "filter",
-                    value = "filter",
-                    allowMultiple = false,
+                    description = "filter",
                     required = true)
             @QueryParam(value = "filter") String filter,
 
-            @ApiParam(
+            @Parameter(
                     name = "constraint",
-                    value = "constraint",
-                    allowMultiple = false,
+                    description = "constraint",
                     required = true)
             @QueryParam(value = "constraint") String constraint,
-            @ApiParam(
+            @Parameter(
                     name = "constraintLanguage",
-                    value = "constraintLanguage",
-                    allowMultiple = false,
+                    description = "constraintLanguage",
                     required = true)
             @QueryParam(value = "constraintLanguage") String constraintLanguage,
-            @ApiParam(
+            @Parameter(
                     name = "startposition",
-                    value = "startposition",
-                    allowMultiple = false,
-                    required = false)
+                    description = "startposition")
             @QueryParam(value = "startposition") Integer startPosition,
-            @ApiParam(
+            @Parameter(
                     name = "maxrecords",
-                    value = "maxrecords",
-                    allowMultiple = false,
-                    required = false)
+                    description = "maxrecords")
             @QueryParam(value = "maxrecords") Integer maxRecords,
-            @ApiParam(
+            @Parameter(
                     name = "sections",
-                    value = "sections",
-                    allowMultiple = false,
-                    required = false)
+                    description = "sections")
             @QueryParam(value = "sections") String sections,
-            @ApiParam(
+            @Parameter(
                     name = "acceptformats",
-                    value = "acceptformats",
-                    allowMultiple = false,
-                    required = false)
+                    description = "acceptformats")
             @QueryParam(value = "acceptformats") String acceptFormats,
-            @ApiParam(
+            @Parameter(
                     name = "q",
-                    value = "q",
-                    allowMultiple = false,
-                    required = false)
+                    description = "q")
             @QueryParam(value = "q") String query,
-            @ApiParam(
+            @Parameter(
                     name = "bbox",
-                    value = "bbox",
-                    allowMultiple = false,
-                    required = false)
+                    description = "bbox")
             @QueryParam(value = "bbox") String bbox,
-            @ApiParam(
+            @Parameter(
                     name = "outputformat",
-                    value = "outputformat",
-                    allowMultiple = false,
-                    required = false)
+                    description = "outputformat")
             @QueryParam(value = "outputformat") String outputFormat,
-            @ApiParam(
+            @Parameter(
                     name = "outputschema",
-                    value = "outputschema",
-                    allowMultiple = false,
-                    required = false)
+                    description = "outputschema")
             @QueryParam(value = "outputschema") String outputSchema,
-            @ApiParam(
+            @Parameter(
                     name = "typenames",
-                    value = "typenames",
-                    allowMultiple = false,
-                    required = false)
+                    description = "typenames")
             @QueryParam(value = "typenames") String typeNames,
-            @ApiParam(
+            @Parameter(
                     name = "recordids",
-                    value = "recordids",
-                    allowMultiple = false,
-                    required = false)
+                    description = "recordids")
             @QueryParam(value = "recordids") String recordIds,
-            @ApiParam(
+            @Parameter(
                     name = "id",
-                    value = "id",
-                    allowMultiple = false,
-                    required = false)
+                    description = "id")
             @QueryParam(value = "id") String id,
-            @ApiParam(
+            @Parameter(
                     name = "language",
-                    value = "language",
-                    allowMultiple = false,
-                    required = false)
+                    description = "language")
             @QueryParam(value = "language") String language,
 
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    allowMultiple = false,
-                    defaultValue = "false",
-                    required = false)
+            @Parameter(name = "pretty", description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty,
             @Context HttpHeaders headers
     ) throws ArlasException, DatatypeConfigurationException, IOException {
@@ -388,7 +360,7 @@ public class CSWRESTService extends OGCRESTService {
 
     private void filterCollectionsByColumnFilter(
             @HeaderParam(COLUMN_FILTER)
-            @ApiParam(hidden = true) String columnFilter,
+            @Parameter(hidden = true) String columnFilter,
 
             List<CollectionReference> collections
     ) throws CollectionUnavailableException {
@@ -410,16 +382,22 @@ public class CSWRESTService extends OGCRESTService {
     @Path("/csw/opensearch")
     @GET
     @Produces({MediaType.APPLICATION_XML, MIME_TYPE__OPENSEARCH_XML})
-    @ApiOperation(value = "OpenSearch CSW Description Document",
-            produces = MediaType.APPLICATION_XML + "," + MIME_TYPE__OPENSEARCH_XML,
-            notes = Documentation.OPENSEARCH_CSW_OPERATION)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
+    @Operation(
+            summary = "OpenSearch CSW Description Document",
+            description = Documentation.OPENSEARCH_CSW_OPERATION
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response opensearch(
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache", required = false)
+            @Parameter(description = "max-age-cache", required = false)
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) {
         OpenSearchHandler openSearchHandler = cswHandler.openSearchHandler;

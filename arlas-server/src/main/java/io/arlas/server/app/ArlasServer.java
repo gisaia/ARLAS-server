@@ -21,7 +21,7 @@ package io.arlas.server.app;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import io.arlas.commons.cache.CacheFactory;
 import io.arlas.commons.config.ArlasConfiguration;
 import io.arlas.commons.config.ArlasCorsConfiguration;
@@ -30,6 +30,7 @@ import io.arlas.commons.exceptions.ConstraintViolationExceptionMapper;
 import io.arlas.commons.exceptions.IllegalArgumentExceptionMapper;
 import io.arlas.commons.exceptions.JsonProcessingExceptionMapper;
 import io.arlas.commons.rest.utils.PrettyPrintFilter;
+import io.arlas.commons.utils.MapAwareConverter;
 import io.arlas.filter.core.PolicyEnforcer;
 import io.arlas.server.admin.task.CollectionAutoDiscover;
 import io.arlas.server.core.app.ArlasServerConfiguration;
@@ -64,17 +65,17 @@ import io.arlas.server.stac.api.StacConformanceRESTService;
 import io.arlas.server.stac.api.StacCoreRESTService;
 import io.arlas.server.stac.api.StacSearchRESTService;
 import io.arlas.server.wfs.requestfilter.InsensitiveCaseFilter;
-import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import io.swagger.v3.core.converter.ModelConverters;
+import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
@@ -119,8 +120,8 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
     public void run(ArlasServerConfiguration configuration, Environment environment) throws Exception {
         
         configuration.check();
-        LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
-
+        LOGGER.info("Checked configuration: " + environment.getObjectMapper().writer().writeValueAsString(configuration));
+        ModelConverters.getInstance().addConverter(new MapAwareConverter());
         CacheFactory cacheFactory = (CacheFactory) Class
                 .forName(configuration.arlasCacheFactoryClass)
                 .getConstructor(ArlasConfiguration.class)
@@ -136,6 +137,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         ExploreService exploration = dbToolFactory.getExploreService();
         environment.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
+
         environment.jersey().register(MultiPartFeature.class);
         environment.jersey().register(new ArlasExceptionMapper());
         environment.jersey().register(new IllegalArgumentExceptionMapper());
@@ -210,26 +212,23 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
 
         if (configuration.arlasServiceSTACEnabled) {
             LOGGER.info("STAC Service enabled");
-
-            // Add OpenAPI v3 endpoint
             String baseUri = configuration.arlasBaseUri;
             if (baseUri.endsWith("/")) {
                 baseUri = baseUri.substring(0, baseUri.length()-1);
             }
             Info info = new Info().title("ARLAS STAC API").version("1.0.0");
-            SwaggerConfiguration oasConfig = new SwaggerConfiguration()
-                    .openAPI(new OpenAPI().info(info).servers(Collections.singletonList(new Server().url(baseUri))))
-                    .prettyPrint(true)
-                    .resourceClasses(Stream.of("io.arlas.server.stac.api.StacCoreRESTService",
-                                    "io.arlas.server.stac.api.StacCollectionsRESTService",
-                                    "io.arlas.server.stac.api.StacConformanceRESTService",
-                                    "io.arlas.server.stac.api.StacSearchRESTService")
-                            .collect(Collectors.toSet()));
-            environment.jersey().register(new OpenApiResource().openApiConfiguration(oasConfig));
-            //
-
+            Reader reader = new Reader(new OpenAPI().info(info).servers(Collections.singletonList(new Server().url(baseUri))));
+            OpenAPI openAPI = reader.read(Stream.of(
+                            StacCoreRESTService.class,
+                            StacCollectionsRESTService.class,
+                            StacConformanceRESTService.class,
+                            StacSearchRESTService.class)
+                    .collect(Collectors.toSet()));
+            environment.getObjectMapper().configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+            String openAPIjson = environment.getObjectMapper().writeValueAsString(openAPI);
+            environment.getObjectMapper().configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, false);
             environment.jersey().register(new StacCoreRESTService(configuration.stacConfiguration, configuration.arlasRestCacheTimeout,
-                    dbToolFactory.getCollectionReferenceService(), dbToolFactory.getExploreService(), configuration.arlasBaseUri));
+                    dbToolFactory.getCollectionReferenceService(), dbToolFactory.getExploreService(), configuration.arlasBaseUri, openAPIjson));
             environment.jersey().register(new StacCollectionsRESTService(configuration.stacConfiguration, configuration.arlasRestCacheTimeout,
                     dbToolFactory.getCollectionReferenceService(), dbToolFactory.getExploreService(), configuration.arlasBaseUri));
             environment.jersey().register(new StacConformanceRESTService(configuration.stacConfiguration, configuration.arlasRestCacheTimeout,
