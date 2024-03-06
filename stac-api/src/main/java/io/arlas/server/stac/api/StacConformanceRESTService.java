@@ -20,8 +20,8 @@
 package io.arlas.server.stac.api;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.commons.rest.response.Error;
+import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.stac.model.ConformanceClasses;
@@ -31,12 +31,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 public class StacConformanceRESTService extends StacRESTService {
 

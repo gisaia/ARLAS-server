@@ -20,10 +20,10 @@
 package io.arlas.server.ogc.wfs.operation.storedquery;
 
 import io.arlas.server.ogc.wfs.WFSHandler;
+import jakarta.xml.bind.JAXBElement;
 import net.opengis.wfs._2.ListStoredQueriesResponseType;
 import net.opengis.wfs._2.StoredQueryListItemType;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.util.List;
 

@@ -20,6 +20,7 @@
 package io.arlas.server.opensearch.rest.explore;
 
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.Feed;
 import io.arlas.server.core.model.response.*;
@@ -27,17 +28,16 @@ import io.arlas.server.core.ns.ATOM;
 import io.arlas.server.core.ns.GEORSS;
 import io.arlas.server.core.ns.GML;
 import io.arlas.server.core.ns.OPENSEARCH;
-import io.arlas.server.ogc.common.utils.GeoFormat;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.MapExplorer;
-import io.arlas.commons.utils.StringUtil;
+import io.arlas.server.ogc.common.utils.GeoFormat;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.ext.MessageBodyWriter;
+import jakarta.ws.rs.ext.Provider;
 
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.Provider;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;

@@ -21,10 +21,9 @@ package io.arlas.filter.core;
 
 import io.arlas.commons.cache.BaseCacheManager;
 import io.arlas.commons.config.ArlasAuthConfiguration;
+import jakarta.ws.rs.container.ContainerRequestFilter;
 
-import javax.ws.rs.container.ContainerRequestFilter;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 
 public interface PolicyEnforcer extends ContainerRequestFilter {
 

@@ -20,9 +20,8 @@
 package io.arlas.server.tests.auth;
 
 import io.arlas.server.tests.AbstractTestContext;
+import jakarta.ws.rs.core.HttpHeaders;
 import org.junit.Test;
-
-import javax.ws.rs.core.HttpHeaders;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;

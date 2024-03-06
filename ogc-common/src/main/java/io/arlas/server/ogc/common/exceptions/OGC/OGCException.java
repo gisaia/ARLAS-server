@@ -21,12 +21,12 @@ package io.arlas.server.ogc.common.exceptions.OGC;
 
 
 import io.arlas.commons.exceptions.ArlasException;
-import io.arlas.server.ogc.common.model.response.OGCError;
 import io.arlas.server.ogc.common.model.Service;
+import io.arlas.server.ogc.common.model.response.OGCError;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
