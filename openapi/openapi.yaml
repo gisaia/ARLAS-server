@@ -16,7 +16,6 @@ externalDocs:
 servers:
 - url: /arlas
   description: default server
-  variables: {}
 tags:
 - name: collections
   description: Collections API
@@ -3663,6 +3662,11 @@ components:
         name:
           type: string
     CollectionReferenceUpdate:
+      type: object
+      properties:
+        organisations:
+          $ref: '#/components/schemas/CollectionReferenceUpdateOrg'
+    CollectionReferenceUpdateOrg:
       type: object
       properties:
         public:

@@ -36,7 +36,7 @@
 
   <properties>
     <!-- PROJECT-->
-    <log4j.version>2.19.0</log4j.version>
+    <log4j.version>2.23.0</log4j.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <skipTests>true</skipTests>
     <maven.surefire.version>2.22.2</maven.surefire.version>
@@ -53,14 +53,13 @@
     <io.rest-assured.version>5.4.0</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
-    <dropwizard.version>3.0.6</dropwizard.version>
+    <dropwizard.version>4.0.6</dropwizard.version>
     <!-- jackson version is also defined in conf/maven/pom.xml for the java server client -->
     <jackson-version>2.16.1</jackson-version>
-    <logback.version>1.3.14</logback.version>
-    <dropwizard.swagger.version>3.0.0-1</dropwizard.swagger.version>
-    <jaxb.version>2.3.8</jaxb.version>
-    <jersey-media-jaxb.version>2.41</jersey-media-jaxb.version>
-    <activation.version>2.1.2</activation.version>
+    <dropwizard.swagger.version>4.0.5-1</dropwizard.swagger.version>
+    <jaxb.version>4.0.4</jaxb.version>
+    <!-- don't go to jersey 3.1.x before DW5 (jakarta EE 10) -->
+    <jersey-media-jaxb.version>3.0.12</jersey-media-jaxb.version>
 
     <!-- CACHE-->
     <hazelcast.version>5.3.6</hazelcast.version>

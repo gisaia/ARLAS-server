@@ -20,9 +20,8 @@
 package io.arlas.commons.exceptions;
 
 import io.arlas.commons.rest.response.Error;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 public class ArlasException extends Exception {
     private static final long serialVersionUID = 1L;

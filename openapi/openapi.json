@@ -20,8 +20,7 @@
   },
   "servers" : [ {
     "url" : "/arlas",
-    "description" : "default server",
-    "variables" : { }
+    "description" : "default server"
   } ],
   "tags" : [ {
     "name" : "collections",
@@ -3694,6 +3693,14 @@
         }
       },
       "CollectionReferenceUpdate" : {
+        "type" : "object",
+        "properties" : {
+          "organisations" : {
+            "$ref" : "#/components/schemas/CollectionReferenceUpdateOrg"
+          }
+        }
+      },
+      "CollectionReferenceUpdateOrg" : {
         "type" : "object",
         "properties" : {
           "public" : {

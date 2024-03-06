@@ -29,14 +29,13 @@ import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.Optional;
 

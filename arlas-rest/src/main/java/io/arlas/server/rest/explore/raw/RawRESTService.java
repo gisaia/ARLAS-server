@@ -35,9 +35,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;

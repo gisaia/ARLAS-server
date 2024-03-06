@@ -24,8 +24,8 @@ import com.a9.opensearch.ObjectFactory;
 import com.a9.opensearch.OpenSearchDescription;
 import com.a9.opensearch.Url;
 import io.arlas.server.ogc.csw.CSWHandler;
+import jakarta.ws.rs.core.MediaType;
 
-import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 
 public class OpenSearchHandler {

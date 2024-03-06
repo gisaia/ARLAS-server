@@ -33,7 +33,8 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>jaxb2-maven-plugin</artifactId>
-        <version>2.5.0</version>
+        <version>3.1.0</version>
+
         <executions>
           <execution>
             <id>xjc</id>
@@ -42,6 +43,7 @@
             </goals>
           </execution>
         </executions>
+
         <configuration>
           <xjbSources>
             <xjbSource>src/main/resources/global.xjb</xjbSource>
@@ -55,20 +57,26 @@
           <arguments>
             <argument>-Xannotate</argument>
           </arguments>
-
         </configuration>
+
         <dependencies>
           <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics-annotate</artifactId>
-            <version>1.1.0</version>
+            <groupId>org.jvnet.jaxb</groupId>
+            <artifactId>jaxb-basics-annotate</artifactId>
+            <version>2.0.9</version>
+          </dependency>
+          <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
           </dependency>
         </dependencies>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <phase>generate-sources</phase>
@@ -83,6 +91,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
