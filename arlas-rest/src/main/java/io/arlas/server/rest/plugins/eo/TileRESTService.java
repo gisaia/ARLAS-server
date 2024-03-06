@@ -35,11 +35,14 @@ import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.*;
 import io.arlas.server.rest.explore.ExploreRESTServices;
 import io.dropwizard.jersey.params.IntParam;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.geojson.FeatureCollection;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.Explode;
+import io.swagger.v3.oas.annotations.enums.ParameterStyle;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 
@@ -69,107 +72,114 @@ public class TileRESTService extends ExploreRESTServices {
     @GET
     @Produces({TileRESTService.PRODUCES_PNG})
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Tiled GeoSearch", produces = TileRESTService.PRODUCES_PNG, notes = Documentation.TILED_GEOSEARCH_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
+    @Operation(
+            summary = "Tiled GeoSearch",
+            description = Documentation.TILED_GEOSEARCH_OPERATION
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response tiledgeosearch(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "collection",
-                    value = "collection",
+            @Parameter(name = "collection",
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
-            @ApiParam(name = "x",
-                    value = "x",
+            @Parameter(name = "x",
+                    description = "x",
                     required = true)
             @PathParam(value = "x") Integer x,
-            @ApiParam(name = "y",
-                    value = "y",
+            @Parameter(name = "y",
+                    description = "y",
                     required = true)
             @PathParam(value = "y") Integer y,
-            @ApiParam(name = "z",
-                    value = "z",
+            @Parameter(name = "z",
+                    description = "z",
                     required = true)
             @PathParam(value = "z") Integer z,
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "f",
-                    value = Documentation.FILTER_PARAM_F,
-                    allowMultiple = true)
+            @Parameter(name = "f",
+                    description = Documentation.FILTER_PARAM_F,
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE)
             @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
-                    allowMultiple = true)
+            @Parameter(name = "q", description = Documentation.FILTER_PARAM_Q,
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "dateformat",
-                    value = Documentation.FILTER_DATE_FORMAT)
+            @Parameter(name = "dateformat",
+                    description = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
-            @ApiParam(name = "righthand",
-                    value = Documentation.FILTER_RIGHT_HAND)
+            @Parameter(name = "righthand",
+                    description = Documentation.FILTER_RIGHT_HAND)
             @QueryParam(value = "righthand") Boolean righthand,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // -----------------------  PAGE    -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(name = "size",
-                    value = Documentation.PAGE_PARAM_SIZE,
-                    defaultValue = "10",
-                    allowableValues = "range[1, infinity]",
-                    type = "integer")
+            @Parameter(name = "size",
+                    description = Documentation.PAGE_PARAM_SIZE,
+                    schema = @Schema(type="integer", minimum = "1", defaultValue = "10"))
             @DefaultValue("10")
             @QueryParam(value = "size") IntParam size,
 
-            @ApiParam(name = "from",
-                    value = Documentation.PAGE_PARAM_FROM,
-                    defaultValue = "0",
-                    allowableValues = "range[0, infinity]",
-                    type = "integer")
+            @Parameter(name = "from",
+                    description = Documentation.PAGE_PARAM_FROM,
+                    schema = @Schema(type="integer", minimum = "1", defaultValue = "00"))
             @DefaultValue("0")
             @QueryParam(value = "from") IntParam from,
 
-            @ApiParam(name = "sort",
-                    value = Documentation.PAGE_PARAM_SORT,
-                    allowMultiple = true)
+            @Parameter(name = "sort",
+                    description = Documentation.PAGE_PARAM_SORT,
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE)
             @QueryParam(value = "sort") String sort,
 
-            @ApiParam(name = "after",
-                    value = Documentation.PAGE_PARAM_AFTER)
+            @Parameter(name = "after",
+                    description = Documentation.PAGE_PARAM_AFTER)
             @QueryParam(value = "after") String after,
 
-            @ApiParam(name = "before",
-                    value = Documentation.PAGE_PARAM_BEFORE)
+            @Parameter(name = "before",
+                    description = Documentation.PAGE_PARAM_BEFORE)
             @QueryParam(value = "before") String before,
 
             // --------------------------------------------------------
             // -----------------------  RENDERING  -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "sampling",
-                    value = TileDocumentation.TILE_SAMPLING,
-                    defaultValue = "10")
+            @Parameter(name = "sampling",
+                    description = TileDocumentation.TILE_SAMPLING,
+                    schema = @Schema(defaultValue = "10"))
             @QueryParam(value = "sampling") Integer sampling,
-            @ApiParam(name = "coverage",
-                    value = TileDocumentation.TILE_COVERAGE,
-                    defaultValue = "70")
+            @Parameter(name = "coverage",
+                    description = TileDocumentation.TILE_COVERAGE,
+                    schema = @Schema(defaultValue = "70"))
             @QueryParam(value = "coverage") Integer coverage,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache")
+            @Parameter(description = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
@@ -214,7 +224,7 @@ public class TileRESTService extends ExploreRESTServices {
                         collectionReference.params.rasterTileURL.checkGeometry),
                         collectionReference.params.rasterTileWidth,
                         collectionReference.params.rasterTileHeight)).collect(Collectors.toCollection(LinkedList::new));
-        if(providers.size()==0){
+        if (providers.isEmpty()){
             return Response.noContent().build();
         }
         Try<Optional<RasterTile>,ArlasException> stacked = new RasterTileStacker()

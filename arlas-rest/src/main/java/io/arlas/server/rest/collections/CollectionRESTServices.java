@@ -19,7 +19,8 @@
 
 package io.arlas.server.rest.collections;
 
-import io.swagger.annotations.Api;
+import io.arlas.server.core.services.ArlasRESTServices;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +28,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
 @Path("/collections")
-@Api(value = "/collections")
-
-public abstract class CollectionRESTServices {
+@Tag(name="collections", description="Collections API")
+public abstract class CollectionRESTServices extends ArlasRESTServices {
     public Logger LOGGER = LoggerFactory.getLogger(CollectionRESTServices.class);
     public static final String UTF8JSON = MediaType.APPLICATION_JSON + ";charset=utf-8";
 }

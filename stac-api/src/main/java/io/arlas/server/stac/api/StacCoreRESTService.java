@@ -20,25 +20,25 @@
 package io.arlas.server.stac.api;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.rest.response.Error;
+import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
-import io.arlas.server.core.utils.UriInfoWrapper;
 import io.arlas.server.stac.model.LandingPage;
 import io.arlas.server.stac.model.StacLink;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -49,43 +49,41 @@ import java.util.Optional;
 
 import static io.arlas.commons.rest.utils.ServerConstants.ARLAS_ORGANISATION;
 import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
-import static javax.ws.rs.core.UriBuilder.fromUri;
 
 public class StacCoreRESTService extends StacRESTService {
 
-    private final Client client;
-
+    private final String openAPIjson;
     public StacCoreRESTService(STACConfiguration configuration,
                                int arlasRestCacheTimeout,
                                CollectionReferenceService collectionReferenceService,
-                               ExploreService exploreService, String baseUri) {
-        super(configuration, arlasRestCacheTimeout, collectionReferenceService, exploreService,baseUri);
-        this.client = ClientBuilder.newClient();
+                               ExploreService exploreService, String baseUri, String openAPIjson) {
+        super(configuration, arlasRestCacheTimeout, collectionReferenceService, exploreService, baseUri);
+        this.openAPIjson = openAPIjson;
     }
 
     @Timed
     @Path("/")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(
-            value = "Landing page",
-            notes = "Returns the root STAC Catalog or STAC Collection that is the entry point for " +
-                    "users to browse with STAC Browser or for search engines to crawl.\n" +
-                    "This can either return a single STAC Collection or more commonly a STAC catalog.\n" +
-                    "The landing page provides links to the API definition (link relations `service-desc` and `service-doc`) " +
-                    "and the STAC records such as collections/catalogs (link relation `child`) or items (link relation `item`).\n" +
-                    "Extensions may add additional links with new relation types.",
-            response = LandingPage.class)
+    @Operation(
+            summary = "Landing page",
+            description = """
+                    Returns the root STAC Catalog or STAC Collection that is the entry point for users to browse with STAC Browser or for search engines to crawl.
+                    This can either return a single STAC Collection or more commonly a STAC catalog.
+                    The landing page provides links to the API definition (link relations `service-desc` and `service-doc`) and the STAC records such as collections/catalogs (link relation `child`) or items (link relation `item`).
+                    Extensions may add additional links with new relation types.""")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The landing page provides links to the API definition (link relations " +
-                    "`service-desc` and `service-doc`) and the Feature Collection (path `/collections`, link relation " +
-                    "`data`).", response = LandingPage.class, responseContainer = "LandingPage"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+            @ApiResponse(responseCode = "200", description = """
+                    The landing page provides links to the API definition (link relations `service-desc` and `service-doc`) and the Feature Collection (path `/collections`, link relation `data`).""",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = LandingPage.class)))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response getLandingPage(@Context UriInfo uriInfo,
-                                   @ApiParam(hidden = true)
+                                   @Parameter(hidden = true)
                                    @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-                                   @ApiParam(hidden = true)
+                                   @Parameter(hidden = true)
                                    @HeaderParam(value = ARLAS_ORGANISATION) String organisations
 
     ) throws ArlasException {
@@ -120,15 +118,12 @@ public class StacCoreRESTService extends StacRESTService {
     @Path("/api")
     @GET
     @Produces("application/vnd.oai.openapi+json;version=3.0")
-    @ApiOperation(
-            value = "OpenAPI",
-            response = String.class)
+    @Operation(summary = "OpenAPI")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OpenAPI specification", response = String.class, responseContainer = "OpenAPI")})
+            @ApiResponse(responseCode = "200", description = "OpenAPI specification",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class))))
+    })
     public Response getApi(@Context UriInfo uriInfo) {
-        return Response.ok(client
-                .target(fromUri(new UriInfoWrapper(uriInfo,baseUri).getBaseUri()).path("openapi.json").build())
-                .request()
-                .get().getEntity()).type("application/vnd.oai.openapi+json;version=3.0").build();
+        return Response.ok(openAPIjson).type("application/vnd.oai.openapi+json;version=3.0").build();
     }
 }

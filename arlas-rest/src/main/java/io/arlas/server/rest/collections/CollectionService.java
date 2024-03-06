@@ -34,10 +34,13 @@ import io.arlas.server.core.model.*;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.utils.CheckParams;
 import io.arlas.server.core.utils.ColumnFilterUtil;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -74,27 +77,29 @@ public class CollectionService extends CollectionRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = "Get all collection references",
-            produces = UTF8JSON,
-            notes = "Get all collection references in ARLAS",
-            consumes = UTF8JSON
+    @Operation(
+            summary = "Get all collection references",
+            description = "Get all collection references in ARLAS"
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CollectionReference.class)))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
 
     public Response getAll(
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty", description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         List<CollectionReference> collections = collectionReferenceService
@@ -107,20 +112,22 @@ public class CollectionService extends CollectionRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = "Get all collection references as a json file",
-            produces = UTF8JSON,
-            notes = "Get all collection references in ARLAS as json file",
-            consumes = UTF8JSON
+    @Operation(
+            summary = "Get all collection references as a json file",
+            description = "Get all collection references in ARLAS as json file"
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CollectionReference.class)))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
 
     public Response exportCollections(
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations
             ) throws ArlasException {
         List<CollectionReference> collections = collectionReferenceService
@@ -136,19 +143,21 @@ public class CollectionService extends CollectionRESTServices {
     @POST
     @Produces(UTF8JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @ApiOperation(
-            value = "Add collection references from a json file",
-            produces = UTF8JSON,
-            notes = "Add collection references in ARLAS from a json file",
-            consumes = MediaType.MULTIPART_FORM_DATA
+    @Operation(
+            summary = "Add collection references from a json file",
+            description = "Add collection references in ARLAS from a json file"
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = String.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response importCollections(
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             @FormDataParam("file") InputStream inputStream,
@@ -191,36 +200,37 @@ public class CollectionService extends CollectionRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = "Get a collection reference",
-            produces = UTF8JSON,
-            notes = "Get a collection reference in ARLAS",
-            consumes = UTF8JSON,
-            response = CollectionReference.class
-
+    @Operation(
+            summary = "Get a collection reference",
+            description = "Get a collection reference in ARLAS"
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
-            @ApiResponse(code = 404, message = "Collection not found.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = CollectionReference.class))),
+            @ApiResponse(responseCode = "404", description = "Collection not found.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
 
     public Response get(
-            @ApiParam(name = "collection",
-                    value = "collection",
+            @Parameter(name = "collection",
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty",
-                    value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         CollectionReference cr = collectionReferenceService.getCollectionReference(collection, Optional.ofNullable(organisations));
@@ -233,40 +243,42 @@ public class CollectionService extends CollectionRESTServices {
     @PUT
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = "Add a collection reference",
-            produces = UTF8JSON,
-            notes = "Add a collection reference in ARLAS",
-            consumes = UTF8JSON,
-            response = CollectionReference.class
+    @Operation(
+            summary = "Add a collection reference",
+            description = "Add a collection reference in ARLAS"
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
-            @ApiResponse(code = 400, message = "JSON parameter malformed.", response = Error.class),
-            @ApiResponse(code = 404, message = "Not Found Error.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = CollectionReference.class))),
+            @ApiResponse(responseCode = "400", description = "JSON parameter malformed.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Not Found Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response put(
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
-            @ApiParam(name = "collection",
-                    value = "collection",
+            @Parameter(name = "collection",
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
-
-            @ApiParam(name = "collectionParams",
-                    value = "collectionParams",
+            @Parameter(name = "collectionParams",
+                    description = "collectionParams",
                     required = true)
             @NotNull @Valid CollectionReferenceParameters collectionReferenceParameters,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty",
-                    value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty,
 
-            @ApiParam(name = "checkfields", defaultValue = "true")
+            @Parameter(name = "checkfields", schema = @Schema(defaultValue = "true"))
             @QueryParam(value = "checkfields") Boolean checkFields
 
     ) throws ArlasException {
@@ -282,40 +294,43 @@ public class CollectionService extends CollectionRESTServices {
     @PATCH
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = "Update a collection reference's organisations attribute.",
-            produces = UTF8JSON,
-            notes = "Update a collection reference's organisations attribute.",
-            consumes = UTF8JSON,
-            response = CollectionReference.class
+    @Operation(
+            summary = "Update a collection reference's organisations attribute.",
+            description = "Update a collection reference's organisations attribute."
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = CollectionReference.class),
-            @ApiResponse(code = 400, message = "JSON parameter malformed.", response = Error.class),
-            @ApiResponse(code = 404, message = "Not Found Error.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = CollectionReference.class))),
+            @ApiResponse(responseCode = "400", description = "JSON parameter malformed.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Collection not found.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response patch(
             @Context HttpHeaders headers,
-            @ApiParam(name = "collection",
-                    value = "collection",
+            @Parameter(name = "collection",
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
 
-            @ApiParam(name = "collectionParamsUpdate",
-                    value = "collectionParamsUpdate",
+            @Parameter(name = "collectionParamsUpdate",
+                    description = "collectionParamsUpdate",
                     required = true)
             @NotNull CollectionReferenceUpdate cru,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty",
-                    value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty
 
     ) throws ArlasException {
@@ -343,28 +358,31 @@ public class CollectionService extends CollectionRESTServices {
     @DELETE
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(
-            value = "Delete a collection reference",
-            produces = UTF8JSON,
-            notes = "Delete a collection reference in ARLAS",
-            consumes = UTF8JSON
+    @Operation(
+            summary = "Delete a collection reference",
+            description = "Delete a collection reference in ARLAS"
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = Success.class),
-            @ApiResponse(code = 404, message = "Collection not found.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = Success.class))),
+            @ApiResponse(responseCode = "404", description = "Collection not found.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
 
     public Response delete(
-            @ApiParam(name = "collection",
-                    value = "collection",
+            @Parameter(name = "collection",
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty",
-                    value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty
     ) throws ArlasException {
         if (collection != null && collection.equals(META_COLLECTION_NAME)) {

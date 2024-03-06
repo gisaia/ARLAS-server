@@ -20,7 +20,7 @@
 package io.arlas.server.stac.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 
@@ -53,7 +53,7 @@ public class Item extends Feature {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("stac_version")
   @NotNull
 
@@ -72,7 +72,7 @@ public class Item extends Feature {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("stac_extensions")
 
   public List<String> getStacExtensions() {
@@ -112,7 +112,7 @@ public class Item extends Feature {
   }
 
 
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("type")
   @NotNull
 
@@ -131,7 +131,7 @@ public class Item extends Feature {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("links")
   @NotNull
 
@@ -150,7 +150,7 @@ public class Item extends Feature {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("collection")
 
   public String getCollection() {
@@ -175,7 +175,7 @@ public class Item extends Feature {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("assets")
   @NotNull
 

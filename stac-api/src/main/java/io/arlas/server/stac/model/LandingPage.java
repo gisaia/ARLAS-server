@@ -20,7 +20,7 @@
 package io.arlas.server.stac.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -42,7 +42,7 @@ public class LandingPage extends Catalog  {
   }
 
   
-  @ApiModelProperty(required = true, value = "A list of all conformance classes implemented by the server. In addition to the STAC-specific conformance classes, all OGC-related conformance classes listed at `GET /conformances` must be listed here. This entry should mirror what `GET /conformances` returns, if implemented.")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "A list of all conformance classes implemented by the server. In addition to the STAC-specific conformance classes, all OGC-related conformance classes listed at `GET /conformances` must be listed here. This entry should mirror what `GET /conformances` returns, if implemented.")
   @JsonProperty("conformsTo")
   @NotNull
 
