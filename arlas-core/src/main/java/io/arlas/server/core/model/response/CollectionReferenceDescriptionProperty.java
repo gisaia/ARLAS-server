@@ -20,6 +20,7 @@
 package io.arlas.server.core.model.response;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.dropwizard.jackson.JsonSnakeCase;
 
 import java.util.Map;
@@ -30,6 +31,7 @@ public class CollectionReferenceDescriptionProperty {
     public FieldType type;
     public String format;
     public String hashField;
+    @JsonManagedReference
     public Map<String, CollectionReferenceDescriptionProperty> properties;
     public boolean taggable=false;
     public boolean indexed=true;
