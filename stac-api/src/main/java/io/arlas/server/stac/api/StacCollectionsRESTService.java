@@ -83,7 +83,7 @@ public class StacCollectionsRESTService extends StacRESTService {
                       * An optional title and description for the collection;
                       * An optional extent that can be used to provide an indication of the spatial and temporal extent of the collection - typically derived from the data;
                       * An optional indicator about the type of the items in the collection (the default value, if the indicator is not provided, is 'feature').""",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CollectionList.class)))),
+                    content = @Content(schema = @Schema(implementation = CollectionList.class))),
             @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
                     content = @Content(schema = @Schema(implementation = Error.class)))
     })

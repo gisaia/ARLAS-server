@@ -75,7 +75,7 @@ public class StacCoreRESTService extends StacRESTService {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = """
                     The landing page provides links to the API definition (link relations `service-desc` and `service-doc`) and the Feature Collection (path `/collections`, link relation `data`).""",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = LandingPage.class)))),
+                    content = @Content(schema = @Schema(implementation = LandingPage.class))),
             @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
                     content = @Content(schema = @Schema(implementation = Error.class)))
     })
@@ -121,7 +121,7 @@ public class StacCoreRESTService extends StacRESTService {
     @Operation(summary = "OpenAPI")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OpenAPI specification",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class))))
+                    content = @Content(schema = @Schema(implementation = String.class)))
     })
     public Response getApi(@Context UriInfo uriInfo) {
         return Response.ok(openAPIjson).type("application/vnd.oai.openapi+json;version=3.0").build();

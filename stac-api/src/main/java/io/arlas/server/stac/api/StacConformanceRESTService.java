@@ -58,7 +58,7 @@ public class StacConformanceRESTService extends StacRESTService {
                     and not "just" a specific API / server, the server declares the conformance classes it implements and conforms to.""")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ConformanceClasses.class)))),
+                    content = @Content(schema = @Schema(implementation = ConformanceClasses.class))),
             @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
                     content = @Content(schema = @Schema(implementation = Error.class)))
     })

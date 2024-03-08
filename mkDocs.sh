@@ -18,7 +18,7 @@ echo "=> Generate API"
 docker run --rm \
     --mount dst=/input/api.json,src="$PWD/openapi/openapi.json",type=bind,ro \
     --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
-	gisaia/swagger-codegen-3.0.42 \
+	gisaia/swagger-codegen-3.0.53 \
         -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
 
 echo "=> Generate Typescript client documentation"
