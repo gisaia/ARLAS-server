@@ -19,7 +19,6 @@
 
 package io.arlas.server.core.model.response;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.arlas.server.core.model.CollectionReference;
 import io.dropwizard.jackson.JsonSnakeCase;
 
@@ -27,7 +26,6 @@ import java.util.Map;
 
 @JsonSnakeCase
 public class CollectionReferenceDescription extends CollectionReference {
-    @JsonBackReference
     public Map<String, CollectionReferenceDescriptionProperty> properties;
 
     @Override
