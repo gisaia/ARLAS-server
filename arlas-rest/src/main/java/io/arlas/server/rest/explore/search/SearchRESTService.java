@@ -225,7 +225,7 @@ public class SearchRESTService extends ExploreRESTServices {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Hits.class)))),
+                    content = @Content(schema = @Schema(implementation = Hits.class))),
             @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
                     content = @Content(schema = @Schema(implementation = Error.class))),
             @ApiResponse(responseCode = "400", description = "Bad request.",
