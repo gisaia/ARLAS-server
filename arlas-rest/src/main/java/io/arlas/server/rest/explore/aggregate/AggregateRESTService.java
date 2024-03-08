@@ -69,7 +69,7 @@ public class AggregateRESTService extends ExploreRESTServices {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = AggregationResponse.class)))),
+                    content = @Content(schema = @Schema(implementation = AggregationResponse.class))),
             @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
                     content = @Content(schema = @Schema(implementation = Error.class))),
             @ApiResponse(responseCode = "400", description = "Bad request.",
@@ -179,7 +179,7 @@ public class AggregateRESTService extends ExploreRESTServices {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = AggregationResponse.class)))),
+                    content = @Content(schema = @Schema(implementation = AggregationResponse.class))),
             @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
                     content = @Content(schema = @Schema(implementation = Error.class))),
             @ApiResponse(responseCode = "400", description = "Bad request.",

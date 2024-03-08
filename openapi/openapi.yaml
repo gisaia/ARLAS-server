@@ -475,9 +475,7 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AggregationResponse'
+                $ref: '#/components/schemas/AggregationResponse'
         "500":
           description: Arlas Server Error.
           content:
@@ -527,9 +525,7 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AggregationResponse'
+                $ref: '#/components/schemas/AggregationResponse'
         "500":
           description: Arlas Server Error.
           content:
@@ -1688,9 +1684,7 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ComputationResponse'
+                $ref: '#/components/schemas/ComputationResponse'
         "500":
           description: Arlas Server Error.
           content:
@@ -1847,9 +1841,7 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Hits'
+                $ref: '#/components/schemas/Hits'
         "500":
           description: Arlas Server Error.
           content:
@@ -2969,9 +2961,7 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Hits'
+                $ref: '#/components/schemas/Hits'
         "500":
           description: Arlas Server Error.
           content:
@@ -4202,6 +4192,10 @@ components:
           type: string
         hash_field:
           type: string
+        properties:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/CollectionReferenceDescriptionProperty'
         taggable:
           type: boolean
         indexed:

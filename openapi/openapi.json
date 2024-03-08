@@ -515,10 +515,7 @@
             "content" : {
               "application/json;charset=utf-8" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/AggregationResponse"
-                  }
+                  "$ref" : "#/components/schemas/AggregationResponse"
                 }
               }
             }
@@ -590,10 +587,7 @@
             "content" : {
               "application/json;charset=utf-8" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/AggregationResponse"
-                  }
+                  "$ref" : "#/components/schemas/AggregationResponse"
                 }
               }
             }
@@ -1485,10 +1479,7 @@
             "content" : {
               "application/json;charset=utf-8" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/ComputationResponse"
-                  }
+                  "$ref" : "#/components/schemas/ComputationResponse"
                 }
               }
             }
@@ -1657,10 +1648,7 @@
             "content" : {
               "application/json;charset=utf-8" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/Hits"
-                  }
+                  "$ref" : "#/components/schemas/Hits"
                 }
               }
             }
@@ -2839,10 +2827,7 @@
             "content" : {
               "application/json;charset=utf-8" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/Hits"
-                  }
+                  "$ref" : "#/components/schemas/Hits"
                 }
               }
             }
@@ -4349,6 +4334,12 @@
           },
           "hash_field" : {
             "type" : "string"
+          },
+          "properties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/CollectionReferenceDescriptionProperty"
+            }
           },
           "taggable" : {
             "type" : "boolean"

@@ -76,7 +76,7 @@ public class StacSearchRESTService extends StacRESTService {
             description = "Retrieve Items matching filters. Intended as a shorthand API for simple queries.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "A feature collection.",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = StacFeatureCollection.class)))),
+                    content = @Content(schema = @Schema(implementation = StacFeatureCollection.class))),
             @ApiResponse(responseCode = "400", description = "Invalid query parameter.",
                     content = @Content(schema = @Schema(implementation = Error.class))),
             @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
@@ -205,7 +205,7 @@ public class StacSearchRESTService extends StacRESTService {
             description = "Retrieve items matching filters. Intended as the standard, full-featured query API.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "A feature collection.",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = StacFeatureCollection.class)))),
+                    content = @Content(schema = @Schema(implementation = StacFeatureCollection.class))),
             @ApiResponse(responseCode = "400", description = "Invalid query parameter.",
                     content = @Content(schema = @Schema(implementation = Error.class))),
             @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
