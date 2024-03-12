@@ -303,13 +303,13 @@ public abstract class StacRESTService {
     private SearchBody getSearchBody(SearchBody body, Search search) {
         return new SearchBody()
                 .after(search.page.after)
-                .bbox(body.getBbox())
+                .bbox(body == null ? null : body.getBbox())
                 .before(search.page.before)
-                .collections(body.getCollections())
-                .datetime(body.getDatetime())
+                .collections(body == null ? null : body.getCollections())
+                .datetime(body == null ? null : body.getDatetime())
                 .from(search.page.from)
-                .ids(body.getIds())
-                .intersects(body.getIntersects())
+                .ids(body == null ? null : body.getIds())
+                .intersects(body == null ? null : body.getIntersects())
                 .limit(search.page.size)
                 .sortBy(search.page.sort);
     }
