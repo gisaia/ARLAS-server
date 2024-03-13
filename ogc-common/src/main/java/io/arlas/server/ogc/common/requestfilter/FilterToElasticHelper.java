@@ -33,10 +33,10 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.geometry.jts.JTS;
 import org.locationtech.jts.geom.*;
 import org.locationtech.spatial4j.shape.SpatialRelation;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.spatial.*;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.filter.expression.PropertyName;
+import org.geotools.api.filter.spatial.*;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;

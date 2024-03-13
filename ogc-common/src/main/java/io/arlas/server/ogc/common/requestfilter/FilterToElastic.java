@@ -54,15 +54,15 @@ import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LinearRing;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.filter.*;
-import org.opengis.filter.expression.*;
-import org.opengis.filter.identity.Identifier;
-import org.opengis.filter.spatial.*;
-import org.opengis.filter.temporal.*;
-import org.opengis.temporal.Instant;
-import org.opengis.temporal.Period;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.feature.type.AttributeDescriptor;
+import org.geotools.api.filter.*;
+import org.geotools.api.filter.expression.*;
+import org.geotools.api.filter.identity.Identifier;
+import org.geotools.api.filter.spatial.*;
+import org.geotools.api.filter.temporal.*;
+import org.geotools.api.temporal.Instant;
+import org.geotools.api.temporal.Period;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -226,7 +226,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     }
 
 
-    // BEGIN IMPLEMENTING org.opengis.filter.FilterVisitor METHODS
+    // BEGIN IMPLEMENTING org.geotools.api.filter.FilterVisitor METHODS
 
     /**
      * Writes the FilterBuilder for the ExcludeFilter.
@@ -661,7 +661,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
 
         Expression expr = filter.getExpression();
 
-        expr.accept((org.opengis.filter.expression.ExpressionVisitor) this, extraData);
+        expr.accept((org.geotools.api.filter.expression.ExpressionVisitor) this, extraData);
 
         queryBuilder = ImmutableMap.of("bool", ImmutableMap.of("must_not", ImmutableMap.of("exists", ImmutableMap.of("field", field))));
 
@@ -853,7 +853,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
                 updateDateFormatter(key);
                 if (temporal.evaluate(null) instanceof Instant) {
                     Instant instant = (Instant) temporal.evaluate(null);
-                    filterFactory.literal(instant.getPosition().getDate()).accept((org.opengis.filter.expression.ExpressionVisitor) this, extraData);
+                    filterFactory.literal(instant.getPosition().getDate()).accept((org.geotools.api.filter.expression.ExpressionVisitor) this, extraData);
                 }else{
                     temporal.accept(this, typeContext);
 
@@ -918,11 +918,11 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
     }
 
     void visitBegin(Period p, Object extraData) {
-        filterFactory.literal(p.getBeginning().getPosition().getDate()).accept((org.opengis.filter.expression.ExpressionVisitor) this, extraData);
+        filterFactory.literal(p.getBeginning().getPosition().getDate()).accept((org.geotools.api.filter.expression.ExpressionVisitor) this, extraData);
     }
 
     void visitEnd(Period p, Object extraData) {
-        filterFactory.literal(p.getEnding().getPosition().getDate()).accept((org.opengis.filter.expression.ExpressionVisitor) this, extraData);
+        filterFactory.literal(p.getEnding().getPosition().getDate()).accept((org.geotools.api.filter.expression.ExpressionVisitor) this, extraData);
     }
 
     /**
@@ -948,10 +948,10 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         return extraData;
     }
 
-    // END IMPLEMENTING org.opengis.filter.FilterVisitor METHODS
+    // END IMPLEMENTING org.geotools.api.filter.FilterVisitor METHODS
 
 
-    // START IMPLEMENTING org.opengis.filter.ExpressionVisitor METHODS
+    // START IMPLEMENTING org.geotools.api.filter.ExpressionVisitor METHODS
 
     /**
      * Writes the FilterBuilder for the attribute Expression.
@@ -1229,7 +1229,7 @@ public class FilterToElastic implements FilterVisitor, ExpressionVisitor {
         throw new UnsupportedOperationException("Function support not implemented");
     }
 
-    // END IMPLEMENTING org.opengis.filter.ExpressionVisitor METHODS
+    // END IMPLEMENTING org.geotools.api.filter.ExpressionVisitor METHODS
 
     protected void updateDateFormatter(AttributeDescriptor attType) {
         dateFormatter = DEFAULT_DATE_FORMATTER;

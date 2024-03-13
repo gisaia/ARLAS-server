@@ -139,7 +139,7 @@ public class ElasticFilter {
             FilterToElastic filterToElastic = new FilterToElastic(collectionDescription, service);
             try {
                 InputStream stream = new ByteArrayInputStream(constraint.getBytes(StandardCharsets.UTF_8));
-                org.opengis.filter.Filter openGisFilter = (org.opengis.filter.Filter) parser.parse(stream);
+                org.geotools.api.filter.Filter openGisFilter = (org.geotools.api.filter.Filter) parser.parse(stream);
 
                 if (ColumnFilterUtil.isValidColumnFilterPresent(columnFilter)) {
                     ColumnFilterUtil.assertOpenGisFilterAllowed(columnFilter, collectionDescription, OpenGISFieldsExtractor.extract(openGisFilter));

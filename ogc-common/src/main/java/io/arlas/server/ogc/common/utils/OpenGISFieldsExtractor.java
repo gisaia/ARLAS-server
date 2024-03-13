@@ -23,9 +23,9 @@ import io.arlas.commons.exceptions.InternalServerErrorException;
 import io.arlas.commons.exceptions.InvalidParameterException;
 import org.geotools.filter.BinaryLogicAbstract;
 import org.geotools.filter.MultiCompareFilterImpl;
-import org.opengis.filter.*;
-import org.opengis.filter.spatial.BinarySpatialOperator;
-import org.opengis.filter.temporal.BinaryTemporalOperator;
+import org.geotools.api.filter.*;
+import org.geotools.api.filter.spatial.BinarySpatialOperator;
+import org.geotools.api.filter.temporal.BinaryTemporalOperator;
 import java.util.*;
 import java.util.stream.Collectors;
 
