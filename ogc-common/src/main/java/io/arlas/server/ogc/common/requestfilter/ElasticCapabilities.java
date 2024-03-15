@@ -24,12 +24,12 @@ import org.geotools.filter.capability.FilterCapabilitiesImpl;
 import org.geotools.filter.capability.TemporalCapabilitiesImpl;
 import org.geotools.filter.capability.TemporalOperatorImpl;
 import org.geotools.filter.visitor.IsFullySupportedFilterVisitor;
-import org.opengis.filter.*;
-import org.opengis.filter.capability.TemporalCapabilities;
-import org.opengis.filter.capability.TemporalOperators;
-import org.opengis.filter.spatial.BBOX;
-import org.opengis.filter.spatial.Intersects;
-import org.opengis.filter.temporal.*;
+import org.geotools.api.filter.*;
+import org.geotools.api.filter.capability.TemporalCapabilities;
+import org.geotools.api.filter.capability.TemporalOperators;
+import org.geotools.api.filter.spatial.BBOX;
+import org.geotools.api.filter.spatial.Intersects;
+import org.geotools.api.filter.temporal.*;
 
 import java.util.HashMap;
 import java.util.Map;
