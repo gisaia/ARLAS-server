@@ -67,7 +67,7 @@ public class HTTPPolicyEnforcer extends AbstractPolicyEnforcer {
     @Override
     protected Map<String, Object> getRolesClaim(Object token, Optional<String> org) {
         Claim jwtClaimRoles = ((DecodedJWT) token).getClaim(authConf.claimRoles);
-        if (!jwtClaimRoles.isNull()) {
+        if (!jwtClaimRoles.isMissing() && !jwtClaimRoles.isNull()) {
             return jwtClaimRoles.asMap();
         } else {
             return Collections.emptyMap();

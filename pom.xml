@@ -76,7 +76,7 @@
     <h3.version>4.1.1</h3.version>
 
     <!-- AUTH -->
-    <jwt.version>3.19.2</jwt.version>
+    <jwt.version>4.4.0</jwt.version>
     <elastic-apm.version>1.48.1</elastic-apm.version>
     <keycloak.version>24.0.1</keycloak.version>
 
