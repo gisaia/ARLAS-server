@@ -115,12 +115,12 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
 
     protected Optional<String> getSubjectEmail(Object token) {
         Claim emailClaim = ((DecodedJWT) token).getClaim("email");
-        return emailClaim.isNull() ? Optional.empty() : Optional.of(emailClaim.asString());
+        return emailClaim.isMissing() || emailClaim.isNull() ? Optional.empty() : Optional.of(emailClaim.asString());
     }
 
     protected Map<String, Object> getRolesClaim(Object token, Optional<String> org) {
         Claim jwtClaimRoles = ((DecodedJWT) token).getClaim(authConf.claimRoles);
-        if (!jwtClaimRoles.isNull()) {
+        if (!jwtClaimRoles.isMissing() && !jwtClaimRoles.isNull()) {
             return Collections.singletonMap(org.orElse(""), jwtClaimRoles.asList(String.class));
         } else {
             return Collections.emptyMap();
@@ -129,7 +129,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
 
     protected Set<String> getPermissionsClaim(Object token) {
         Claim jwtClaimPermissions = ((DecodedJWT) token).getClaim(authConf.claimPermissions);
-        if (!jwtClaimPermissions.isNull()) {
+        if (!jwtClaimPermissions.isMissing() && !jwtClaimPermissions.isNull()) {
             return new HashSet<>(jwtClaimPermissions.asList(String.class));
         } else {
             return Collections.emptySet();
