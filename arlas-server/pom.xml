@@ -4,51 +4,51 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.arlas</groupId>
   <artifactId>arlas-server</artifactId>
-  <version>24.1.2-SNAPSHOT</version>
+  <version>25.0.0-beta.3</version>
   <packaging>jar</packaging>
   <name>ARLAS server</name>
 
   <parent>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-server-parent</artifactId>
-    <version>24.1.2-SNAPSHOT</version>
+    <version>25.0.0-beta.3</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-rest</artifactId>
-      <version>24.1.2-SNAPSHOT</version>
+      <version>25.0.0-beta.3</version>
     </dependency>
 
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-opensearch</artifactId>
-      <version>24.1.2-SNAPSHOT</version>
+      <version>25.0.0-beta.3</version>
     </dependency>
 
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>ogc-csw</artifactId>
-      <version>24.1.2-SNAPSHOT</version>
+      <version>25.0.0-beta.3</version>
     </dependency>
 
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>ogc-wfs</artifactId>
-      <version>24.1.2-SNAPSHOT</version>
+      <version>25.0.0-beta.3</version>
     </dependency>
 
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>stac-api</artifactId>
-      <version>24.1.2-SNAPSHOT</version>
+      <version>25.0.0-beta.3</version>
     </dependency>
 
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-admin</artifactId>
-      <version>24.1.2-SNAPSHOT</version>
+      <version>25.0.0-beta.3</version>
     </dependency>
 
   </dependencies>
