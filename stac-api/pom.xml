@@ -4,21 +4,21 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.arlas</groupId>
     <artifactId>stac-api</artifactId>
-    <version>24.1.2-SNAPSHOT</version>
+    <version>25.0.0-beta.4</version>
     <packaging>jar</packaging>
     <name>ARLAS STAC API</name>
 
     <parent>
         <groupId>io.arlas</groupId>
         <artifactId>arlas-server-parent</artifactId>
-        <version>24.1.2-SNAPSHOT</version>
+        <version>25.0.0-beta.4</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>io.arlas</groupId>
             <artifactId>arlas-core</artifactId>
-            <version>24.1.2-SNAPSHOT</version>
+            <version>25.0.0-beta.4</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.ethlo.time/itu -->
