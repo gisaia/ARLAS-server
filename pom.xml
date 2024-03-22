@@ -82,15 +82,6 @@
 
     <nv-i18n.version>1.29</nv-i18n.version>
     <itu.version>1.7.3</itu.version>
-
-
-    <!-- DOCUMENTATION GENERATION-->
-    <swagger2markup.version>1.3.4</swagger2markup.version>
-    <swagger2markup.plugin.version>1.3.7</swagger2markup.plugin.version>
-    <swagger2markup.extension.version>1.3.3</swagger2markup.extension.version>
-
-    <swagger.input>openapi/openapi.json</swagger.input>
-    <swagger.output>target/generated-docs/</swagger.output>
   </properties>
 
   <dependencies>
@@ -139,62 +130,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven.surefire.version}</version>
-      </plugin>
-
-      <!-- DOCUMENTATION GENERATION -->
-      <plugin>
-        <groupId>io.github.swagger2markup</groupId>
-        <artifactId>swagger2markup-maven-plugin</artifactId>
-        <version>${swagger2markup.plugin.version}</version>
-        <dependencies>
-          <dependency>
-            <groupId>io.github.swagger2markup</groupId>
-            <artifactId>swagger2markup-import-files-ext</artifactId>
-            <version>${swagger2markup.extension.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.github.swagger2markup</groupId>
-            <artifactId>swagger2markup</artifactId>
-            <version>${swagger2markup.version}</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <swaggerInput>${swagger.input}</swaggerInput>
-          <outputDir>${swagger.output}</outputDir>
-          <config>
-            <swagger2markup.markupLanguage>ASCIIDOC</swagger2markup.markupLanguage>
-            <swagger2markup.pathsGroupedBy>TAGS</swagger2markup.pathsGroupedBy>
-            <swagger2markup.extensions.dynamicOverview.contentPath>${project.basedir}/src/docs/asciidoc/extensions/overview</swagger2markup.extensions.dynamicOverview.contentPath>
-            <swagger2markup.extensions.dynamicDefinitions.contentPath>${project.basedir}/src/docs/asciidoc/extensions/definitions</swagger2markup.extensions.dynamicDefinitions.contentPath>
-            <swagger2markup.extensions.dynamicPaths.contentPath>${project.basedir}/src/docs/asciidoc/extensions/paths</swagger2markup.extensions.dynamicPaths.contentPath>
-            <swagger2markup.extensions.dynamicSecurity.contentPath>${project.basedir}src/docs/asciidoc/extensions/security</swagger2markup.extensions.dynamicSecurity.contentPath>
-          </config>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>io.github.swagger2markup</groupId>
-        <artifactId>swagger2markup-maven-plugin</artifactId>
-        <version>${swagger2markup.plugin.version}</version>
-        <dependencies>
-          <dependency>
-            <groupId>io.github.swagger2markup</groupId>
-            <artifactId>swagger2markup-import-files-ext</artifactId>
-            <version>${swagger2markup.extension.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.github.swagger2markup</groupId>
-            <artifactId>swagger2markup</artifactId>
-            <version>${swagger2markup.version}</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <swaggerInput>${swagger.input}</swaggerInput>
-          <outputDir>${swagger.output}</outputDir>
-          <config>
-            <swagger2markup.markupLanguage>MARKDOWN</swagger2markup.markupLanguage>
-          </config>
-        </configuration>
       </plugin>
 
       <plugin>

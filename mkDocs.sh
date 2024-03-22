@@ -48,10 +48,7 @@ docker run --rm \
     -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
 	busybox \
-        sh -c 'cat /opt/maven/docs/api/overview.md > /opt/maven/target/generated-docs/reference.md \
-        && cat /opt/maven/docs/api/paths.md >> /opt/maven/target/generated-docs/reference.md \
-        && cat /opt/maven/docs/api/definitions.md >> /opt/maven/target/generated-docs/reference.md \
-        && cat /opt/maven/docs/api/security.md >> /opt/maven/target/generated-docs/reference.md'
+        sh -c 'cat /opt/maven/docs/api/reference.md > /opt/maven/target/generated-docs/reference.md'
 
 echo "=> Copy documentation under docs/ repository"
 docker run --rm \

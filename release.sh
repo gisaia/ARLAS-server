@@ -179,7 +179,12 @@ cp target/tmp/openapi.yaml openapi
 cp target/tmp/openapi.json openapi
 
 echo "=> Generate API documentation"
-mvn "-Dswagger.output=docs/api" swagger2markup:convertSwagger2markup
+mkdir -p docs/api
+docker run --rm \
+    --mount dst=/input/api.json,src="$PWD/openapi/openapi.json",type=bind,ro \
+    --mount dst=/input/env.json,src="$PWD/conf/doc/widdershins.json",type=bind,ro \
+    --mount dst=/output,src="$PWD/docs/api",type=bind \
+	gisaia/widdershins:4.0.1
 
 echo "=> Stop arlas-server stack"
 docker-compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v
