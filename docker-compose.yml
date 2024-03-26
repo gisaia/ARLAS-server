@@ -7,6 +7,7 @@ services:
       dockerfile: ${DOCKERFILE:-Dockerfile-package-only}
     image: gisaia/arlas-server:${ARLAS_VERSION:-latest}
     container_name: arlas-server
+    restart: always
     environment:
       - JDK_JAVA_OPTIONS=${ARLAS_JDK_JAVA_OPTIONS:--Xmx1g -XX:+ExitOnOutOfMemoryError}
       - ARLAS_LOGGING_LEVEL="${ARLAS_LOGGING_LEVEL:-INFO}"
@@ -31,7 +32,7 @@ services:
       - ARLAS_CACHE_TIMEOUT="${ARLAS_CACHE_TIMEOUT:-5}"
       - ARLAS_SWAGGER_RESOURCE_PKG="${ARLAS_SWAGGER_RESOURCE_PKG:-io.arlas.server.rest}"
     ports:
-      - 19999:9999
+      - 19999:9999 # !EXPOSE!
     volumes:
       - ${ARLAS_AUTH_LOCAL_CERT_FILE:-/tmp}:${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}:ro
     healthcheck:
