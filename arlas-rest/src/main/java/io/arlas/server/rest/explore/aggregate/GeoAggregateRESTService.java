@@ -34,18 +34,22 @@ import io.arlas.server.core.model.response.AggregationResponse;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.*;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.Explode;
+import io.swagger.v3.oas.annotations.enums.ParameterStyle;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -72,74 +76,86 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "GeoAggregate", produces = UTF8JSON, notes = Documentation.GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
-            @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
+    @Operation(
+            summary = "GeoAggregate",
+            description = Documentation.GEOAGGREGATION_OPERATION
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = FeatureCollection.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "501", description = "Not implemented functionality.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response geoaggregate(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "collection",
-                    value = "collection",
+            @Parameter(name = "collection",
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "agg",
-                    value = Documentation.GEOAGGREGATION_PARAM_AGG,
+            @Parameter(name = "agg",
+                    description = Documentation.GEOAGGREGATION_PARAM_AGG,
                     required = true)
             @QueryParam(value = "agg") List<String> agg,
 
             // --------------------------------------------------------
             // ----------------------- FILTER -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "f",
-                    value = Documentation.FILTER_PARAM_F,
-                    allowMultiple = true)
+            @Parameter(name = "f",
+                    description = Documentation.FILTER_PARAM_F,
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE)
             @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name = "q",
-                    value = Documentation.FILTER_PARAM_Q,
-                    allowMultiple = true)
+            @Parameter(name = "q",
+                    description = Documentation.FILTER_PARAM_Q,
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "dateformat",
-                    value = Documentation.FILTER_DATE_FORMAT)
+            @Parameter(name = "dateformat",
+                    description = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
-            @ApiParam(name = "righthand",
-                    defaultValue = "true",
-                    value = Documentation.FILTER_RIGHT_HAND)
+            @Parameter(name = "righthand",
+                    schema = @Schema(defaultValue = "true"),
+                    description = Documentation.FILTER_RIGHT_HAND)
             @QueryParam(value = "righthand") Boolean righthand,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty",
-                    value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty,
 
-            @ApiParam(name = "flat", value = Documentation.FORM_FLAT,
-                    defaultValue = "false")
+            @Parameter(name = "flat", description = Documentation.FORM_FLAT,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "flat") Boolean flat,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache")
+            @Parameter(description = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
@@ -159,71 +175,82 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @GET
     @Produces(ZIPFILE)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "ShapeAggregate", produces = ZIPFILE, notes = Documentation.SHAPEAGGREGATION_OPERATION, consumes = UTF8JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
-            @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
+    @Operation(
+            summary = "ShapeAggregate",
+            description = Documentation.SHAPEAGGREGATION_OPERATION
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "501", description = "Not implemented functionality.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response shapeaggregate(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "collection",
-                    value = "collection",
+            @Parameter(name = "collection",
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // ----------------------- AGGREGATION -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "agg",
-                    value = Documentation.GEOAGGREGATION_PARAM_AGG,
+            @Parameter(name = "agg",
+                    description = Documentation.GEOAGGREGATION_PARAM_AGG,
                     required = true)
             @QueryParam(value = "agg") List<String> agg,
 
             // --------------------------------------------------------
             // ----------------------- FILTER -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "f",
-                    value = Documentation.FILTER_PARAM_F,
-                    allowMultiple = true)
+            @Parameter(name = "f",
+                    description = Documentation.FILTER_PARAM_F,
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE)
             @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name = "q",
-                    value = Documentation.FILTER_PARAM_Q,
-                    allowMultiple = true)
+            @Parameter(name = "q",
+                    description = Documentation.FILTER_PARAM_Q,
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "dateformat",
-                    value = Documentation.FILTER_DATE_FORMAT)
+            @Parameter(name = "dateformat",
+                    description = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
-            @ApiParam(name = "righthand",
-                    value = Documentation.FILTER_RIGHT_HAND,
-                    defaultValue = "true")
+            @Parameter(name = "righthand",
+                    description = Documentation.FILTER_RIGHT_HAND,
+                    schema = @Schema(defaultValue = "true"))
             @QueryParam(value = "righthand") Boolean righthand,
 
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty",
-                    value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty,
 
            // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache")
+            @Parameter(description = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
@@ -243,78 +270,90 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "GeoAggregate on a geohash", produces = UTF8JSON, notes = Documentation.GEOHASH_GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
-            @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
+    @Operation(
+            summary = "GeoAggregate on a geohash",
+            description = Documentation.GEOHASH_GEOAGGREGATION_OPERATION
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = FeatureCollection.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "501", description = "Not implemented functionality.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response geohashgeoaggregate(
             // --------------------------------------------------------
             // ----------------------- PATH ---------------------------
             // --------------------------------------------------------
-            @ApiParam(name = "collection",
-                    value = "collection",
+            @Parameter(name = "collection",
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
 
-            @ApiParam(name = "geohash",
-                    value = "geohash",
+            @Parameter(name = "geohash",
+                    description = "geohash",
                     required = true)
             @PathParam(value = "geohash") String geohash,
 
             // --------------------------------------------------------
             // ----------------------- AGGREGATION --------------------
             // --------------------------------------------------------
-            @ApiParam(name = "agg",
-                    value = Documentation.GEOAGGREGATION_PARAM_AGG)
+            @Parameter(name = "agg",
+                    description = Documentation.GEOAGGREGATION_PARAM_AGG)
             @QueryParam(value = "agg") List<String> agg,
 
             // --------------------------------------------------------
             // ----------------------- FILTER -------------------------
             // --------------------------------------------------------
-            @ApiParam(name = "f",
-                    value = Documentation.FILTER_PARAM_F,
-                    allowMultiple = true)
+            @Parameter(name = "f",
+                    description = Documentation.FILTER_PARAM_F,
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE)
             @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
-                    allowMultiple = true)
+            @Parameter(name = "q", description = Documentation.FILTER_PARAM_Q,
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "dateformat",
-                    value = Documentation.FILTER_DATE_FORMAT)
+            @Parameter(name = "dateformat",
+                    description = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
-            @ApiParam(name = "righthand",
-                    defaultValue = "true",
-                    value = Documentation.FILTER_RIGHT_HAND)
+            @Parameter(name = "righthand",
+                    schema = @Schema(defaultValue = "true"),
+                    description = Documentation.FILTER_RIGHT_HAND)
             @QueryParam(value = "righthand") Boolean righthand,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // ----------------------- FORM ---------------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty",
-                    value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty,
 
-            @ApiParam(name = "flat",
-                    value = Documentation.FORM_FLAT,
-                    defaultValue = "false")
+            @Parameter(name = "flat",
+                    description = Documentation.FORM_FLAT,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "flat") Boolean flat,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA --------------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache")
+            @Parameter(description = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
@@ -326,7 +365,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         if (geohash.startsWith("#")) {
             geohash = geohash.substring(1);
         }
-        if (agg == null || agg.size() == 0) {
+        if (agg == null || agg.isEmpty()) {
             agg = Collections.singletonList("geohash:" + collectionReference.params.centroidPath + ":interval-" + geohash.length());
         }
 
@@ -368,86 +407,98 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "GeoAggregate on a geotile", produces = UTF8JSON, notes = Documentation.GEOTILE_GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
-            @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
+    @Operation(
+            summary = "GeoAggregate on a geotile",
+            description = Documentation.GEOTILE_GEOAGGREGATION_OPERATION
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = FeatureCollection.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "501", description = "Not implemented functionality.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response geotilegeoaggregate(
             // --------------------------------------------------------
             // ----------------------- PATH ---------------------------
             // --------------------------------------------------------
-            @ApiParam(name = "collection",
-                    value = "collection",
+            @Parameter(name = "collection",
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
 
-            @ApiParam(name = "z",
-                    value = "z",
+            @Parameter(name = "z",
+                    description = "z",
                     required = true)
             @PathParam(value = "z") Integer z,
-            @ApiParam(name = "x",
-                    value = "x",
+            @Parameter(name = "x",
+                    description = "x",
                     required = true)
             @PathParam(value = "x") Integer x,
-            @ApiParam(name = "y",
-                    value = "y",
+            @Parameter(name = "y",
+                    description = "y",
                     required = true)
             @PathParam(value = "y") Integer y,
 
             // --------------------------------------------------------
             // ----------------------- AGGREGATION --------------------
             // --------------------------------------------------------
-            @ApiParam(name = "agg",
-                    value = Documentation.GEOAGGREGATION_PARAM_AGG)
+            @Parameter(name = "agg",
+                    description = Documentation.GEOAGGREGATION_PARAM_AGG)
             @QueryParam(value = "agg") List<String> agg,
 
             // --------------------------------------------------------
             // ----------------------- FILTER -------------------------
             // --------------------------------------------------------
-            @ApiParam(name = "f",
-                    value = Documentation.FILTER_PARAM_F,
-                    allowMultiple = true)
+            @Parameter(name = "f",
+                    description = Documentation.FILTER_PARAM_F,
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE)
             @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name = "q", value = Documentation.FILTER_PARAM_Q,
-                    allowMultiple = true)
+            @Parameter(name = "q", description = Documentation.FILTER_PARAM_Q,
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE)
             @QueryParam(value = "q") List<String> q,
 
-            @ApiParam(name = "dateformat",
-                    value = Documentation.FILTER_DATE_FORMAT)
+            @Parameter(name = "dateformat",
+                    description = Documentation.FILTER_DATE_FORMAT)
             @QueryParam(value = "dateformat") String dateformat,
 
-            @ApiParam(name = "righthand",
-                    defaultValue = "true",
-                    value = Documentation.FILTER_RIGHT_HAND)
+            @Parameter(name = "righthand",
+                    schema = @Schema(defaultValue = "true"),
+                    description = Documentation.FILTER_RIGHT_HAND)
             @QueryParam(value = "righthand") Boolean righthand,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // ----------------------- FORM ---------------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty",
-                    value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty,
 
-            @ApiParam(name = "flat",
-                    value = Documentation.FORM_FLAT,
-                    defaultValue = "false")
+            @Parameter(name = "flat",
+                    description = Documentation.FORM_FLAT,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "flat") Boolean flat,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA --------------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache")
+            @Parameter(description = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
@@ -456,7 +507,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             throw new NotFoundException(collection);
         }
 
-        if (agg == null || agg.size() == 0) {
+        if (agg == null || agg.isEmpty()) {
             agg = Collections.singletonList("geotile:" + collectionReference.params.centroidPath + ":interval-" + (z+3));
         }
 
@@ -500,7 +551,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 .filter(a -> a.type.equals(AggregationTypeEnum.geohash))
                 .map(a -> a.interval)
                 .toList();
-        if (intervals.size() > 0) {
+        if (!intervals.isEmpty()) {
             interval = intervals.get(0).value.intValue();
         }
         BoundingBox bbox = GeoTileUtil.getBoundingBox(geohash);
@@ -527,7 +578,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
                 .filter(a -> a.type.equals(AggregationTypeEnum.geotile))
                 .map(a -> a.interval)
                 .toList();
-        if (intervals.size() > 0) {
+        if (!intervals.isEmpty()) {
             interval = intervals.get(0).value.intValue();
             if (interval - z > 7 || interval - z < 0) {
                 throw new InvalidParameterException("(interval - z) must be > 0 and <= 7");
@@ -571,17 +622,26 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @POST
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "GeoAggregate", produces = UTF8JSON, notes = Documentation.GEOAGGREGATION_OPERATION, consumes = UTF8JSON, response = FeatureCollection.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation", response = FeatureCollection.class, responseContainer = "FeatureCollection"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class),
-            @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
-            @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
+    @Operation(
+            summary = "GeoAggregate",
+            description = Documentation.GEOAGGREGATION_OPERATION
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = FeatureCollection.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "501", description = "Not implemented functionality.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response geoaggregatePost(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "collection",
-                    value = "collection",
+            @Parameter(name = "collection",
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
             // --------------------------------------------------------
@@ -593,27 +653,27 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty",
-                    value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache")
+            @Parameter(description = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
@@ -645,16 +705,25 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     @POST
     @Produces(ZIPFILE)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "ShapeAggregate", produces = ZIPFILE, notes = Documentation.SHAPEAGGREGATION_OPERATION, consumes = UTF8JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class),
-            @ApiResponse(code = 501, message = "Not implemented functionality.", response = Error.class)})
+    @Operation(
+            summary = "ShapeAggregate",
+            description = Documentation.SHAPEAGGREGATION_OPERATION
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "501", description = "Not implemented functionality.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response shapeaggregatePost(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "collection",
-                    value = "collection",
+            @Parameter(name = "collection",
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
             // --------------------------------------------------------
@@ -666,27 +735,27 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty",
-                    value = Documentation.FORM_PRETTY,
-                    defaultValue = "false")
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // ----------------------- EXTRA -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache")
+            @Parameter(description = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws NotFoundException, ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()

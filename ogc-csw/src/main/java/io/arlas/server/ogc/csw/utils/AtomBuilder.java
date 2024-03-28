@@ -20,16 +20,14 @@
 
 package io.arlas.server.ogc.csw.utils;
 
+import jakarta.ws.rs.WebApplicationException;
 import net.opengis.cat.csw._3.AbstractRecordType;
 import net.opengis.cat.csw._3.BriefRecordType;
 import net.opengis.cat.csw._3.RecordType;
 import net.opengis.cat.csw._3.SummaryRecordType;
 import org.purl.dc.elements._1.SimpleLiteral;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3._2005.atom.*;
 
-import javax.ws.rs.WebApplicationException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;

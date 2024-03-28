@@ -16,7 +16,17 @@ the Licence.
 
 Date: 12-03-2014
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:sch="http://www.ascc.net/xml/schematron" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil20="http://www.w3.org/2001/SMIL20/" xmlns:smil20lang="http://www.w3.org/2001/SMIL20/Language" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" targetNamespace="http://www.opengis.net/gml" elementFormDefault="qualified" version="3.1.1" jaxb:version="2.0">
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+		xmlns:sch="http://www.ascc.net/xml/schematron"
+		xmlns:gml="http://www.opengis.net/gml"
+		xmlns:xlink="http://www.w3.org/1999/xlink"
+		xmlns:smil20="http://www.w3.org/2001/SMIL20/"
+		xmlns:smil20lang="http://www.w3.org/2001/SMIL20/Language"
+		xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+		targetNamespace="http://www.opengis.net/gml"
+		elementFormDefault="qualified"
+		version="3.1.1"
+		jaxb:version="3.0">
 	<annotation>
 		<documentation>GML Profile schema for gml:Point,gml:LineString,gml:Polygon,gml:Envelope, gml:CirclebyCenterpoint  written by Joshua Lieberman. </documentation>
 		<documentation>for use by the GeoRSS v. 1.1 application schema</documentation>

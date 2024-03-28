@@ -21,8 +21,8 @@ package io.arlas.filter.core;
 
 import io.arlas.commons.config.ArlasAuthConfiguration;
 import io.arlas.filter.config.TechnicalRoles;
+import jakarta.ws.rs.core.HttpHeaders;
 
-import javax.ws.rs.core.HttpHeaders;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;

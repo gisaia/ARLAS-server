@@ -9,10 +9,11 @@
   "developerEmail" : "contact@gisaia.com",
   "developerOrganization" : "Gisaïa",
   "developerOrganizationUrl": "https://gisaia.com",
-  "dateLibrary" : "java8",
   "licenseName": " Apache License Version 2.0",
   "scmConnection": "scm:git:https://github.com/gisaia/ARLAS-server",
   "scmDeveloperConnection": "scm:git:https://github.com/gisaia/ARLAS-server",
   "scmUrl": "https://github.com/gisaia/ARLAS-server",
-  "library": "jersey2"
+  "dateLibrary" : "java11",
+  "library": "jersey3",
+  "jakarta": true
 }

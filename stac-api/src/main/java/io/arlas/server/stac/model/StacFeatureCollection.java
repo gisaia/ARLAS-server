@@ -20,10 +20,10 @@
 package io.arlas.server.stac.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +58,7 @@ public class StacFeatureCollection {
   }
 
 
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("stac_version")
   @NotNull
 
@@ -77,7 +77,7 @@ public class StacFeatureCollection {
   }
 
 
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("stac_extensions")
 
   public List<String> getStacExtensions() {
@@ -95,7 +95,7 @@ public class StacFeatureCollection {
   }
 
 
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("type")
   @NotNull
 
@@ -114,7 +114,7 @@ public class StacFeatureCollection {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("features")
   @NotNull
 
@@ -133,7 +133,7 @@ public class StacFeatureCollection {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("links")
 
   public List<StacLink> getLinks() {
@@ -151,7 +151,7 @@ public class StacFeatureCollection {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("timeStamp")
 
   public String getTimeStamp() {
@@ -169,7 +169,7 @@ public class StacFeatureCollection {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("numberMatched")
 
   public Integer getNumberMatched() {
@@ -187,7 +187,7 @@ public class StacFeatureCollection {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("numberReturned")
 
   public Integer getNumberReturned() {
@@ -204,7 +204,7 @@ public class StacFeatureCollection {
   }
 
 
-  @ApiModelProperty(value = "Augments lists of resources with the number of returned and matches resource and the given limit for the request.")
+  @Schema(description = "Augments lists of resources with the number of returned and matches resource and the given limit for the request.")
   @JsonProperty("context")
 
   public Map<String, Object> getContext() {

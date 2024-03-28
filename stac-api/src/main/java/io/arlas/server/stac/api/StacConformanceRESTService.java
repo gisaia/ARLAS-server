@@ -20,20 +20,22 @@
 package io.arlas.server.stac.api;
 
 import com.codahale.metrics.annotation.Timed;
-import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.commons.rest.response.Error;
+import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.stac.model.ConformanceClasses;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 public class StacConformanceRESTService extends StacRESTService {
 
@@ -48,14 +50,18 @@ public class StacConformanceRESTService extends StacRESTService {
     @Path("/conformance")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(
-            value = "Conformance",
-            notes = "The URIs of all conformance classes supported by the server.\n" +
-                    "To support \"generic\" clients that want to access multiple OGC API Features implementations - " +
-                    "and not \"just\" a specific API / server, the server declares the conformance classes it implements and conforms to.")
+    @Operation(
+            summary = "Conformance",
+            description = """
+                    The URIs of all conformance classes supported by the server.
+                    To support "generic" clients that want to access multiple OGC API Features implementations -
+                    and not "just" a specific API / server, the server declares the conformance classes it implements and conforms to.""")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = ConformanceClasses.class, responseContainer = "ConformanceClasses"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = ConformanceClasses.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response getConformanceDeclaration() {
         return cache(Response.ok(new ConformanceClasses().conformsTo(configuration.conformsTo)), 0);
     }

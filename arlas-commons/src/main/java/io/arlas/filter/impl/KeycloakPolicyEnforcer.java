@@ -21,6 +21,9 @@ package io.arlas.filter.impl;
 
 import io.arlas.commons.config.ArlasAuthConfiguration;
 import io.arlas.filter.core.PolicyEnforcer;
+import jakarta.annotation.Priority;
+import jakarta.ws.rs.Priorities;
+import jakarta.ws.rs.ext.Provider;
 import org.keycloak.TokenVerifier;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.authorization.client.Configuration;
@@ -30,9 +33,6 @@ import org.keycloak.representations.idm.authorization.Permission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Priority;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.ext.Provider;
 import java.util.*;
 
 @Provider

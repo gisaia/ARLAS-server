@@ -20,8 +20,8 @@
 package io.arlas.server.core.exceptions;
 
 import io.arlas.commons.exceptions.ArlasException;
+import jakarta.ws.rs.core.Response;
 
-import javax.ws.rs.core.Response;
 import java.util.Set;
 
 /**

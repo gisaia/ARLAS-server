@@ -20,8 +20,7 @@
 package io.arlas.server.ogc.common.exceptions.INSPIRE;
 
 import io.arlas.server.ogc.common.exceptions.OGC.OGCExceptionCode;
-
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class INSPIREExceptionCode extends OGCExceptionCode {
     public static final INSPIREExceptionCode MISSING_INSPIRE_METADATA = new INSPIREExceptionCode("InspireMissingMetadata", HttpServletResponse.SC_BAD_REQUEST);

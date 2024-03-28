@@ -40,6 +40,11 @@
             <artifactId>cyclops</artifactId>
             <version>${cyclops.version}</version>
         </dependency>
+        <dependency>
+            <artifactId>joda-time</artifactId>
+            <groupId>joda-time</groupId>
+            <version>2.12.5</version>
+        </dependency>
         <!-- ____________________________________________________ -->
         <!-- Tests -->
         <!-- ____________________________________________________ -->
@@ -67,16 +72,6 @@
             <groupId>co.elastic.clients</groupId>
             <artifactId>elasticsearch-java</artifactId>
             <version>${elastic.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jackson-core</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>snakeyaml</artifactId>
-                    <groupId>org.yaml</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!-- ____________________________________________________ -->
         <!-- GEO -->
@@ -116,16 +111,19 @@
             <artifactId>gt-shapefile</artifactId>
             <version>${geotools.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.geotools.xsd</groupId>
             <artifactId>gt-xsd-fes</artifactId>
             <version>${geotools.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
         </dependency>
+
         <dependency>
             <groupId>de.grundid.opendatalab</groupId>
             <artifactId>geojson-jackson</artifactId>

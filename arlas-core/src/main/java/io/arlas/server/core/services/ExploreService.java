@@ -19,10 +19,10 @@
 package io.arlas.server.core.services;
 
 import co.elastic.clients.json.JsonData;
-import io.arlas.commons.utils.StringUtil;
-import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.BadRequestException;
+import io.arlas.commons.utils.StringUtil;
+import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
@@ -30,6 +30,7 @@ import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.*;
 import io.arlas.server.core.model.response.*;
 import io.arlas.server.core.utils.*;
+import jakarta.ws.rs.core.UriInfo;
 import org.apache.commons.lang3.tuple.Pair;
 import org.geojson.*;
 import org.locationtech.spatial4j.context.SpatialContext;
@@ -38,7 +39,6 @@ import org.locationtech.spatial4j.shape.Rectangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.UriInfo;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;

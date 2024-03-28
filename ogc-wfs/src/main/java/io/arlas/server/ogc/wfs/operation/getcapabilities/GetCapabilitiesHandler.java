@@ -22,32 +22,31 @@ package io.arlas.server.ogc.wfs.operation.getcapabilities;
 
 import eu.europa.ec.inspire.schemas.common._1.*;
 import eu.europa.ec.inspire.schemas.inspire_dls._1.ExtendedCapabilitiesType;
+import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.InspireConfiguration;
 import io.arlas.server.core.app.OGCConfiguration;
 import io.arlas.server.core.app.WFSConfiguration;
-import io.arlas.commons.exceptions.ArlasException;
-import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
-import io.arlas.server.ogc.common.inspire.common.utils.InspireCheckParam;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.DublinCoreElementName;
 import io.arlas.server.core.model.InspireConformity;
 import io.arlas.server.core.model.Keyword;
-import io.arlas.server.ogc.common.inspire.common.constants.InspireConstants;
-import io.arlas.server.core.model.enumerations.InspireSupportedLanguages;
 import io.arlas.server.core.model.enumerations.AccessConstraintEnum;
+import io.arlas.server.core.model.enumerations.InspireSupportedLanguages;
+import io.arlas.server.ogc.common.exceptions.OGC.OGCException;
+import io.arlas.server.ogc.common.inspire.common.constants.InspireConstants;
+import io.arlas.server.ogc.common.inspire.common.utils.InspireCheckParam;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.WFSHandler;
 import io.arlas.server.ogc.wfs.utils.ExtendedWFSCapabilitiesType;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
-
+import jakarta.xml.bind.JAXBElement;
 import net.opengis.fes._2.*;
 import net.opengis.ows._1.*;
 import net.opengis.wfs._2.*;
 import org.w3._1999.xlink.TypeType;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Arrays;

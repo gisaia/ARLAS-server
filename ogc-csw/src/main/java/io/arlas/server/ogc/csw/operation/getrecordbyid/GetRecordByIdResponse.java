@@ -20,14 +20,15 @@
 package io.arlas.server.ogc.csw.operation.getrecordbyid;
 
 
-import net.opengis.cat.csw._3.AbstractRecordType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlType;
 import net.opengis.cat.csw._3.BriefRecordType;
 import net.opengis.cat.csw._3.RecordType;
 import net.opengis.cat.csw._3.SummaryRecordType;
 import org.isotc211._2005.gmd.MDMetadataType;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)

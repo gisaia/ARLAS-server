@@ -22,11 +22,11 @@ package io.arlas.server.stac.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -77,7 +77,7 @@ public enum TrsEnum {
   }
 
   
-  @ApiModelProperty(required = true, value = "One or more time intervals that describe the temporal extent of the dataset.  The first time interval describes the overall temporal extent of the data. All subsequent time intervals describe  more precise time intervals, e.g., to identify clusters of data. Clients only interested in the overall extent will only need to access the first item in each array.")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "One or more time intervals that describe the temporal extent of the dataset.  The first time interval describes the overall temporal extent of the data. All subsequent time intervals describe  more precise time intervals, e.g., to identify clusters of data. Clients only interested in the overall extent will only need to access the first item in each array.")
   @JsonProperty("interval")
   @NotNull
  @Size(min=1)
@@ -97,7 +97,7 @@ public enum TrsEnum {
   }
 
   
-  @ApiModelProperty(value = "Coordinate reference system of the coordinates in the temporal extent (property `interval`). The default reference system is the Gregorian calendar. In the Core this is the only supported temporal reference system. Extensions may support additional temporal reference systems and add additional enum values.")
+  @Schema(description = "Coordinate reference system of the coordinates in the temporal extent (property `interval`). The default reference system is the Gregorian calendar. In the Core this is the only supported temporal reference system. Extensions may support additional temporal reference systems and add additional enum values.")
   @JsonProperty("trs")
 
   public TrsEnum getTrs() {

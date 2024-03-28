@@ -22,15 +22,17 @@ package io.arlas.server.rest.explore.suggest;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.Explode;
+import io.swagger.v3.oas.annotations.enums.ParameterStyle;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.Optional;
 
 import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.arlas.commons.rest.utils.ServerConstants.PARTITION_FILTER;
@@ -44,23 +46,28 @@ public class SuggestRESTService extends ExploreRESTServices {
     @GET
     @Produces(UTF8JSON)
     @Consumes(UTF8JSON)
-    @ApiOperation(value = "Suggest", produces = UTF8JSON, notes = "Suggest the the n (n=size) most relevant terms given the filters", consumes = UTF8JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation")})
+    @Operation(
+            summary = "Suggest",
+            description = "Suggest the the n (n=size) most relevant terms given the filters"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation")
+    })
     public Response suggest(
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(
+            @Parameter(
                     name = "collections",
-                    value = "collections, comma separated",
+                    description = "collections, comma separated",
                     required = true)
             @PathParam(value = "collections") String collections,
 
             // --------------------------------------------------------
             // -----------------------  SEARCH  -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "f",
-                    value = """
+            @Parameter(name = "f",
+                    description = """
                             - A triplet for filtering the result. Multiple filter can be provided. The order does not matter.\s
                             \s
                             - A triplet is composed of a field name, a comparison operator and a value.\s
@@ -92,45 +99,44 @@ public class SuggestRESTService extends ExploreRESTServices {
                             For more details, check https://gitlab.com/GISAIA.ARLAS/ARLAS-server/blob/master/doc/api/API-definition.md\s"""
                     ,
 
-                    allowMultiple = true)
+                    style = ParameterStyle.FORM,
+                    explode = Explode.TRUE)
             @QueryParam(value = "f") List<String> f,
 
-            @ApiParam(name = "q",
-                    value = "A full text search")
+            @Parameter(name = "q",
+                    description = "A full text search")
             @QueryParam(value = "q") String q,
 
             // --------------------------------------------------------
             // -----------------------  FILTER  -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
             // --------------------------------------------------------
             // -----------------------  FORM    -----------------------
             // --------------------------------------------------------
-            @ApiParam(name = "pretty", value = "Pretty print",
-                    defaultValue = "false")
+            @Parameter(name = "pretty", description = "Pretty print",
+                    schema = @Schema(defaultValue = "false"))
             @QueryParam(value = "pretty") Boolean pretty,
 
             // --------------------------------------------------------
             // -----------------------  SIZE   -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(name = "size",
-                    value = "The maximum number of entries or sub-entries to be returned. The default value is 10",
-                    defaultValue = "10",
-                    allowableValues = "range[1, infinity]")
+            @Parameter(name = "size",
+                    description = "The maximum number of entries or sub-entries to be returned. The default value is 10",
+                    schema = @Schema(type="integer", minimum = "1", defaultValue = "10"))
             @DefaultValue("10")
             @QueryParam(value = "size") Integer size,
 
-            @ApiParam(name = "from",
-                    value = "From index to start the search from. Defaults to 0.",
-                    defaultValue = "0",
-                    allowableValues = "range[1, infinity]")
+            @Parameter(name = "from",
+                    description = "From index to start the search from. Defaults to 0.",
+                    schema = @Schema(type="integer", minimum = "1", defaultValue = "0"))
             @DefaultValue("0")
             @QueryParam(value = "size") Integer from,
 
@@ -138,15 +144,15 @@ public class SuggestRESTService extends ExploreRESTServices {
             // -----------------------  SUGGEST   -----------------------
             // --------------------------------------------------------
 
-            @ApiParam(name = "field",
-                    value = "Name of the field to be used for retrieving the most relevant terms",
-                    defaultValue = "_all")
+            @Parameter(name = "field",
+                    description = "Name of the field to be used for retrieving the most relevant terms",
+                    schema = @Schema(defaultValue = "_all"))
             @QueryParam(value = "field") String field,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache")
+            @Parameter(description = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) {
         return cache(Response.ok("suggest"), maxagecache); // TODO : right response

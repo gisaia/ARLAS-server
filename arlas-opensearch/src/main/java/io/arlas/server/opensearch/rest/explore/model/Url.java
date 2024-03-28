@@ -19,7 +19,7 @@
 
 package io.arlas.server.opensearch.rest.explore.model;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 public class Url {
 

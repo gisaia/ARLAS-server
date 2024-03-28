@@ -20,10 +20,10 @@
 package io.arlas.filter.core;
 
 import co.elastic.apm.api.Transaction;
+import jakarta.ws.rs.core.MultivaluedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.MultivaluedMap;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

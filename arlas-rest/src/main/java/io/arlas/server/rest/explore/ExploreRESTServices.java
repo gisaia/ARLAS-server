@@ -21,9 +21,13 @@ package io.arlas.server.rest.explore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.server.core.services.ArlasRESTServices;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.IOUtils;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.io.FileUtils;
 import org.geojson.FeatureCollection;
 import org.geotools.data.collection.ListFeatureCollection;
@@ -44,9 +48,6 @@ import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -57,16 +58,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipOutputStream;
 
 @Path("/explore")
-@Api(value = "/explore")
-@SwaggerDefinition(
-        info = @Info(contact = @Contact(email = "contact@gisaia.com", name = "Gisaia", url = "http://www.gisaia.com/"),
-                title = "ARLAS Exploration API",
-                description = "Explore the content of ARLAS collections",
-                license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
-                version = "API_VERSION"),
-        schemes = { SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS })
+@Tag(name="explore", description="Explore API")
 
-public abstract class ExploreRESTServices {
+public abstract class ExploreRESTServices extends ArlasRESTServices {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ExploreRESTServices.class);
     public static final String UTF8JSON = MediaType.APPLICATION_JSON + ";charset=utf-8";

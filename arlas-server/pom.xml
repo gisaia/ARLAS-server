@@ -19,117 +19,38 @@
       <groupId>io.arlas</groupId>
       <artifactId>arlas-rest</artifactId>
       <version>24.1.2-SNAPSHOT</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>jackson-dataformat-yaml</artifactId>
-          <groupId>com.fasterxml.jackson.dataformat</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
-      <artifactId>jackson-dataformat-yaml</artifactId>
-      <version>${jackson.dataformat.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-opensearch</artifactId>
       <version>24.1.2-SNAPSHOT</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>jakarta.xml.bind-api</artifactId>
-          <groupId>jakarta.xml.bind</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
+
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>ogc-csw</artifactId>
       <version>24.1.2-SNAPSHOT</version>
     </dependency>
+
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>ogc-wfs</artifactId>
       <version>24.1.2-SNAPSHOT</version>
     </dependency>
+
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>stac-api</artifactId>
       <version>24.1.2-SNAPSHOT</version>
     </dependency>
+
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-admin</artifactId>
       <version>24.1.2-SNAPSHOT</version>
     </dependency>
 
-    <dependency>
-      <groupId>io.swagger.core.v3</groupId>
-      <artifactId>swagger-core</artifactId>
-      <version>${swaggerv3.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-lang3</artifactId>
-          <groupId>org.apache.commons</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jakarta.activation-api</artifactId>
-          <groupId>jakarta.activation</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jakarta.xml.bind-api</artifactId>
-          <groupId>jakarta.xml.bind</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jackson-annotations</artifactId>
-          <groupId>com.fasterxml.jackson.core</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jackson-databind</artifactId>
-          <groupId>com.fasterxml.jackson.core</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jackson-core</artifactId>
-          <groupId>com.fasterxml.jackson.core</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jackson-dataformat-yaml</artifactId>
-          <groupId>com.fasterxml.jackson.dataformat</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>io.swagger.core.v3</groupId>
-      <artifactId>swagger-jaxrs2</artifactId>
-      <version>${swaggerv3.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>javassist</artifactId>
-          <groupId>org.javassist</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jakarta.activation-api</artifactId>
-          <groupId>jakarta.activation</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jakarta.xml.bind-api</artifactId>
-          <groupId>jakarta.xml.bind</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jackson-jaxrs-json-provider</artifactId>
-          <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jackson-databind</artifactId>
-          <groupId>com.fasterxml.jackson.core</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>io.swagger.core.v3</groupId>
-      <artifactId>swagger-integration</artifactId>
-      <version>${swaggerv3.version}</version>
-    </dependency>
   </dependencies>
 
   <build>

@@ -20,8 +20,7 @@
 package io.arlas.server.core.utils;
 
 import io.arlas.commons.utils.StringUtil;
-
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.UriInfo;
 
 public class UriInfoWrapper {
     private UriInfo uriInfo;

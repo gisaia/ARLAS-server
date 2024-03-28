@@ -19,8 +19,8 @@
 
 package io.arlas.server.core.utils;
 
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.CacheControl;
+import jakarta.ws.rs.core.Response;
 
 public class ResponseCacheManager {
 

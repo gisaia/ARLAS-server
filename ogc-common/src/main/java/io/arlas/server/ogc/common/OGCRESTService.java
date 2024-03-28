@@ -19,11 +19,12 @@
 
 package io.arlas.server.ogc.common;
 
+import io.arlas.server.core.services.ArlasRESTServices;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.ogc.common.dao.OGCCollectionReferenceDao;
 
 
-public class OGCRESTService {
+public class OGCRESTService extends ArlasRESTServices {
     protected CollectionReferenceService collectionReferenceService = null;
     protected OGCCollectionReferenceDao ogcDao = null;
     private static final String META_COLLECTION_NAME = "metacollection";

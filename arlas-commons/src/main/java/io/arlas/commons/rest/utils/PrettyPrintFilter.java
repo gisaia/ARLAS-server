@@ -19,16 +19,17 @@
 
 package io.arlas.commons.rest.utils;
 
-import com.fasterxml.jackson.jaxrs.cfg.ObjectWriterInjector;
+import com.fasterxml.jackson.jakarta.rs.cfg.ObjectWriterInjector;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.core.MultivaluedMap;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map.Entry;
 
-public class PrettyPrintFilter implements javax.ws.rs.container.ContainerResponseFilter {
+public class PrettyPrintFilter implements ContainerResponseFilter {
     private static final String QUERY_PARAM_PRETTY = "pretty";
     private static final String QUERY_PARAM_TRUE = "true";
 

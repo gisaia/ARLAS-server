@@ -25,12 +25,12 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import io.arlas.commons.config.ArlasAuthConfiguration;
 import io.arlas.commons.utils.StringUtil;
 import io.arlas.filter.core.PolicyEnforcer;
+import jakarta.annotation.Priority;
+import jakarta.ws.rs.Priorities;
+import jakarta.ws.rs.ext.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Priority;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.ext.Provider;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;

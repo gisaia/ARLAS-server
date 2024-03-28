@@ -20,16 +20,16 @@
 package io.arlas.server.ogc.csw.writer.record;
 
 import io.arlas.server.ogc.csw.utils.AtomBuilder;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.ext.MessageBodyWriter;
+import jakarta.xml.bind.JAXB;
 import net.opengis.cat.csw._3.AbstractRecordType;
 import org.w3._2005.atom.EntryType;
 import org.w3._2005.atom.FeedType;
 import org.w3._2005.atom.ObjectFactory;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyWriter;
-import javax.xml.bind.JAXB;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;

@@ -20,10 +20,10 @@
 package io.arlas.server.stac.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,7 +52,7 @@ public class Catalog {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("stac_version")
   @NotNull
 
@@ -71,7 +71,7 @@ public class Catalog {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("stac_extensions")
 
   public List<String> getStacExtensions() {
@@ -89,7 +89,7 @@ public class Catalog {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("type")
   @NotNull
 
@@ -108,7 +108,7 @@ public class Catalog {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("id")
   @NotNull
 
@@ -127,7 +127,7 @@ public class Catalog {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("title")
 
   public String getTitle() {
@@ -145,7 +145,7 @@ public class Catalog {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("description")
   @NotNull
 
@@ -164,7 +164,7 @@ public class Catalog {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("links")
   @NotNull
 

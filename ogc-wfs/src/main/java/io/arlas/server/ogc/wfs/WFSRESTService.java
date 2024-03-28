@@ -41,16 +41,22 @@ import io.arlas.server.ogc.wfs.utils.ExtendedWFSCapabilitiesType;
 import io.arlas.server.ogc.wfs.utils.WFSCheckParam;
 import io.arlas.server.ogc.wfs.utils.WFSConstant;
 import io.arlas.server.ogc.wfs.utils.WFSRequestType;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
+import jakarta.xml.bind.JAXBElement;
 import net.opengis.wfs._2.DescribeStoredQueriesResponseType;
 import net.opengis.wfs._2.ListStoredQueriesResponseType;
 import net.opengis.wfs._2.ValueCollectionType;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.util.List;
@@ -60,7 +66,7 @@ import java.util.Optional;
 import static io.arlas.commons.rest.utils.ServerConstants.*;
 
 @Path("/ogc/wfs")
-@Api(value = "/ogc/wfs")
+@Tag(name="ogc/wfs", description="OGC WFS API")
 public class WFSRESTService extends OGCRESTService {
 
     public WFSHandler wfsHandler;
@@ -81,114 +87,90 @@ public class WFSRESTService extends OGCRESTService {
     @Path("{collection}")
     @GET
     @Produces(MediaType.APPLICATION_XML)
-    @ApiOperation(
-            value = "WFS",
-            produces = MediaType.APPLICATION_XML,
-            notes = "WFS"
+    @Operation(
+            summary = "WFS",
+            description = "WFS"
     )
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"
-    ), @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response doKVP(
-            @ApiParam(
+            @Parameter(
                     name = "collection",
-                    value = "collection",
-                    allowMultiple = false,
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
             // --------------------------------------------------------
             // ----------------------- FORM -----------------------
             // --------------------------------------------------------
-            @ApiParam(
+            @Parameter(
                     name = "version",
-                    value = "version",
-                    allowMultiple = false,
+                    description = "version",
                     required = true)
             @QueryParam(value = "version") String version,
-            @ApiParam(
+            @Parameter(
                     name = "service",
-                    value = "service",
-                    allowMultiple = false,
+                    description = "service",
                     required = true)
             @QueryParam(value = "service") String service,
-            @ApiParam(
+            @Parameter(
                     name = "request",
-                    value = "request",
-                    allowMultiple = false,
+                    description = "request",
                     required = true)
             @QueryParam(value = "request") String request,
-            @ApiParam(
+            @Parameter(
                     name = "storedquery_id",
-                    value = "storedquery_id",
-                    allowMultiple = false,
-                    required = false)
+                    description = "storedquery_id")
             @QueryParam(value = "storedquery_id") String storedquery_id,
-            @ApiParam(
+            @Parameter(
                     name = "id",
-                    value = "id",
-                    allowMultiple = false,
-                    required = false)
+                    description = "id")
             @QueryParam(value = "id") String id,
-            @ApiParam(
+            @Parameter(
                     name = "typenames",
-                    value = "typenames",
-                    allowMultiple = false,
-                    required = false)
+                    description = "typenames")
             @QueryParam(value = "typenames") String typenames,
-            @ApiParam(
+            @Parameter(
                     name = "startindex",
-                    value = "startindex",
-                    allowMultiple = false,
-                    required = false)
+                    description = "startindex")
             @QueryParam(value = "startindex") Integer startindex,
-            @ApiParam(
+            @Parameter(
                     name = "count",
-                    value = "count",
-                    allowMultiple = false,
-                    required = false)
+                    description = "count")
             @QueryParam(value = "count") Integer count,
-            @ApiParam(
+            @Parameter(
                     name = "valuereference",
-                    value = "valuereference",
-                    allowMultiple = false,
-                    required = false)
+                    description = "valuereference")
             @QueryParam(value = "valuereference") String valuereference,
-            @ApiParam(
+            @Parameter(
                     name = "filter",
-                    value = "filter",
-                    allowMultiple = false,
-                    required = false)
+                    description = "filter")
             @QueryParam(value = "filter") String filter,
-            @ApiParam(
+            @Parameter(
                     name = "resourceid",
-                    value = "resourceid",
-                    allowMultiple = false,
-                    required = false)
+                    description = "resourceid")
             @QueryParam(value = "resourceid") String resourceid,
-            @ApiParam(
+            @Parameter(
                     name = "srsname",
-                    value = "srsname",
-                    allowMultiple = false,
-                    required = false)
+                    description = "srsname")
             @QueryParam(value = "srsname") String srsname,
-            @ApiParam(
+            @Parameter(
                     name = "bbox",
-                    value = "bbox",
-                    allowMultiple = false,
-                    required = false)
+                    description = "bbox")
             @QueryParam(value = "bbox") String bbox,
-            @ApiParam(
+            @Parameter(
                     name = "language",
-                    value = "language",
-                    allowMultiple = false,
-                    required = false)
+                    description = "language")
             @QueryParam(value = "language") String language,
 
             //header filters
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations
 
 

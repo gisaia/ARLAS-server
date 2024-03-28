@@ -22,11 +22,10 @@ package io.arlas.server.core.impl.elastic.exceptions;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.ArlasExceptionMapper;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
 
 public class ElasticsearchExceptionMapper implements ExceptionMapper<ElasticsearchException> {
     Logger logger = LoggerFactory.getLogger(ArlasExceptionMapper.class);

@@ -19,11 +19,11 @@
 
 package io.arlas.server.tests.rest.plugins.eo;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.utils.ImageUtil;
 import io.arlas.server.tests.*;
 import io.restassured.response.ValidatableResponse;
+import jakarta.ws.rs.core.Response;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
 import org.hamcrest.Matchers;
@@ -33,7 +33,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
-import javax.ws.rs.core.Response;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;

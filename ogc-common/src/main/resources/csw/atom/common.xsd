@@ -17,7 +17,14 @@ the Licence.
 
 Date: 12-03-2014
 -->
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://inspire.ec.europa.eu/schemas/common/1.0" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" targetNamespace="http://inspire.ec.europa.eu/schemas/common/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.1" jaxb:version="2.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		   xmlns="http://inspire.ec.europa.eu/schemas/common/1.0"
+		   xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+		   targetNamespace="http://inspire.ec.europa.eu/schemas/common/1.0"
+		   elementFormDefault="qualified"
+		   attributeFormDefault="unqualified"
+		   version="1.0.1"
+		   jaxb:version="3.0">
 	<!--
 12-OCT-2016 1.0.3 DateOfLastRevision maxOccurs was unbounded and that was a bug. It is now set to 1.
 05-AUG-2011 1.0.2 Allowed year only date

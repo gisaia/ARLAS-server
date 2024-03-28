@@ -8,10 +8,15 @@
   },
   "private": true,
   "dependencies": {
-    "portable-fetch": "3.0.0",
+    "isomorphic-fetch": "3.0.0",
     "url": "0.11.0"
   },
   "devDependencies": {
     "typescript": "~2.3.3"
+  },
+  "overrides": {
+    "isomorphic-fetch": {
+      "node-fetch": "3.3.0"
+    }
   }
 }
