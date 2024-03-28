@@ -70,18 +70,18 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USER }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
       run: scripts/ci/tests-integration-stage.sh --stage=CSW_ALIASED
-    - name: Run tests [STAC]
-      env:
-        # secrets are defined here : https://github.com/organizations/gisaia/settings/secrets/actions
-        DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USER }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      run: scripts/ci/tests-integration-stage.sh --stage=STAC
     - name: Run tests [STAC_ALIASED]
       env:
         # secrets are defined here : https://github.com/organizations/gisaia/settings/secrets/actions
         DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USER }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
       run: scripts/ci/tests-integration-stage.sh --stage=STAC_ALIASED
+    - name: Run tests [STAC]
+      env:
+        # secrets are defined here : https://github.com/organizations/gisaia/settings/secrets/actions
+        DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USER }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      run: scripts/ci/tests-integration-stage.sh --stage=STAC
     - name: Run tests [DOC]
       env:
         # secrets are defined here : https://github.com/organizations/gisaia/settings/secrets/actions

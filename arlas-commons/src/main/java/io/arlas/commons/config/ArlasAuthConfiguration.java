@@ -22,9 +22,9 @@ package io.arlas.commons.config;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.arlas.filter.config.InitConfiguration;
+import jakarta.ws.rs.HttpMethod;
 import org.keycloak.representations.adapters.config.AdapterConfig;
 
-import javax.ws.rs.HttpMethod;
 import java.util.*;
 import java.util.stream.Collectors;
 

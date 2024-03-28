@@ -35,15 +35,17 @@ import io.arlas.server.opensearch.rest.explore.model.Image;
 import io.arlas.server.opensearch.rest.explore.model.OpenSearchDescription;
 import io.arlas.server.opensearch.rest.explore.model.Url;
 import io.arlas.server.rest.explore.ExploreRESTServices;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.*;
 
@@ -62,32 +64,40 @@ public class OpenSearchDescriptorService extends ExploreRESTServices {
     @Path("/ogc/opensearch/{collection}")
     @GET
     @Produces({MIME_TYPE_XML})
-    @ApiOperation(value = "OpenSearch Description Document", produces = MIME_TYPE_XML, notes = Documentation.OPENSEARCH_OPERATION)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successful operation"),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class), @ApiResponse(code = 400, message = "Bad request.", response = Error.class)})
+    @Operation(
+            summary = "OpenSearch Description Document",
+            description = Documentation.OPENSEARCH_OPERATION
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response opensearch(@Context UriInfo uri,
             // --------------------------------------------------------
             // ----------------------- PATH -----------------------
             // --------------------------------------------------------
-            @ApiParam(
+            @Parameter(
                     name = "collection",
-                    value = "collection",
+                    description = "collection",
                     required = true)
             @PathParam(value = "collection") String collection,
 
             // --------------------------------------------------------
             // ----------------------- FILTERS- -----------------------
             // --------------------------------------------------------
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
 
             // --------------------------------------------------------
             // -----------------------  EXTRA   -----------------------
             // --------------------------------------------------------
-            @ApiParam(value = "max-age-cache")
+            @Parameter(description = "max-age-cache")
             @QueryParam(value = "max-age-cache") Integer maxagecache
     ) throws IOException, NotFoundException, ArlasException {
         CollectionReference cr = exploreService.getCollectionReferenceService()

@@ -19,11 +19,12 @@
 
 package io.arlas.server.ogc.csw.utils;
 
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.DublinCoreElementName;
 import io.arlas.server.core.model.Inspire;
 import io.arlas.server.ogc.common.utils.OGCConstant;
-import io.arlas.commons.utils.StringUtil;
+import jakarta.xml.bind.JAXBElement;
 import net.opengis.cat.csw._3.AbstractRecordType;
 import net.opengis.cat.csw._3.BriefRecordType;
 import net.opengis.cat.csw._3.RecordType;
@@ -31,7 +32,6 @@ import net.opengis.cat.csw._3.SummaryRecordType;
 import net.opengis.ows._2.WGS84BoundingBoxType;
 import org.purl.dc.elements._1.SimpleLiteral;
 
-import javax.xml.bind.JAXBElement;
 import java.util.Arrays;
 
 public class RecordBuilder {
