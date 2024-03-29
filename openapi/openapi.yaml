@@ -286,7 +286,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/_aggregate:
+  /{collection}/_aggregate:
     get:
       tags:
       - explore
@@ -538,7 +538,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/_geoaggregate:
+  /{collection}/_geoaggregate:
     get:
       tags:
       - explore
@@ -809,7 +809,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/_geoaggregate/{geohash}:
+  /{collection}/_geoaggregate/{geohash}:
     get:
       tags:
       - explore
@@ -1029,7 +1029,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/_geoaggregate/{z}/{x}/{y}:
+  /{collection}/_geoaggregate/{z}/{x}/{y}:
     get:
       tags:
       - explore
@@ -1264,7 +1264,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/_shapeaggregate:
+  /{collection}/_shapeaggregate:
     get:
       tags:
       - explore
@@ -1521,7 +1521,7 @@ paths:
             application/zip:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/_compute:
+  /{collection}/_compute:
     get:
       tags:
       - explore
@@ -1697,7 +1697,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/_count:
+  /{collection}/_count:
     get:
       tags:
       - explore
@@ -1854,7 +1854,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/_describe:
+  /{collection}/_describe:
     get:
       tags:
       - explore
@@ -1905,7 +1905,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/_list:
+  /_list:
     get:
       tags:
       - explore
@@ -1952,7 +1952,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/{identifier}:
+  /{collection}/{identifier}:
     get:
       tags:
       - explore
@@ -2015,7 +2015,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/_geosearch:
+  /{collection}/_geosearch:
     get:
       tags:
       - explore
@@ -2263,7 +2263,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/_shapesearch:
+  /{collection}/_shapesearch:
     get:
       tags:
       - explore
@@ -2497,7 +2497,7 @@ paths:
             application/zip:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/_geosearch/{z}/{x}/{y}:
+  /{collection}/_geosearch/{z}/{x}/{y}:
     get:
       tags:
       - explore
@@ -2716,7 +2716,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collection}/_search:
+  /{collection}/_search:
     get:
       tags:
       - explore
@@ -2974,7 +2974,7 @@ paths:
             application/json;charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
-  /explore/{collections}/_suggest:
+  /{collections}/_suggest:
     get:
       tags:
       - explore
@@ -3055,7 +3055,7 @@ paths:
       responses:
         "200":
           description: Successful operation
-  /explore/{collection}/_tile/{z}/{x}/{y}.png:
+  /{collection}/_tile/{z}/{x}/{y}.png:
     get:
       tags:
       - explore

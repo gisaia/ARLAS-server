@@ -422,7 +422,7 @@
         }
       }
     },
-    "/explore/{collection}/_aggregate" : {
+    "/{collection}/_aggregate" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "Aggregate",
@@ -615,7 +615,7 @@
         }
       }
     },
-    "/explore/{collection}/_geoaggregate" : {
+    "/{collection}/_geoaggregate" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "GeoAggregate",
@@ -828,7 +828,7 @@
         }
       }
     },
-    "/explore/{collection}/_geoaggregate/{geohash}" : {
+    "/{collection}/_geoaggregate/{geohash}" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "GeoAggregate on a geohash",
@@ -966,7 +966,7 @@
         }
       }
     },
-    "/explore/{collection}/_geoaggregate/{z}/{x}/{y}" : {
+    "/{collection}/_geoaggregate/{z}/{x}/{y}" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "GeoAggregate on a geotile",
@@ -1123,7 +1123,7 @@
         }
       }
     },
-    "/explore/{collection}/_shapeaggregate" : {
+    "/{collection}/_shapeaggregate" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "ShapeAggregate",
@@ -1314,7 +1314,7 @@
         }
       }
     },
-    "/explore/{collection}/_compute" : {
+    "/{collection}/_compute" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "Compute",
@@ -1507,7 +1507,7 @@
         }
       }
     },
-    "/explore/{collection}/_count" : {
+    "/{collection}/_count" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "Count",
@@ -1676,7 +1676,7 @@
         }
       }
     },
-    "/explore/{collection}/_describe" : {
+    "/{collection}/_describe" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "Describe",
@@ -1751,7 +1751,7 @@
         }
       }
     },
-    "/explore/_list" : {
+    "/_list" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "List",
@@ -1821,7 +1821,7 @@
         }
       }
     },
-    "/explore/{collection}/{identifier}" : {
+    "/{collection}/{identifier}" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "Get an Arlas document",
@@ -1912,7 +1912,7 @@
         }
       }
     },
-    "/explore/{collection}/_geosearch" : {
+    "/{collection}/_geosearch" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "GeoSearch",
@@ -2160,7 +2160,7 @@
         }
       }
     },
-    "/explore/{collection}/_shapesearch" : {
+    "/{collection}/_shapesearch" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "ShapeSearch",
@@ -2386,7 +2386,7 @@
         }
       }
     },
-    "/explore/{collection}/_geosearch/{z}/{x}/{y}" : {
+    "/{collection}/_geosearch/{z}/{x}/{y}" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "Tiled GeoSearch",
@@ -2589,7 +2589,7 @@
         }
       }
     },
-    "/explore/{collection}/_search" : {
+    "/{collection}/_search" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "Search",
@@ -2855,7 +2855,7 @@
         }
       }
     },
-    "/explore/{collections}/_suggest" : {
+    "/{collections}/_suggest" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "Suggest",
@@ -2939,7 +2939,7 @@
         }
       }
     },
-    "/explore/{collection}/_tile/{z}/{x}/{y}.png" : {
+    "/{collection}/_tile/{z}/{x}/{y}.png" : {
       "get" : {
         "tags" : [ "explore" ],
         "summary" : "Tiled GeoSearch",
