@@ -3,11 +3,13 @@
 ########################################################
 #
 swagger: # Configuration of SWAGGER for generating documentation and APIs
-  resourcePackage: ${ARLAS_SWAGGER_RESOURCE_PKG:-io.arlas.server.rest} # The java package to process for extracting the APIs (,io.arlas.server.stac)
-  # temporary patch for bug https://github.com/smoketurner/dropwizard-swagger/issues/206
-  # to be removed when version of dropwizard.swagger.version is upgraded
-  customJavascript: ${ARLAS_CUSTOM_JS:-/arlas/swagger-static/custom-request-interceptor.js}
-
+  resourcePackage: ${ARLAS_SWAGGER_RESOURCE_PKG:-io.arlas.server.rest,io.arlas.server.stac}
+  # not supported in 3.0.0-1 but PR existing and merged
+  servers:
+    - url: ${ARLAS_PREFIX:-/arlas}
+      description: "Backend server from client browser"
+    - url: http://arlas-server${ARLAS_PREFIX:-/arlas}
+      description: "Backend server from docker network"
 
 ########################################################
 ############ ENABLED SERVICES            ###############
@@ -180,7 +182,7 @@ arlas_auth_policy_class: ${ARLAS_AUTH_POLICY_CLASS:-io.arlas.filter.impl.NoPolic
 
 arlas_auth:
   permission_url: ${ARLAS_AUTH_PERMISSION_URL:-http://arlas-iam-server/arlas_iam_server/auth/permissions}
-  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger.*:*}]
+  public_uris: [${ARLAS_AUTH_PUBLIC_URIS:-swagger.*:*,openapi.*}]
   # deprecated, use it only for Integration tests
   certificate_file: ${ARLAS_AUTH_CERT_FILE:-/opt/app/arlas.pem}
   certificate_url: ${ARLAS_AUTH_CERT_URL:-}

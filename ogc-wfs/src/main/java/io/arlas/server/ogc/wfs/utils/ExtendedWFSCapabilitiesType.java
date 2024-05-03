@@ -19,10 +19,13 @@
 
 package io.arlas.server.ogc.wfs.utils;
 
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElementDecl;
 import net.opengis.wfs._2.WFSCapabilitiesType;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.*;
 import javax.xml.namespace.QName;
 
 // This class is added in order to add the xsi:schemaLocation namespace in WFS GetCapabilities Response

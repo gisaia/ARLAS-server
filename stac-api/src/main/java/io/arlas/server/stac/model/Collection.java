@@ -20,10 +20,10 @@
 package io.arlas.server.stac.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 
 
@@ -53,7 +53,7 @@ public class Collection extends Catalog {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("stac_version")
   @NotNull
 
@@ -72,7 +72,7 @@ public class Collection extends Catalog {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("stac_extensions")
 
   public List<String> getStacExtensions() {
@@ -90,7 +90,7 @@ public class Collection extends Catalog {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("type")
   @NotNull
 
@@ -110,7 +110,7 @@ public class Collection extends Catalog {
   }
 
   
-  @ApiModelProperty(required = true, value = "identifier of the collection used, for example, in URIs")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "identifier of the collection used, for example, in URIs")
   @JsonProperty("id")
   @NotNull
 
@@ -130,7 +130,7 @@ public class Collection extends Catalog {
   }
 
   
-  @ApiModelProperty(value = "human readable title of the collection")
+  @Schema(description = "human readable title of the collection")
   @JsonProperty("title")
 
   public String getTitle() {
@@ -149,7 +149,7 @@ public class Collection extends Catalog {
   }
 
   
-  @ApiModelProperty(required = true, value = "Detailed multi-line description to fully explain the catalog or collection. [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Detailed multi-line description to fully explain the catalog or collection. [CommonMark 0.29](http://commonmark.org/) syntax MAY be used for rich text representation.")
   @JsonProperty("description")
   @NotNull
 
@@ -169,7 +169,7 @@ public class Collection extends Catalog {
   }
 
   
-  @ApiModelProperty(value = "List of keywords describing the collection.")
+  @Schema(description = "List of keywords describing the collection.")
   @JsonProperty("keywords")
 
   public List<String> getKeywords() {
@@ -188,7 +188,7 @@ public class Collection extends Catalog {
   }
 
 
-  @ApiModelProperty(value = "List of crs describing the collection.")
+  @Schema(description = "List of crs describing the collection.")
   @JsonProperty("crs")
 
   public List<String> getCrs() {
@@ -206,7 +206,7 @@ public class Collection extends Catalog {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("license")
   @NotNull
 
@@ -225,7 +225,7 @@ public class Collection extends Catalog {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("extent")
   @NotNull
 
@@ -244,7 +244,7 @@ public class Collection extends Catalog {
   }
 
   
-  @ApiModelProperty(value = "")
+  @Schema()
   @JsonProperty("providers")
 
   public List<Provider> getProviders() {
@@ -262,7 +262,7 @@ public class Collection extends Catalog {
   }
 
   
-  @ApiModelProperty(required = true, value = "")
+  @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
   @JsonProperty("links")
   @NotNull
 
@@ -282,7 +282,7 @@ public class Collection extends Catalog {
   }
 
   
-  @ApiModelProperty(value = "Summaries are either a unique set of all available values *or* statistics. Statistics by default only specify the range (minimum and maximum values), but can optionally be accompanied by additional statistical values. The range can specify the potential range of values, but it is recommended to be as precise as possible. The set of values must contain at least one element and it is strongly recommended to list all values. It is recommended to list as many properties as reasonable so that consumers get a full overview of the Collection. Properties that are covered by the Collection specification (e.g. `providers` and `license`) may not be repeated in the summaries.")
+  @Schema(description = "Summaries are either a unique set of all available values *or* statistics. Statistics by default only specify the range (minimum and maximum values), but can optionally be accompanied by additional statistical values. The range can specify the potential range of values, but it is recommended to be as precise as possible. The set of values must contain at least one element and it is strongly recommended to list all values. It is recommended to list as many properties as reasonable so that consumers get a full overview of the Collection. Properties that are covered by the Collection specification (e.g. `providers` and `license`) may not be repeated in the summaries.")
   @JsonProperty("summaries")
 
   public Map<String, Object> getSummaries() {
@@ -302,7 +302,7 @@ public class Collection extends Catalog {
   }
 
 
-  @ApiModelProperty(value = "This provides an optional mechanism to expose assets that don't make sense at the Item level.")
+  @Schema(description = "This provides an optional mechanism to expose assets that don't make sense at the Item level.")
   @JsonProperty("assets")
 
   public Map<String, Object> getAssets() {

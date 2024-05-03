@@ -34,22 +34,22 @@ import io.arlas.server.core.utils.GeoUtil;
 import io.arlas.server.stac.model.SearchBody;
 import io.arlas.server.stac.model.StacFeatureCollection;
 import io.dropwizard.jersey.params.IntParam;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.Explode;
 import io.swagger.v3.oas.annotations.enums.ParameterStyle;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
-import javax.validation.Valid;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,19 +71,21 @@ public class StacSearchRESTService extends StacRESTService {
     @Path("/search")
     @GET
     @Produces({ "application/geo+json", MediaType.TEXT_HTML, MediaType.APPLICATION_JSON })
-    @ApiOperation(
-            value = "Search STAC items with simple filtering.",
-            notes = "Retrieve Items matching filters. Intended as a shorthand API for simple queries.")
+    @Operation(
+            summary = "Search STAC items with simple filtering.",
+            description = "Retrieve Items matching filters. Intended as a shorthand API for simple queries.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "A feature collection.", response = StacFeatureCollection.class,
-                    responseContainer = "StacFeatureCollection"),
-            @ApiResponse(code = 400, message = "Invalid query parameter.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+            @ApiResponse(responseCode = "200", description = "A feature collection.",
+                    content = @Content(schema = @Schema(implementation = StacFeatureCollection.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid query parameter.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response getItemSearch(@Context UriInfo uriInfo,
 
-            @Parameter(name = "bbox", style = ParameterStyle.FORM, explode = Explode.FALSE,
-                    array = @ArraySchema(schema = @Schema(type="number"), maxItems = 6, minItems = 4))
-            @ApiParam(name = "bbox", value = """
+            @Parameter(name = "bbox",
+                    description = """
                     Only features that have a geometry that intersects the bounding box are selected.
                     The bounding box is provided as four or six numbers, depending on whether the coordinate reference system includes a vertical axis (height or depth):
                       * Lower left corner, coordinate axis 1
@@ -99,15 +101,17 @@ public class StacSearchRESTService extends StacRESTService {
                     If the vertical axis is included, the third and the sixth number are the bottom and the top of the 3-dimensional bounding box.
                     If a feature has multiple spatial geometry properties, it is the decision of the server whether only a single spatial geometry property is used to determine the extent or all relevant geometries.
 
-                    Example: The bounding box of the New Zealand Exclusive Economic Zone in WGS 84 (from 160.6°E to 170°W and from 55.95°S to 25.89°S) would be represented in JSON as &#x60;[160.6, -55.95, -170, -25.89]&#x60; and in a query as &#x60;bbox&#x3D;160.6,-55.95,-170,-25.89&#x60;.""")
+                    Example: The bounding box of the New Zealand Exclusive Economic Zone in WGS 84 (from 160.6°E to 170°W and from 55.95°S to 25.89°S) would be represented in JSON as &#x60;[160.6, -55.95, -170, -25.89]&#x60; and in a query as &#x60;bbox&#x3D;160.6,-55.95,-170,-25.89&#x60;.""",
+                    style = ParameterStyle.FORM,
+                    explode = Explode.FALSE,
+                    array = @ArraySchema(schema = @Schema(type="number"), minItems = 4, maxItems = 6))
             @QueryParam(value = "bbox") String bbox,
 
-            @ApiParam(name = "intersects", value = "The optional intersects parameter filters the result Items in the same way as bbox, " +
+            @Parameter(name = "intersects", description = "The optional intersects parameter filters the result Items in the same way as bbox, " +
                     "only with a GeoJSON Geometry rather than a bbox.")
             @QueryParam(value = "intersects") String intersects,
 
-            @Parameter(name = "datetime", style = ParameterStyle.FORM)
-            @ApiParam(name = "datetime", value = """
+            @Parameter(name = "datetime", description = """
                     Either a date-time or an interval, open or closed. Date and time expressions adhere to RFC 3339.
                     Open intervals are expressed using double-dots.  Examples:
                       * A date-time: "2018-02-12T23:20:50Z"
@@ -115,60 +119,59 @@ public class StacSearchRESTService extends StacRESTService {
                       * Open intervals: "2018-02-12T00:00:00Z/.." or "../2018-03-18T12:31:12Z"
 
                     Only features that have a temporal property that intersects the value of &#x60;datetime&#x60; are selected.
-                    If a feature has multiple temporal properties, it is the decision of the server whether only a single temporal property is used to determine the extent or all relevant temporal properties.""")
+                    If a feature has multiple temporal properties, it is the decision of the server whether only a single temporal property is used to determine the extent or all relevant temporal properties.""",
+                    style = ParameterStyle.FORM)
             @QueryParam(value = "datetime") String datetime,
 
-            @Parameter(name = "limit", style = ParameterStyle.FORM, schema = @Schema(maximum="10000", defaultValue = "10", minimum = "1"))
-            @ApiParam(name = "limit", defaultValue = "10", allowableValues = "range[1,10000]",
-                    value = """
+            @Parameter(name = "limit",
+                    description = """
                             The optional limit parameter limits the number of items that are presented in the response document.
                             Only items are counted that are on the first level of the collection in the response document.
                             Nested objects contained within the explicitly requested items shall not be counted.\s
-                            Minimum &#x3D; 1. Maximum &#x3D; 10000. Default &#x3D; 10.""")
+                            Minimum &#x3D; 1. Maximum &#x3D; 10000. Default &#x3D; 10.""",
+                    style = ParameterStyle.FORM,
+                    schema = @Schema(type="integer", minimum = "1", maximum="10000", defaultValue = "10"))
             @DefaultValue("10")
             @QueryParam(value = "limit") IntParam limit,
 
-            @ApiParam(name = "ids", value = "Array of Item ids to return.")
+            @Parameter(name = "ids", description = "Array of Item ids to return.")
             @QueryParam(value = "ids") List<String> ids,
 
-            @ApiParam(name = "collections", value = "Array of Collection IDs to include in the search for items. " +
+            @Parameter(name = "collections", description = "Array of Collection IDs to include in the search for items. " +
                     "Only Item objects in one of the provided collections will be searched ")
             @QueryParam(value = "collections") List<String> collections,
 
-//            @ApiParam(name = "fields", value = "**Optional Extension:** Fields  Determines the shape of the features in the response")
+//            @Parameter(name = "fields", description = "**Optional Extension:** Fields  Determines the shape of the features in the response")
 //            @QueryParam(value = "fields") String fields,
 
-//            @ApiParam(name = "filter", required = true, value = "**Extension:** Filter  A CQL filter expression for filtering items.")
+//            @Parameter(name = "filter", required = true, description = "**Extension:** Filter  A CQL filter expression for filtering items.")
 //            @QueryParam(value = "filter") Filter filter,
 
-            @ApiParam(name = "sortby", value = "**Optional Extension:** Sort  An array of property names, prefixed by either \"+\" for ascending " +
-                    "or \"-\" for descending. If no prefix is provided, \"+\" is assumed.")
+            @Parameter(name = "sortby", description = """
+                    **Optional Extension:** Sort  An array of property names, prefixed by either "+" for ascending or "-" for descending. If no prefix is provided, "+" is assumed.""")
             @QueryParam(value = "sortby") String sortBy,
 
             // --------------------------------------------------------
             // -----------------------  PAGE   -----------------------
             // --------------------------------------------------------
-
-            @ApiParam(name = "from", value = Documentation.PAGE_PARAM_FROM,
-                    defaultValue = "0",
-                    allowableValues = "range[0, infinity]",
-                    type = "integer")
+            @Parameter(name = "from", description = Documentation.PAGE_PARAM_FROM,
+                    schema = @Schema(type="integer", minimum = "0", defaultValue = "0"))
             @DefaultValue("0")
             @QueryParam(value = "from") IntParam from,
 
-            @ApiParam(name = "after", value = Documentation.PAGE_PARAM_AFTER)
+            @Parameter(name = "after", description = Documentation.PAGE_PARAM_AFTER)
             @QueryParam(value = "after") String after,
 
-            @ApiParam(name = "before", value = Documentation.PAGE_PARAM_BEFORE)
+            @Parameter(name = "before", description = Documentation.PAGE_PARAM_BEFORE)
             @QueryParam(value = "before") String before,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-            @ApiParam(hidden = true)
+            @Parameter(hidden = true)
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations
 
     ) throws ArlasException, JsonProcessingException {
@@ -196,25 +199,28 @@ public class StacSearchRESTService extends StacRESTService {
     @Path("/search")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces({ "application/geo+json", MediaType.TEXT_HTML, MediaType.APPLICATION_JSON })
-    @ApiOperation(
-            value = "Search STAC items with full-featured filtering.",
-            notes = "Retrieve items matching filters. Intended as the standard, full-featured query API.")
+    @Produces({ "application/geo+json" })
+    @Operation(
+            summary = "Search STAC items with full-featured filtering.",
+            description = "Retrieve items matching filters. Intended as the standard, full-featured query API.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "A feature collection.", response = StacFeatureCollection.class,
-                    responseContainer = "StacFeatureCollection"),
-            @ApiResponse(code = 400, message = "Invalid query parameter.", response = Error.class),
-            @ApiResponse(code = 500, message = "Arlas Server Error.", response = Error.class)})
+            @ApiResponse(responseCode = "200", description = "A feature collection.",
+                    content = @Content(schema = @Schema(implementation = StacFeatureCollection.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid query parameter.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
     public Response postItemSearch(@Context UriInfo uriInfo,
                                    @Valid SearchBody body,
 
-                                   @ApiParam(hidden = true)
+                                   @Parameter(hidden = true)
                                    @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
 
-                                   @ApiParam(hidden = true)
+                                   @Parameter(hidden = true)
                                    @HeaderParam(value = COLUMN_FILTER) String columnFilter,
 
-                                   @ApiParam(hidden = true)
+                                   @Parameter(hidden = true)
                                    @HeaderParam(value = ARLAS_ORGANISATION) String organisations
 
     ) throws ArlasException {

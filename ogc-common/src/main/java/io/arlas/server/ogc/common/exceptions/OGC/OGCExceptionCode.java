@@ -19,7 +19,7 @@
 
 package io.arlas.server.ogc.common.exceptions.OGC;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class OGCExceptionCode {
     private final String value;
