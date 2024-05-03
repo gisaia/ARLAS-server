@@ -8,7 +8,7 @@ swagger: # Configuration of SWAGGER for generating documentation and APIs
   servers:
     - url: ${ARLAS_PREFIX:-/arlas}
       description: "Backend server from client browser"
-    - url: http://arlas-server{ARLAS_PREFIX:-/arlas}
+    - url: http://arlas-server${ARLAS_PREFIX:-/arlas}
       description: "Backend server from docker network"
 
 ########################################################
