@@ -1,6 +1,52 @@
 # Change Log
 
-## [v24.1.1](https://github.com/gisaia/ARLAS-server/tree/v24.1.1) (2024-02-05)
+## [v25.0.0-rc.1](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-rc.1) (2024-05-03)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-beta.6...v25.0.0-rc.1)
+
+## [v25.0.0-beta.6](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-beta.6) (2024-03-29)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-beta.5...v25.0.0-beta.6)
+
+## [v25.0.0-beta.5](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-beta.5) (2024-03-29)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-beta.4...v25.0.0-beta.5)
+
+**Fixed bugs:**
+
+- Released versions of ARLAS have their swagger file pointing 23.0.1 always [\#904](https://github.com/gisaia/ARLAS-server/issues/904)
+- swagger2markdown documentation is generated in every sub-module of ARLAS-server [\#894](https://github.com/gisaia/ARLAS-server/issues/894) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
+**Miscellaneous:**
+
+- Use an alternative to convertSwagger2markup for openapi spec \(v3\) [\#953](https://github.com/gisaia/ARLAS-server/issues/953)
+
+## [v25.0.0-beta.4](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-beta.4) (2024-03-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-beta.3...v25.0.0-beta.4)
+
+## [v25.0.0-beta.3](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-beta.3) (2024-03-20)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-beta.2...v25.0.0-beta.3)
+
+**Miscellaneous:**
+
+- Dependencies version updates [\#950](https://github.com/gisaia/ARLAS-server/issues/950)
+- Upgrade JWT dependency version [\#830](https://github.com/gisaia/ARLAS-server/issues/830)
+
+## [v25.0.0-beta.2](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-beta.2) (2024-03-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.1.2...v25.0.0-beta.2)
+
+## [v24.1.2](https://github.com/gisaia/ARLAS-server/tree/v24.1.2) (2024-03-06)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.1.1...v24.1.2)
+
+**Miscellaneous:**
+
+- API: Add a mean to update collection visibility to organisations and public visibility [\#937](https://github.com/gisaia/ARLAS-server/issues/937) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+## [v24.1.1](https://github.com/gisaia/ARLAS-server/tree/v24.1.1) (2024-02-14)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.1.0...v24.1.1)
 
