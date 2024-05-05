@@ -1,8 +1,16 @@
 # Change Log
 
-## [v25.0.0-rc.1](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-rc.1) (2024-05-03)
+## [v25.0.0-rc.2](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-rc.2) (2024-05-05)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-rc.1...v25.0.0-rc.2)
+
+## [v25.0.0-rc.1](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-rc.1) (2024-05-04)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-beta.6...v25.0.0-rc.1)
+
+**Miscellaneous:**
+
+- Upgrade Dropwizard to version 4.x [\#884](https://github.com/gisaia/ARLAS-server/issues/884)
 
 ## [v25.0.0-beta.6](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-beta.6) (2024-03-29)
 
