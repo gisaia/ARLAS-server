@@ -23,7 +23,7 @@ function clean_exit {
     else
         echo "=> Skip discard changes";
         git checkout -- pom.xml
-        sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' arlas-rest/src/main/java/io/arlas/server/rest/explore/ExploreRESTServices.java
+        sed -i.bak 's/\"'${FULL_API_VERSION}'\"/\"API_VERSION\"/' arlas-rest/src/main/java/io/arlas/server/core/services/ArlasRESTServices.java
     fi
     exit $ARG
 }
@@ -209,7 +209,7 @@ else
         --mount dst=/input/api.json,src="$PWD/target/tmp/openapi.json",type=bind,ro \
         --mount dst=/input/config.json,src="$PWD/conf/swagger/java-config.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/java-api",type=bind \
-        gisaia/swagger-codegen-3.0.42 \
+        gisaia/swagger-codegen-3.0.54 \
             -l java --type-mappings GeoJsonObject=Object
 
     mkdir -p target/tmp/typescript-fetch
