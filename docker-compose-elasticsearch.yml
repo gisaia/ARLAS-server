@@ -15,6 +15,6 @@ services:
       - xpack.security.transport.ssl.enabled=false
     volumes:
 #      - /var/lib/elasticsearch:/usr/share/elasticsearch/data
-      - ${ELASTIC_DATADIR}:/usr/share/elasticsearch/data
+      - ${ELASTIC_DATADIR:-/tmp}:/usr/share/elasticsearch/data
     ports:
       - 9200:9200 # !EXPOSE!
