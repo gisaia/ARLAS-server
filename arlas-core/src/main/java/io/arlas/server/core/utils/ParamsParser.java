@@ -260,7 +260,7 @@ public class ParamsParser {
         return Objects.requireNonNullElse(aggFormat, "yyyy-MM-dd-HH:mm:ss");
     }
 
-    public static Filter getFilter(CollectionReference collectionReference, String serializedFilter) throws InvalidParameterException {
+    public static List<Filter> getPartitionFilter(CollectionReference collectionReference, String serializedFilter) throws InvalidParameterException {
         if (serializedFilter != null) {
             List<Filter> fList;
             String sf = "[" + serializedFilter + "]";
@@ -278,19 +278,7 @@ public class ParamsParser {
                     throw new InvalidParameterException(INVALID_FILTER + ": '" + sf + "'", ex);
                 }
             }
-            // if not null and parsing ok then we have at least one filter
-            if (fList != null && fList.size() > 0) {
-                Filter retFilter = fList.get(0);
-                if (retFilter.righthand == null) {
-                    retFilter.righthand = Boolean.TRUE;
-                }
-
-                for (int i = 1; i < fList.size(); i++) {
-                    // for now, a list of partition filters is combined with OR. TODO: support more complex combination
-                    retFilter.f.get(0).addAll(fList.get(i).f.get(0));
-                }
-                return retFilter;
-            }
+            return fList;
         }
         return null;
     }

@@ -20,7 +20,10 @@
 package io.arlas.server.core.model.request;
 
 
+import java.util.List;
+
 public class Request {
+    public List<Filter> partitionFilter;
     public Filter filter;
     public Form form;
 }
