@@ -62,6 +62,11 @@ public class CountServiceIT extends AbstractFilteredTest {
     }
 
     @Override
+    public void handleMultiPartitionFilter(ValidatableResponse then) throws Exception {
+        handleMatchingFilter(then, 33);
+    }
+
+    @Override
     protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
         handleFieldFilter(then, nbResults);
     }

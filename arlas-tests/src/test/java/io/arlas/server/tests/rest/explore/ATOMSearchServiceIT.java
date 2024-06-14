@@ -100,6 +100,17 @@ public class ATOMSearchServiceIT extends AbstractProjectedTest {
     }
 
     @Override
+    public void handleMultiPartitionFilter(ValidatableResponse then) throws Exception {
+        if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
+            then.statusCode(200)
+                    .body(ATOM.XML_PREFIX + ":feed.totalResults", equalTo("33"));
+        } else {
+            then.statusCode(200)
+                    .body("totalnb", equalTo(33));
+        }
+    }
+
+    @Override
     protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
         if (then.extract().contentType().equals(ATOM.APPLICATION_ATOM_XML)) {
             then.statusCode(200)

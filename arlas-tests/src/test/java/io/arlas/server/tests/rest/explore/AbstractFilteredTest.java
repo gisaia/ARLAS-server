@@ -1636,6 +1636,19 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
     }
 
+    @Test
+    public void testMultiPartitionFilter() throws Exception {
+        List<MultiValueFilter<Expression>> fGroup1Filter = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")),//"job:eq:Architect"
+                new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.intersects, "POLYGON((-20 20, -20 -20, 20 -20, 20 20, -20 20))")));
+        List<MultiValueFilter<Expression>> fGroup2Filter = Arrays.asList(new MultiValueFilter<>(new Expression("geo_params.geometry", OperatorEnum.intersects, "POLYGON((30 20, 30 -20, 70 -20, 70 20, 30 20))")));
+        Filter group1Filter = new Filter();
+        group1Filter.f = fGroup1Filter;
+        Filter group2Filter = new Filter();
+        group2Filter.f = fGroup2Filter;
+        String serializedFilter =  objectMapper.writeValueAsString(group1Filter) +"," +  objectMapper.writeValueAsString(group2Filter) ;
+        handleMultiPartitionFilter(header(serializedFilter));
+    }
+
 
     @Test
     public void testCollectionFilter() throws Exception {
@@ -2206,6 +2219,8 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
     protected abstract void handleComplexFilter(ValidatableResponse then) throws Exception;
 
+    protected abstract void handleMultiPartitionFilter(ValidatableResponse then) throws Exception;
+
 
     //----------------------------------------------------------------
     //---------------------- NOT MATCHING RESPONSES ------------------
@@ -2292,6 +2307,12 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
             req = req.param(param.getKey(), param.getValue());
         }
         return req.param("righthand", false)
+                .when().get(getUrlPath("geodata"))
+                .then();
+    }
+
+    private ValidatableResponse header(String serializedFilter) throws JsonProcessingException {
+        return givenFilterableRequestParams().header(PARTITION_FILTER, serializedFilter)
                 .when().get(getUrlPath("geodata"))
                 .then();
     }

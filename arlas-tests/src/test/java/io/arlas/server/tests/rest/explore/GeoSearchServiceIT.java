@@ -60,7 +60,7 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
     //----------------------------------------------------------------
     @Override
     protected RequestSpecification givenFilterableRequestParams() {
-        return given();
+        return  given();
     }
 
     @Override
@@ -79,6 +79,11 @@ public class GeoSearchServiceIT extends AbstractXYZTiledTest {
                 .body("features[0].properties.md.centroid.type", equalTo("Point"))
                 .body("features[0].properties.md.centroid", hasKey("coordinates"))
                 .body("features[0].properties.md.geometry", isEmptyOrNullString());
+    }
+
+    @Override
+    protected void handleMultiPartitionFilter(ValidatableResponse then) throws Exception {
+        then.statusCode(200).body("features[0].properties.params.job", equalTo("Architect"));
     }
 
     @Override

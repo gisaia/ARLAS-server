@@ -79,6 +79,13 @@ public class SearchServiceIT extends AbstractProjectedTest {
     }
 
     @Override
+    public void handleMultiPartitionFilter(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+                .body("totalnb", equalTo(33));
+
+    }
+
+    @Override
     protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
         then.statusCode(200)
                 .body("totalnb", equalTo(nbResults))
