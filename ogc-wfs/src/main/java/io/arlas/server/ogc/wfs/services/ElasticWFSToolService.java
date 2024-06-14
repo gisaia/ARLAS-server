@@ -22,7 +22,6 @@ import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.GeoBounds;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.GeoBoundingBoxQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.GeoShapeQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
@@ -218,19 +217,24 @@ public class ElasticWFSToolService implements WFSToolService {
     }
 
     private void addPartitionFilter(CollectionReference collectionReference, ElasticFluidSearch fluidSearch, String partitionFilter) throws ArlasException {
-        Filter headerFilter = ParamsParser.getFilter(collectionReference, partitionFilter);
+        List<Filter> headerFilter = ParamsParser.getPartitionFilter(collectionReference, partitionFilter);
         Filter collectionFilter = collectionReference.params.filter;
-        Boolean applyFilter = false;
+        Boolean applyCollectionFilter = false;
+        Boolean applyPartitionFilter = false;
+
         if(collectionFilter != null){
             exploreServices.applyFilter(collectionFilter, fluidSearch);
-            applyFilter = true;
+            applyCollectionFilter = true;
         }
-        if(headerFilter.f != null || headerFilter.q != null){
-            exploreServices.applyFilter(headerFilter, fluidSearch);
-            applyFilter = true;
+        if(headerFilter != null){
+            exploreServices.applyPartitionFilter(headerFilter, fluidSearch);
+            applyPartitionFilter = true;
         }
-        if(applyFilter){
+        if(applyCollectionFilter){
             wfsQuery.filter(fluidSearch.getBoolQueryBuilder().build()._toQuery());
+        }
+        if(applyPartitionFilter){
+            wfsQuery.filter(fluidSearch.getBoolPartitionQueryBuilder().build()._toQuery());
         }
     }
 

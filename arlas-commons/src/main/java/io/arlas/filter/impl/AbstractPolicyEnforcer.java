@@ -235,7 +235,9 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                 Object token = getObjectToken(accessToken, orgFilter);
                 Set<String> permissions = getPermissionsClaim(token);
                 Optional<String> org = Optional.ofNullable(new ArlasClaims(permissions.stream().toList()).getVariables().get(VAR_ORG));
-
+                if(ctx.getHeaders().get(PARTITION_FILTER) != null){
+                    ctx.getHeaders().remove(PARTITION_FILTER); // remove it in case it's been set manually
+                }
                 ctx.getHeaders().remove(authConf.headerUser); // remove it in case it's been set manually
                 String userId = getSubject(token);
                 if (!StringUtil.isNullOrEmpty(userId)) {

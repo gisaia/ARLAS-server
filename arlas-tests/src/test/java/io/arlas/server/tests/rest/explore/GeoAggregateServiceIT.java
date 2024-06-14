@@ -340,6 +340,11 @@ public class    GeoAggregateServiceIT extends AbstractGeohashTiledTest {
     }
 
     @Override
+    protected void handleMultiPartitionFilter(ValidatableResponse then) throws Exception {
+        then.statusCode(200).body("features.size()", equalTo(33));;
+    }
+
+    @Override
     protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
         handleFieldFilter(then, nbResults);
     }

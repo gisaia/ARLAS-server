@@ -347,6 +347,12 @@ public class AggregateServiceIT extends AbstractAggregatedTest {
     }
 
     @Override
+    protected void handleMultiPartitionFilter(ValidatableResponse then) throws Exception {
+        then.statusCode(200)
+                .body("elements.size()", equalTo(33));
+    }
+
+    @Override
     protected void handleFieldFilter(ValidatableResponse then, int nbResults, String... values) throws Exception {
         handleFieldFilter(then, nbResults);
     }

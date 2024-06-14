@@ -64,6 +64,7 @@ public class ElasticFluidSearch extends FluidSearchService {
     private int elasticMaxPrecisionThreshold;
     private SearchRequest.Builder requestBuilder;
     private BoolQuery.Builder boolQueryBuilder;
+    private BoolQuery.Builder boolPartitionQueryBuilder;
 
 
     public ElasticFluidSearch(CollectionReference collectionReference, int elasticMaxPrecisionThreshold) {
@@ -73,6 +74,8 @@ public class ElasticFluidSearch extends FluidSearchService {
                 .index(collectionReference.params.indexName)
                 .trackTotalHits(b -> b.enabled(true));
         boolQueryBuilder = new BoolQuery.Builder();
+        boolPartitionQueryBuilder = new BoolQuery.Builder();
+
     }
 
     public ElasticClient getClient() {
@@ -87,6 +90,10 @@ public class ElasticFluidSearch extends FluidSearchService {
     public BoolQuery.Builder getBoolQueryBuilder() {
         return boolQueryBuilder;
     }
+    public BoolQuery.Builder getBoolPartitionQueryBuilder() {
+        return boolPartitionQueryBuilder;
+    }
+
 
     public SearchResponse<Map> exec() throws ArlasException {
         Pair<String[], String[]> includeExclude = computeIncludeExclude(false);
@@ -98,7 +105,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                                 .excludes(Arrays.asList(includeExclude.getRight()))
                         )
                 )
-                .query(boolQueryBuilder.build()._toQuery())
+                .query(boolQueryBuilder.must(boolPartitionQueryBuilder.build()._toQuery()).build()._toQuery())
                 .build();
 
         // https://www.elastic.co/guide/en/elasticsearch/client/java-api-client/current/reading.html#_reading_raw_json
@@ -106,12 +113,43 @@ public class ElasticFluidSearch extends FluidSearchService {
     }
 
     @Override
-    public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat, Boolean rightHand )throws ArlasException {
+    public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat, Boolean rightHand) throws ArlasException {
         List<Query> queries = new ArrayList<>();
         for (Expression fFilter : f) {
             queries.add(filter(fFilter, dateFormat, rightHand));
         }
         boolQueryBuilder = boolQueryBuilder.filter(QueryBuilders.bool().should(queries).minimumShouldMatch("1").build()._toQuery());
+        return this;
+    }
+
+    @Override
+    public FluidSearchService partitionFilter(List<Filter> filters) throws ArlasException {
+        List<Query> finalQueries = new ArrayList<>();
+        for (Filter filter : filters){
+            // OR LEVEL
+            BoolQuery.Builder builder = new BoolQuery.Builder();
+            if(filter.f != null){
+                for (MultiValueFilter<Expression> f : filter.f) {
+                    // AND LEVEL
+                    List<Query> queries = new ArrayList<>();
+                    for (Expression fFilter : f) {
+                        //OR LEVEL
+                        queries.add(filter(fFilter, filter.dateformat, filter.righthand));
+                    }
+                    builder = builder.filter(QueryBuilders.bool().should(queries).minimumShouldMatch("1").build()._toQuery());
+                }
+            }
+            if(filter.q != null){
+                for (MultiValueFilter<String> q : filter.q) {
+                    BoolQuery.Builder orBoolQueryBuilder = getFilterQBuilder(q);
+                    builder = builder.filter(orBoolQueryBuilder.build()._toQuery());
+                }
+            }
+            //AND OF OR
+            finalQueries.add(builder.build()._toQuery());
+        }
+        // OR OF (AND OF OR)
+        boolPartitionQueryBuilder = boolPartitionQueryBuilder.should(finalQueries).minimumShouldMatch("1");
         return this;
     }
 
@@ -287,6 +325,12 @@ public class ElasticFluidSearch extends FluidSearchService {
 
     @Override
     public FluidSearchService filterQ(MultiValueFilter<String> q) throws ArlasException {
+        BoolQuery.Builder orBoolQueryBuilder = getFilterQBuilder(q);
+        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder.build()._toQuery());
+        return this;
+    }
+
+    private BoolQuery.Builder getFilterQBuilder(MultiValueFilter<String> q) throws InvalidParameterException {
         BoolQuery.Builder orBoolQueryBuilder = new BoolQuery.Builder().minimumShouldMatch("1");
         for (String qFilter : q) {
             String[] operands = qFilter.split(":",2);
@@ -300,8 +344,7 @@ public class ElasticFluidSearch extends FluidSearchService {
                 throw new InvalidParameterException(INVALID_Q_FILTER);
             }
         }
-        boolQueryBuilder = boolQueryBuilder.filter(orBoolQueryBuilder.build()._toQuery());
-        return this;
+        return orBoolQueryBuilder;
     }
 
     public List<Query> filterPWithin(String field, String pwithinFilter) throws ArlasException {

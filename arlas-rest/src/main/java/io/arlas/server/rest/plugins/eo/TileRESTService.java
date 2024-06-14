@@ -207,7 +207,7 @@ public class TileRESTService extends ExploreRESTServices {
         ColumnFilterUtil.assertRequestAllowed(Optional.ofNullable(columnFilter), collectionReference, search);
 
         Search searchHeader = new Search();
-        searchHeader.filter = ParamsParser.getFilter(collectionReference, partitionFilter);
+        searchHeader.partitionFilter = ParamsParser.getPartitionFilter(collectionReference, partitionFilter);
         MixedRequest request = new MixedRequest();
         request.basicRequest = search;
         request.headerRequest = searchHeader;

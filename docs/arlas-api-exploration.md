@@ -283,6 +283,12 @@ In the case of `lt`, `gt`, `lte`, `gte`, `range` operations that are applied on 
 When dealing with multi collections, filter can also be specified in a JSON map <collection name, filter>, e.g.:
 > Example: `curl --header "partition-filter: {"mycollection1": {"f":[[{"field":"city","op":"eq","value":"Bordeaux"}]]}}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
 
+You can pass several filter in `partition-filter`, separated by comma :
+
+> Example: `curl --header "partition-filter: {"f":[[{"field":"city","op":"eq","value":"Bordeaux"}]]},{"f":[[{"field":"city","op":"eq","value":"Paris"}]]}" https://api.gisaia.com/demo/arlas/explore/cities/_count`
+
+In this case a OR combination is done.
+
 #### Column filtering
 
 A comma-separated list of columns can be passed in request header `column-filter`. Wildcards are supported.
