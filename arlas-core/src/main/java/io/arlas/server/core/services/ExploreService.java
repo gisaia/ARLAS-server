@@ -170,7 +170,7 @@ public abstract class ExploreService {
                             try {
                                 return collectionReferenceService.isDateField(
                                         ParamsParser.getFieldFromFieldAliases(expression.field, collectionReference),
-                                        collectionReference.params.indexName);
+                                        collectionReference);
                             } catch (ArlasException e) {
                                 throw new RuntimeException(e);
                             }

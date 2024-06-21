@@ -353,9 +353,10 @@ public abstract class CollectionReferenceService {
         }
     }
 
-    public boolean isDateField(String field, String index) throws ArlasException {
-        return getFieldType(field, index).isDateField();
+    public boolean isDateField(String field, CollectionReference ref) throws ArlasException {
+        return getFieldType(field, ref.params.indexName).isDateField();
     }
+
     public boolean isTextField(String field, String index) throws ArlasException {
         return getFieldType(field, index).isTextField();
     }
