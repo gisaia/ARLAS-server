@@ -50,6 +50,7 @@ public class LocalCacheManager extends BaseLocalCacheManager implements CacheMan
         putObject("collections", ref, col);
         LOGGER.debug("Clearing field types of collection '" + ref + "' from cache");
         this.cache.computeIfAbsent(ref, k -> new SelfExpiringHashMap<>()).clear();
+        this.cache.computeIfAbsent(ref+"-datefield", k -> new SelfExpiringHashMap<>()).clear();
     }
 
     @Override
@@ -57,6 +58,7 @@ public class LocalCacheManager extends BaseLocalCacheManager implements CacheMan
         removeObject("collections", ref);
         LOGGER.debug("Clearing field types of collection '" + ref + "' from cache");
         this.cache.computeIfAbsent(ref, k -> new SelfExpiringHashMap<>()).clear();
+        this.cache.computeIfAbsent(ref+"-datefield", k -> new SelfExpiringHashMap<>()).clear();
     }
 
     @Override
@@ -67,6 +69,16 @@ public class LocalCacheManager extends BaseLocalCacheManager implements CacheMan
     @Override
     public void putFieldType(String ref, String name, FieldType type) {
         putObject(ref, name, type);
+    }
+
+    @Override
+    public Boolean getIsDateField(String ref, String name) {
+        return (Boolean) getObject(ref+"-datefield", name);
+    }
+
+    @Override
+    public void putIsDateField(String ref, String name, Boolean value) {
+        putObject(ref+"-datefield", name, value);
     }
 
     @Override

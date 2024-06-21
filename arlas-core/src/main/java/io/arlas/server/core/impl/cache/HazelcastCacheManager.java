@@ -49,6 +49,7 @@ public class HazelcastCacheManager extends BaseHazelcastCacheManager implements 
         putObject("collections", ref, col);
         LOGGER.debug("Clearing field types of collection '" + ref + "' from cache");
         this.instance.getReplicatedMap(ref).clear();
+        this.instance.getReplicatedMap(ref+"-datefield").clear();
     }
 
     @Override
@@ -56,6 +57,7 @@ public class HazelcastCacheManager extends BaseHazelcastCacheManager implements 
         removeObject("collections", ref);
         LOGGER.debug("Clearing field types of collection '" + ref + "' from cache");
         this.instance.getReplicatedMap(ref).clear();
+        this.instance.getReplicatedMap(ref+"-datefield").clear();
     }
 
     @Override
@@ -66,6 +68,16 @@ public class HazelcastCacheManager extends BaseHazelcastCacheManager implements 
     @Override
     public void putFieldType(String ref, String name, FieldType type) {
         putObject(ref, name, type);
+    }
+
+    @Override
+    public Boolean getIsDateField(String ref, String name) {
+        return (Boolean) getObject(ref+"-datefield", name);
+    }
+
+    @Override
+    public void putIsDateField(String ref, String name, Boolean value) {
+        putObject(ref+"-datefield", name, value);
     }
 
     @Override

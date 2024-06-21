@@ -157,7 +157,13 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
     }
 
     @Override
-    public boolean isDateField(String field, String index) throws ArlasException {
-        return client.isDateField(field, index);
+    public boolean isDateField(String field, CollectionReference ref) throws ArlasException {
+        Boolean isDateField = cacheManager.getIsDateField(ref.collectionName, field);
+        if (isDateField == null) {
+            isDateField = client.isDateField(field, ref.params.indexName);
+            cacheManager.putIsDateField(ref.collectionName, field, isDateField);
+        }
+
+        return isDateField;
     }
 }

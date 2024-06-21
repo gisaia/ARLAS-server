@@ -20,7 +20,6 @@ package io.arlas.server.core.services;
 
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.utils.StringUtil;
-import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.AggregationTypeEnum;
@@ -154,7 +153,7 @@ public abstract class FluidSearchService {
     }
 
     public boolean isDateField(String field) throws ArlasException {
-        return collectionReferenceManager.getCollectionReferenceService().isDateField(field, collectionReference.params.indexName);
+        return collectionReferenceManager.getCollectionReferenceService().isDateField(field, collectionReference);
     }
 
     public boolean isTextField(String field) throws ArlasException {
