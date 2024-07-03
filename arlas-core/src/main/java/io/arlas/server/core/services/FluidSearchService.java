@@ -24,10 +24,7 @@ import io.arlas.server.core.managers.CollectionReferenceManager;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
-import io.arlas.server.core.model.request.Aggregation;
-import io.arlas.server.core.model.request.Expression;
-import io.arlas.server.core.model.request.MultiValueFilter;
-import io.arlas.server.core.model.request.Page;
+import io.arlas.server.core.model.request.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,6 +188,8 @@ public abstract class FluidSearchService {
     public abstract FluidSearchService compute(String field, ComputationEnum metric, int precisionThresold) throws ArlasException;
 
     abstract public FluidSearchService filter(MultiValueFilter<Expression> f, String dateFormat, Boolean rightHand) throws ArlasException;
+
+    public abstract FluidSearchService partitionFilter(List<Filter> filters)throws ArlasException;
 
     abstract public FluidSearchService filterQ(MultiValueFilter<String> q) throws ArlasException;
 

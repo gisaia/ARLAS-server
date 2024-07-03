@@ -79,6 +79,13 @@ public abstract class ExploreService {
         if (request != null && request.filter != null) {
             request.filter = ParamsParser.getFilterWithValidGeos(collectionReference, request.filter);
         }
+        if (request != null && request.partitionFilter != null) {
+            List<Filter> newFilters = new ArrayList<>();
+            for (Filter f : request.partitionFilter){
+                newFilters.add(ParamsParser.getFilterWithValidGeos(collectionReference, f));
+            }
+            request.partitionFilter = newFilters;
+        }
     }
 
     public Map<String, Object> flat(AggregationResponse element,
@@ -151,6 +158,23 @@ public abstract class ExploreService {
                     fluidSearch = fluidSearch.filterQ(q);
                 }
             }
+        }
+    }
+
+    public void applyPartitionFilter(List<Filter> filters, FluidSearchService fluidSearch) throws ArlasException {
+        if (filters != null) {
+            for(Filter f:filters){
+                if (f != null) {
+                    CheckParams.checkFilter(f);
+                    if (f.f != null && !f.f.isEmpty()) {
+                        CollectionReference collectionReference = fluidSearch.getCollectionReference();
+                        if (!filterFHasDateQuery(f, collectionReference) && !StringUtil.isNullOrEmpty(f.dateformat)) {
+                            throw new BadRequestException("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
+                        }
+                    }
+                }
+            }
+            fluidSearch = fluidSearch.partitionFilter(filters);
         }
     }
 
@@ -333,7 +357,7 @@ public abstract class ExploreService {
         FluidSearchService fluidSearch = getFluidSearch(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
-        applyFilter(request.headerRequest.filter, fluidSearch);
+        applyPartitionFilter(request.headerRequest.partitionFilter, fluidSearch);
         List<Aggregation> aggregations = ((AggregationsRequest) request.basicRequest).aggregations;
         if (aggregations != null && !aggregations.isEmpty()) {
             fluidSearch.aggregate(aggregations, isGeoAggregation);
@@ -347,7 +371,7 @@ public abstract class ExploreService {
         FluidSearchService fluidSearch = getFluidSearch(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
-        applyFilter(request.headerRequest.filter, fluidSearch);
+        applyPartitionFilter(request.headerRequest.partitionFilter, fluidSearch);
         String field = ((ComputationRequest)request.basicRequest).field;
         ComputationEnum metric = ((ComputationRequest)request.basicRequest).metric;
         int precisionThreshold = ((ComputationRequest)request.basicRequest).precisionThreshold;
@@ -360,7 +384,7 @@ public abstract class ExploreService {
         FluidSearchService fluidSearch = getFluidSearch(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
-        applyFilter(request.headerRequest.filter, fluidSearch);
+        applyPartitionFilter(request.headerRequest.partitionFilter, fluidSearch);
         return count(collectionReference, fluidSearch);
     }
 
@@ -374,7 +398,7 @@ public abstract class ExploreService {
         FluidSearchService fluidSearch = getFluidSearch(collectionReference);
         applyFilter(collectionReference.params.filter, fluidSearch);
         applyFilter(request.basicRequest.filter, fluidSearch);
-        applyFilter(request.headerRequest.filter, fluidSearch);
+        applyPartitionFilter(request.headerRequest.partitionFilter, fluidSearch);
         paginate(((Search) request.basicRequest).page, collectionReference, fluidSearch);
         applyProjection(((Search) request.basicRequest).projection, fluidSearch, request.columnFilter, collectionReference);
         return fluidSearch;
