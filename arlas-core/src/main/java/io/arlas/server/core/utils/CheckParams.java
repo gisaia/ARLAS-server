@@ -180,7 +180,7 @@ public class CheckParams {
     }
 
     public static boolean isBboxMatch(String geometry) {
-        String floatPattern = "[-+]?[0-9]*\\.?[0-9]+";
+        String floatPattern = "[+-]?(\\d+([.]\\d*)?([eE][+-]?\\d+)?|[.]\\d+([eE][+-]?\\d+)?)";
         String bboxPattern = floatPattern + "," + floatPattern + "," + floatPattern + "," + floatPattern;
         return Pattern.compile("^" + bboxPattern + "$").matcher(geometry).matches();
     }
