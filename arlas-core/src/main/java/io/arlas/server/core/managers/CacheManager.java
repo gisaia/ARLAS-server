@@ -35,6 +35,9 @@ public interface CacheManager extends BaseCacheManager {
     FieldType getFieldType(String ref, String name);
     void putFieldType(String ref, String name, FieldType type);
 
+    Boolean getIsDateField(String ref, String name);
+    void putIsDateField(String ref, String name, Boolean value);
+
     void putMapping(String indexName, Map<String, Map<String, Object>> exists);
     Map<String, Map<String, Object>> getMapping(String indexName);
     void removeMapping(String indexName);

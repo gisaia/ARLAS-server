@@ -72,6 +72,16 @@ public class NoCacheManager implements CacheManager {
     }
 
     @Override
+    public Boolean getIsDateField(String ref, String name) {
+        return null;
+    }
+
+    @Override
+    public void putIsDateField(String ref, String name, Boolean value) {
+
+    }
+
+    @Override
     public void putMapping(String indexName, Map<String, Map<String, Object>> exists) {
     }
 
