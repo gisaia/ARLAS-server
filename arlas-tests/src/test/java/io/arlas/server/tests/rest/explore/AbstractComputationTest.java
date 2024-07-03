@@ -134,7 +134,7 @@ public abstract class AbstractComputationTest extends AbstractFilteredTest {
         handleInvalidComputationRequest(post(computationRequest));
         handleInvalidComputationRequest(get(computationRequest.field, computationRequest.metric.value()));
 
-        computationRequest.field = "geo_params.geometry";
+        computationRequest.field = "params.job";
         computationRequest.metric = ComputationEnum.GEOBBOX;
         handleInvalidComputationRequest(post(computationRequest));
         handleInvalidComputationRequest(get(computationRequest.field, computationRequest.metric.value()));

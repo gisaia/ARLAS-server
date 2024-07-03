@@ -130,8 +130,8 @@ public class CheckParams {
             }
             if (computationRequest.metric.equals(ComputationEnum.GEOBBOX) || computationRequest.metric.equals(ComputationEnum.GEOCENTROID)) {
                 FieldType fieldType = CollectionReferenceManager.getInstance().getType(collectionReference, computationRequest.field, false);
-                if (!FieldType.GEO_POINT.equals(fieldType) && !FieldType.UNKNOWN.equals(fieldType)) {
-                    throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + "`" + computationRequest.metric + "` must be applied on a geo-point field");
+                if (!FieldType.GEO_POINT.equals(fieldType) && !FieldType.GEO_SHAPE.equals(fieldType) && !FieldType.UNKNOWN.equals(fieldType)) {
+                    throw new InvalidParameterException(INVALID_COMPUTE_REQUEST + "`" + computationRequest.metric + "` must be applied on a geo-point or a geo-shape field");
                 }
             } else if (!computationRequest.metric.equals(ComputationEnum.CARDINALITY)) {
                 // Except for CARDINALITY, GEOBBOX and GEOCENTROID, the field on which the metric is computed should be numeric or date
