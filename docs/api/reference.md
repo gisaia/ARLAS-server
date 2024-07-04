@@ -1539,6 +1539,26 @@ Aggregate the elements in the collection(s), given the filters and the aggregati
 
 ```json
 {
+  "partitionFilter": [
+    {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    }
+  ],
   "filter": {
     "f": [
       [
@@ -1735,6 +1755,26 @@ Aggregate the elements in the collection(s) as features, given the filters and t
 
 ```json
 {
+  "partitionFilter": [
+    {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    }
+  ],
   "filter": {
     "f": [
       [
@@ -2377,6 +2417,26 @@ Aggregate the elements in the collection(s) as features, given the filters and t
 
 ```json
 {
+  "partitionFilter": [
+    {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    }
+  ],
   "filter": {
     "f": [
       [
@@ -2480,6 +2540,26 @@ Computes the given metric on a field in the collection, given the filters
 
 ```json
 {
+  "partitionFilter": [
+    {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    }
+  ],
   "filter": {
     "f": [
       [
@@ -2568,6 +2648,26 @@ Count the number of elements found in the collection(s), given the filters
 
 ```json
 {
+  "partitionFilter": [
+    {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    }
+  ],
   "filter": {
     "f": [
       [
@@ -3425,6 +3525,26 @@ Search and return the elements found in the collection(s) as features, given the
 
 ```json
 {
+  "partitionFilter": [
+    {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    }
+  ],
   "filter": {
     "f": [
       [
@@ -3548,6 +3668,26 @@ Search and return the elements found in the collection(s) as features, given the
 
 ```json
 {
+  "partitionFilter": [
+    {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    }
+  ],
   "filter": {
     "f": [
       [
@@ -3738,6 +3878,26 @@ Search and return the elements found in the collection, given the filters
 
 ```json
 {
+  "partitionFilter": [
+    {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    }
+  ],
   "filter": {
     "f": [
       [
@@ -5889,6 +6049,26 @@ and
 
 ```json
 {
+  "partitionFilter": [
+    {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    }
+  ],
   "filter": {
     "f": [
       [
@@ -5959,6 +6139,7 @@ and
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
+|partitionFilter|[[Filter](#schemafilter)]|false|none|none|
 |filter|[Filter](#schemafilter)|false|none|none|
 |form|[Form](#schemaform)|false|none|none|
 |aggregations|[[Aggregation](#schemaaggregation)]|false|none|none|
@@ -6172,6 +6353,26 @@ and
 
 ```json
 {
+  "partitionFilter": [
+    {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    }
+  ],
   "filter": {
     "f": [
       [
@@ -6204,6 +6405,7 @@ and
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
+|partitionFilter|[[Filter](#schemafilter)]|false|none|none|
 |filter|[Filter](#schemafilter)|false|none|none|
 |form|[Form](#schemaform)|false|none|none|
 |field|string|false|none|none|
@@ -6519,6 +6721,26 @@ and
 
 ```json
 {
+  "partitionFilter": [
+    {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    }
+  ],
   "filter": {
     "f": [
       [
@@ -6549,6 +6771,7 @@ and
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
+|partitionFilter|[[Filter](#schemafilter)]|false|none|none|
 |filter|[Filter](#schemafilter)|false|none|none|
 |form|[Form](#schemaform)|false|none|none|
 
@@ -6916,6 +7139,26 @@ and
 
 ```json
 {
+  "partitionFilter": [
+    {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    }
+  ],
   "filter": {
     "f": [
       [
@@ -6958,6 +7201,7 @@ and
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
+|partitionFilter|[[Filter](#schemafilter)]|false|none|none|
 |filter|[Filter](#schemafilter)|false|none|none|
 |form|[Form](#schemaform)|false|none|none|
 |page|[Page](#schemapage)|false|none|none|

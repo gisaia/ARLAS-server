@@ -3923,6 +3923,10 @@ components:
     AggregationsRequest:
       type: object
       properties:
+        partitionFilter:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
         filter:
           $ref: '#/components/schemas/Filter'
         form:
@@ -4025,6 +4029,10 @@ components:
     ComputationRequest:
       type: object
       properties:
+        partitionFilter:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
         filter:
           $ref: '#/components/schemas/Filter'
         form:
@@ -4106,6 +4114,10 @@ components:
     Count:
       type: object
       properties:
+        partitionFilter:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
         filter:
           $ref: '#/components/schemas/Filter'
         form:
@@ -4217,6 +4229,10 @@ components:
     Search:
       type: object
       properties:
+        partitionFilter:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
         filter:
           $ref: '#/components/schemas/Filter'
         form:

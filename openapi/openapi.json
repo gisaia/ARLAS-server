@@ -4059,6 +4059,12 @@
       "AggregationsRequest" : {
         "type" : "object",
         "properties" : {
+          "partitionFilter" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Filter"
+            }
+          },
           "filter" : {
             "$ref" : "#/components/schemas/Filter"
           },
@@ -4177,6 +4183,12 @@
       "ComputationRequest" : {
         "type" : "object",
         "properties" : {
+          "partitionFilter" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Filter"
+            }
+          },
           "filter" : {
             "$ref" : "#/components/schemas/Filter"
           },
@@ -4284,6 +4296,12 @@
       "Count" : {
         "type" : "object",
         "properties" : {
+          "partitionFilter" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Filter"
+            }
+          },
           "filter" : {
             "$ref" : "#/components/schemas/Filter"
           },
@@ -4373,6 +4391,12 @@
       "Search" : {
         "type" : "object",
         "properties" : {
+          "partitionFilter" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Filter"
+            }
+          },
           "filter" : {
             "$ref" : "#/components/schemas/Filter"
           },

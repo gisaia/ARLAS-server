@@ -1,6 +1,19 @@
 # Change Log
 
-## [v25.0.0](https://github.com/gisaia/ARLAS-server/tree/v25.0.0) (2024-05-05)
+## [v25.1.0](https://github.com/gisaia/ARLAS-server/tree/v25.1.0) (2024-07-04)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0...v25.1.0)
+
+**Fixed bugs:**
+
+- Apply an OR operation between different Partition filters. [\#964](https://github.com/gisaia/ARLAS-server/issues/964)
+- BBOX with e-notation is misinterpreted as a WKT [\#915](https://github.com/gisaia/ARLAS-server/issues/915)
+
+**Miscellaneous:**
+
+- Update documentation of partition-filters [\#966](https://github.com/gisaia/ARLAS-server/issues/966) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
+## [v25.0.0](https://github.com/gisaia/ARLAS-server/tree/v25.0.0) (2024-05-15)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-rc.2...v25.0.0)
 
