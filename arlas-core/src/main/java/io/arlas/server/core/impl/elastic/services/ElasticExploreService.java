@@ -421,9 +421,6 @@ public class ElasticExploreService extends ExploreService {
             aggregate.geohexGrid().buckets().array().forEach(geohexGridBucket -> {
                 AggregationResponse element = new AggregationResponse();
                 element.keyAsString = geohexGridBucket.key();
-                List<Integer> zxy = Stream.of(element.keyAsString.toString().split("/"))
-                        .map(Integer::valueOf).toList();
-                BoundingBox tile = GeoTileUtil.getBoundingBox(zxy.get(1), zxy.get(2), zxy.get(0));
                 LatLonGeoLocation geoPoint = getH3Centre(element.keyAsString.toString()).latlon();
                 element.key = new LatLon(geoPoint.lat(),geoPoint.lon());
                 if (!CollectionUtils.isEmpty(aggregatedGeometries)) {
