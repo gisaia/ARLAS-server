@@ -30,10 +30,7 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.arlas.commons.exceptions.ArlasException;
-import io.arlas.commons.exceptions.BadRequestException;
-import io.arlas.commons.exceptions.InternalServerErrorException;
-import io.arlas.commons.exceptions.NotFoundException;
+import io.arlas.commons.exceptions.*;
 import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.ElasticConfiguration;
 import io.arlas.server.core.model.CollectionReference;
@@ -313,6 +310,12 @@ public class ElasticClient {
             return null;
         } catch (ElasticsearchException e) {
             String msg = e.getMessage();
+            if (e.response() != null
+                    && e.response().error() != null
+                    && e.response().error().rootCause() != null
+                    && !e.response().error().rootCause().isEmpty()) {
+                msg = e.response().error().rootCause().get(0).reason();
+           }
             Throwable[] suppressed = e.getSuppressed();
             if (suppressed.length > 0 && suppressed[0] instanceof ResponseException) {
                 msg = suppressed[0].getMessage();
