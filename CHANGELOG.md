@@ -1,8 +1,16 @@
 # Change Log
 
+## [v26.0.0](https://github.com/gisaia/ARLAS-server/tree/v26.0.0) (2024-08-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.1.0...v26.0.0)
+
 ## [v25.1.0](https://github.com/gisaia/ARLAS-server/tree/v25.1.0) (2024-07-04)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0...v25.1.0)
+
+**New stuff:**
+
+- Extend applying geobbox and geocentroid metrics to geo-shape fields [\#967](https://github.com/gisaia/ARLAS-server/issues/967) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
 
 **Fixed bugs:**
 
