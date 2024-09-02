@@ -24,6 +24,7 @@ import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.managers.CacheManager;
+import io.arlas.server.core.model.CollectionDisplayNames;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.CollectionReferenceParameters;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
@@ -108,7 +109,24 @@ public abstract class CollectionReferenceService {
         return collectionReference;
     }
 
-    public CollectionReference updateCollectionReference(String collection,
+    public CollectionReference updateCollectionDisplayNameCollectionReference(String collection,
+                                                          String organisations,
+                                                          String columnFilter, String displayName)
+            throws ArlasException {
+        CollectionReference collectionReference = getCollectionReference(collection, Optional.ofNullable(organisations));
+        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), List.of(collectionReference));
+        checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true);
+        if (collectionReference.params.collectionDisplayNames == null) {
+            collectionReference.params.collectionDisplayNames = new CollectionDisplayNames();
+        }
+        collectionReference.params.collectionDisplayNames.collection = displayName;
+        putCollectionReferenceWithDao(collectionReference);
+        cacheManager.removeCollectionReference(collectionReference.collectionName);
+        cacheManager.removeMapping(collectionReference.params.indexName);
+        return collectionReference;
+    }
+
+    public CollectionReference updateOrganisationsParamsCollectionReference(String collection,
                                                          String organisations,
                                                          String columnFilter,
                                                          boolean isPublic,
