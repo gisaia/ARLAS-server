@@ -315,10 +315,10 @@ public class CollectionService extends CollectionRESTServices {
                     required = true)
             @PathParam(value = "collection") String collection,
 
-            @Parameter(name = "collectionParamsUpdate",
-                    description = "collectionParamsUpdate",
+            @Parameter(name = "organisationsParamsUpdate",
+                    description = "organisationsParamsUpdate",
                     required = true)
-            @NotNull CollectionReferenceUpdate cru,
+            @NotNull CollectionReferenceUpdateOrg opu,
 
             @Parameter(hidden = true)
             @HeaderParam(value = COLUMN_FILTER) String columnFilter,
@@ -337,7 +337,59 @@ public class CollectionService extends CollectionRESTServices {
         if (collection != null && collection.equals(META_COLLECTION_NAME)) {
             throw new NotAllowedException("'" + META_COLLECTION_NAME + "' cannot be updated");
         }
-        return ResponseFormatter.getResultResponse(collectionReferenceService.updateCollectionReference(collection, organisations, columnFilter, cru.organisations.isPublic, cru.organisations.sharedWith));
+        return ResponseFormatter.getResultResponse(collectionReferenceService.updateOrganisationsParamsCollectionReference(collection, organisations, columnFilter, opu.isPublic, opu.sharedWith));
+    }
+
+
+    @Timed
+    @Path("{collection}/display_names/collection")
+    @PATCH
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @Operation(
+            summary = "Update a collection reference's display collection name attribute.",
+            description = "Update a collection reference's display collection name attribute."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = CollectionReference.class))),
+            @ApiResponse(responseCode = "400", description = "JSON parameter malformed.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Collection not found.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
+    public Response patchCollectionDisplayName(
+            @Context HttpHeaders headers,
+            @Parameter(name = "collection",
+                    description = "collection",
+                    required = true)
+            @PathParam(value = "collection") String collection,
+
+            @Parameter(name = "collectionDisplayName",
+                    description = "collectionDisplayName",
+                    required = true)
+            @NotNull String collectionDisplayName,
+
+            @Parameter(hidden = true)
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
+
+            @Parameter(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
+            @QueryParam(value = "pretty") Boolean pretty
+
+    ) throws ArlasException {
+        if (collection != null && collection.equals(META_COLLECTION_NAME)) {
+            throw new NotAllowedException("'" + META_COLLECTION_NAME + "' cannot be updated");
+        }
+        return ResponseFormatter.getResultResponse(collectionReferenceService.updateCollectionDisplayNameCollectionReference(collection, organisations, columnFilter,collectionDisplayName ));
     }
 
     public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters,

@@ -389,7 +389,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
         // PATCH collection
         given().contentType("application/json")
-                .body(Map.of("organisations", getOrgAsMap(null, List.of("foo.com"), Boolean.TRUE)))
+                .body(getOrgAsMap(null, List.of("foo.com"), Boolean.TRUE))
                 .when().patch(arlasPath + "collections/bar/organisations")
                 .then().statusCode(200)
                 .body("collection_name", equalTo("bar"))
@@ -403,6 +403,58 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .body("params.organisations.owner", equalTo("bar.com"))
                 .body("params.organisations.shared", hasItems("foo.com"))
                 .body("params.organisations.public", equalTo(Boolean.TRUE));
+
+        // DELETE collection
+        when().delete(arlasPath + "collections/bar")
+                .then().statusCode(200);
+
+    }
+
+
+    @Test
+    public void test10DisplayName() throws Exception {
+        Map<String, Object> jsonAsMap = getJsonAsMap("bar.com", null, false);
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
+
+        // PUT new collection
+        given().contentType("application/json")
+                .body(jsonAsMap)
+                .when().put(arlasPath + "collections/bar")
+                .then().statusCode(200);
+
+        // GET collection
+        when().get(arlasPath + "collections/bar")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("bar"))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
+                .body("params.organisations.owner", equalTo("bar.com"))
+                .body("params.organisations.shared", hasSize(0))
+                .body("params.organisations.public", equalTo(Boolean.FALSE));
+
+        // PATCH collection display name
+        given().contentType("application/json")
+                .body("My New Awesome collection")
+                .when().patch(arlasPath + "collections/bar/display_names/collection")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("bar"))
+                .body("params.display_names.collection", equalTo("My New Awesome collection"))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
+                .body("params.organisations.owner", equalTo("bar.com"))
+                .body("params.organisations.shared", hasSize(0))
+                .body("params.organisations.public", equalTo(Boolean.FALSE));
 
         // DELETE collection
         when().delete(arlasPath + "collections/bar")
