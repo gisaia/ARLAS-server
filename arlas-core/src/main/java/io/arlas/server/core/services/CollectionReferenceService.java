@@ -109,9 +109,10 @@ public abstract class CollectionReferenceService {
         return collectionReference;
     }
 
-    public CollectionReference updateCollectionDisplayNameCollectionReference(String collection,
-                                                          String organisations,
-                                                          String columnFilter, String displayName)
+    public CollectionReference updateDisplayNamesCollectionReference(String collection, String organisations,String columnFilter,
+                                                                     String collectionDisplayName,
+                                                                           Map<String,String> fieldsDisplayNames,
+                                                                           Map<String,String> shapeColumnsDisplayNames)
             throws ArlasException {
         CollectionReference collectionReference = getCollectionReference(collection, Optional.ofNullable(organisations));
         ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), List.of(collectionReference));
@@ -119,11 +120,16 @@ public abstract class CollectionReferenceService {
         if (collectionReference.params.collectionDisplayNames == null) {
             collectionReference.params.collectionDisplayNames = new CollectionDisplayNames();
         }
-        collectionReference.params.collectionDisplayNames.collection = displayName;
-        putCollectionReferenceWithDao(collectionReference);
-        cacheManager.removeCollectionReference(collectionReference.collectionName);
-        cacheManager.removeMapping(collectionReference.params.indexName);
-        return collectionReference;
+        if(fieldsDisplayNames != null){
+            collectionReference.params.collectionDisplayNames.fields = fieldsDisplayNames;
+        }
+        if(shapeColumnsDisplayNames != null){
+            collectionReference.params.collectionDisplayNames.shapeColumns = shapeColumnsDisplayNames;
+        }
+        if(collectionDisplayName != null){
+            collectionReference.params.collectionDisplayNames.collection = collectionDisplayName;
+        }
+        return putCollectionReference(collectionReference, true);
     }
 
     public CollectionReference updateOrganisationsParamsCollectionReference(String collection,
@@ -137,10 +143,7 @@ public abstract class CollectionReferenceService {
         checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true);
         collectionReference.params.collectionOrganisations.isPublic = isPublic;
         collectionReference.params.collectionOrganisations.sharedWith = sharedWith;
-        putCollectionReferenceWithDao(collectionReference);
-        cacheManager.removeCollectionReference(collectionReference.collectionName);
-        cacheManager.removeMapping(collectionReference.params.indexName);
-        return collectionReference;
+        return putCollectionReference(collectionReference, true);
     }
 
     public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,

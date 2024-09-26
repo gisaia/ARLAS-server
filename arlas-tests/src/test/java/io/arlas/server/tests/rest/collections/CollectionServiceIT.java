@@ -412,7 +412,7 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
 
 
     @Test
-    public void test10DisplayName() throws Exception {
+    public void test10CollectionDisplayName() throws Exception {
         Map<String, Object> jsonAsMap = getJsonAsMap("bar.com", null, false);
         jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
         jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
@@ -455,6 +455,227 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
                 .body("params.organisations.owner", equalTo("bar.com"))
                 .body("params.organisations.shared", hasSize(0))
                 .body("params.organisations.public", equalTo(Boolean.FALSE));
+
+        // DELETE collection
+        when().delete(arlasPath + "collections/bar")
+                .then().statusCode(200);
+
+    }
+
+    @Test
+    public void test11FieldsDisplayName() throws Exception {
+        Map<String, Object> jsonAsMap = getJsonAsMap("bar.com", null, false);
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
+        jsonAsMap.put(CollectionReference.DISPLAY_NAMES, getCollectionDescriptionJsonAsMap());
+        // PUT new collection
+        given().contentType("application/json")
+                .body(jsonAsMap)
+                .when().put(arlasPath + "collections/bar")
+                .then().statusCode(200);
+
+        // GET collection
+        when().get(arlasPath + "collections/bar")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("bar"))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
+                .body("params.organisations.owner", equalTo("bar.com"))
+                .body("params.organisations.shared", hasSize(0))
+                .body("params.organisations.public", equalTo(Boolean.FALSE))
+                .body("params.display_names.collection", equalTo(DataSetTool.DATASET_COLLECTION_DISPLAY_NAME))
+                .body("params.display_names.fields.id", equalTo(DataSetTool.DATASET_ID_DESC))
+                .body("params.display_names.shape_columns.id", equalTo(DataSetTool.DATASET_ID_DESC));
+        Map<String, String> newFieldsNames = new HashMap<>();
+        newFieldsNames.put(DataSetTool.DATASET_ID_PATH,"new_id");
+
+        // PATCH collection display name
+        given().contentType("application/json")
+                .body(newFieldsNames)
+                .when().patch(arlasPath + "collections/bar/display_names/fields")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("bar"))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
+                .body("params.organisations.owner", equalTo("bar.com"))
+                .body("params.organisations.shared", hasSize(0))
+                .body("params.organisations.public", equalTo(Boolean.FALSE))
+                .body("params.display_names.collection", equalTo(DataSetTool.DATASET_COLLECTION_DISPLAY_NAME))
+                .body("params.display_names.fields.id", equalTo("new_id"))
+                .body("params.display_names.shape_columns.id", equalTo(DataSetTool.DATASET_ID_DESC));
+
+        // DELETE collection
+        when().delete(arlasPath + "collections/bar")
+                .then().statusCode(200);
+
+    }
+
+
+    @Test
+    public void test12FieldsDisplayName() throws Exception {
+        Map<String, Object> jsonAsMap = getJsonAsMap("bar.com", null, false);
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
+        // PUT new collection
+        given().contentType("application/json")
+                .body(jsonAsMap)
+                .when().put(arlasPath + "collections/bar")
+                .then().statusCode(200);
+
+        // GET collection
+        when().get(arlasPath + "collections/bar")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("bar"))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
+                .body("params.organisations.owner", equalTo("bar.com"))
+                .body("params.organisations.shared", hasSize(0))
+                .body("params.organisations.public", equalTo(Boolean.FALSE));
+        Map<String, String> newFieldsNames = new HashMap<>();
+        newFieldsNames.put(DataSetTool.DATASET_ID_PATH,"new_id");
+
+        // PATCH collection display name
+        given().contentType("application/json")
+                .body(newFieldsNames)
+                .when().patch(arlasPath + "collections/bar/display_names/fields")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("bar"))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
+                .body("params.organisations.owner", equalTo("bar.com"))
+                .body("params.organisations.shared", hasSize(0))
+                .body("params.organisations.public", equalTo(Boolean.FALSE))
+                .body("params.display_names.fields.id", equalTo("new_id"));
+
+        // DELETE collection
+        when().delete(arlasPath + "collections/bar")
+                .then().statusCode(200);
+
+    }
+
+    @Test
+    public void test13ShapeColumnsDisplayName() throws Exception {
+        Map<String, Object> jsonAsMap = getJsonAsMap("bar.com", null, false);
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
+        jsonAsMap.put(CollectionReference.DISPLAY_NAMES, getCollectionDescriptionJsonAsMap());
+        // PUT new collection
+        given().contentType("application/json")
+                .body(jsonAsMap)
+                .when().put(arlasPath + "collections/bar")
+                .then().statusCode(200);
+
+        // GET collection
+        when().get(arlasPath + "collections/bar")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("bar"))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
+                .body("params.organisations.owner", equalTo("bar.com"))
+                .body("params.organisations.shared", hasSize(0))
+                .body("params.organisations.public", equalTo(Boolean.FALSE))
+                .body("params.display_names.collection", equalTo(DataSetTool.DATASET_COLLECTION_DISPLAY_NAME))
+                .body("params.display_names.fields.id", equalTo(DataSetTool.DATASET_ID_DESC))
+                .body("params.display_names.shape_columns.id", equalTo(DataSetTool.DATASET_ID_DESC));
+        Map<String, String> newShapesColumnsNames = new HashMap<>();
+        newShapesColumnsNames.put(DataSetTool.DATASET_ID_PATH,"new_id");
+
+        // PATCH collection display name
+        given().contentType("application/json")
+                .body(newShapesColumnsNames)
+                .when().patch(arlasPath + "collections/bar/display_names/shape_columns")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("bar"))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
+                .body("params.organisations.owner", equalTo("bar.com"))
+                .body("params.organisations.shared", hasSize(0))
+                .body("params.organisations.public", equalTo(Boolean.FALSE))
+                .body("params.display_names.collection", equalTo(DataSetTool.DATASET_COLLECTION_DISPLAY_NAME))
+                .body("params.display_names.shape_columns.id", equalTo("new_id"))
+                .body("params.display_names.fields.id", equalTo(DataSetTool.DATASET_ID_DESC));
+
+        // DELETE collection
+        when().delete(arlasPath + "collections/bar")
+                .then().statusCode(200);
+
+    }
+
+    @Test
+    public void test14ShapeColumnsDisplayName() throws Exception {
+        Map<String, Object> jsonAsMap = getJsonAsMap("bar.com", null, false);
+        jsonAsMap.put(CollectionReference.INSPIRE_PATH, getInspireJsonAsMap());
+        jsonAsMap.put(CollectionReference.DUBLIN_CORE_PATH, getDublinJsonAsMap());
+        // PUT new collection
+        given().contentType("application/json")
+                .body(jsonAsMap)
+                .when().put(arlasPath + "collections/bar")
+                .then().statusCode(200);
+
+        // GET collection
+        when().get(arlasPath + "collections/bar")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("bar"))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
+                .body("params.organisations.owner", equalTo("bar.com"))
+                .body("params.organisations.shared", hasSize(0))
+                .body("params.organisations.public", equalTo(Boolean.FALSE));
+        Map<String, String> newShapesColumnsNames = new HashMap<>();
+        newShapesColumnsNames.put(DataSetTool.DATASET_ID_PATH,"new_id");
+
+        // PATCH collection display name
+        given().contentType("application/json")
+                .body(newShapesColumnsNames)
+                .when().patch(arlasPath + "collections/bar/display_names/shape_columns")
+                .then().statusCode(200)
+                .body("collection_name", equalTo("bar"))
+                .body("params.index_name", equalTo(DataSetTool.DATASET_INDEX_NAME))
+                .body("params.id_path", equalTo(DataSetTool.DATASET_ID_PATH))
+                .body("params.geometry_path", equalTo(DataSetTool.DATASET_GEOMETRY_PATH))
+                .body("params.centroid_path", equalTo(DataSetTool.DATASET_CENTROID_PATH))
+                .body("params.timestamp_path", equalTo(DataSetTool.DATASET_TIMESTAMP_PATH))
+                .body("params.exclude_fields", equalTo(DataSetTool.DATASET_EXCLUDE_FIELDS))
+                .body("params.exclude_wfs_fields", equalTo(DataSetTool.DATASET_EXCLUDE_WFS_FIELDS))
+                .body("params.organisations.owner", equalTo("bar.com"))
+                .body("params.organisations.shared", hasSize(0))
+                .body("params.organisations.public", equalTo(Boolean.FALSE))
+                .body("params.display_names.shape_columns.id", equalTo("new_id"));
 
         // DELETE collection
         when().delete(arlasPath + "collections/bar")
@@ -513,6 +734,8 @@ public class CollectionServiceIT extends AbstractTestWithCollection {
         Map<String, Object> jsonAsMap = new HashMap<>();
         jsonAsMap.put(CollectionReference.COLLECTION_DISPLAY_NAME, DataSetTool.DATASET_COLLECTION_DISPLAY_NAME);
         jsonAsMap.put(CollectionReference.FIELD_DISPLAY_NAME, getFieldDescriptionsJsonAsMap());
+        jsonAsMap.put(CollectionReference.SHAPE_COLUMN_DISPLAY_NAME, getFieldDescriptionsJsonAsMap());
+
         return jsonAsMap;
     }
 

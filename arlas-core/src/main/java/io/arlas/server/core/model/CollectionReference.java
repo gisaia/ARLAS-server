@@ -42,6 +42,7 @@ public class CollectionReference implements Serializable {
     public static final String DISPLAY_NAMES = "display_names";
     public static final String COLLECTION_DISPLAY_NAME = "collection";
     public static final String FIELD_DISPLAY_NAME = "fields";
+    public static final String SHAPE_COLUMN_DISPLAY_NAME = "shape_columns";
     public static final String ORGANISATIONS = "organisations";
     public static final String ORGANISATIONS_OWNER = "owner";
     public static final String ORGANISATIONS_SHARED = "shared";
