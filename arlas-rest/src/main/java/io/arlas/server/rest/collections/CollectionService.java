@@ -389,7 +389,110 @@ public class CollectionService extends CollectionRESTServices {
         if (collection != null && collection.equals(META_COLLECTION_NAME)) {
             throw new NotAllowedException("'" + META_COLLECTION_NAME + "' cannot be updated");
         }
-        return ResponseFormatter.getResultResponse(collectionReferenceService.updateCollectionDisplayNameCollectionReference(collection, organisations, columnFilter,collectionDisplayName ));
+        return ResponseFormatter.getResultResponse(collectionReferenceService.updateDisplayNamesCollectionReference(collection, organisations, columnFilter,collectionDisplayName, null, null ));
+    }
+
+
+    @Timed
+    @Path("{collection}/display_names/fields")
+    @PATCH
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @Operation(
+            summary = "Update a collection reference's display fields name attribute.",
+            description = "Update a collection reference's display fields name attribute."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = CollectionReference.class))),
+            @ApiResponse(responseCode = "400", description = "JSON parameter malformed.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Collection not found.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
+    public Response patchFieldsDisplayNames(
+            @Context HttpHeaders headers,
+            @Parameter(name = "collection",
+                    description = "collection",
+                    required = true)
+            @PathParam(value = "collection") String collection,
+
+            @Parameter(name = "fieldsDisplayNames",
+                    description = "fieldsDisplayNames",
+                    required = true)
+            @NotNull Map<String,String> fieldsDisplayNames,
+
+            @Parameter(hidden = true)
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
+
+            @Parameter(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
+            @QueryParam(value = "pretty") Boolean pretty
+
+    ) throws ArlasException {
+        if (collection != null && collection.equals(META_COLLECTION_NAME)) {
+            throw new NotAllowedException("'" + META_COLLECTION_NAME + "' cannot be updated");
+        }
+        return ResponseFormatter.getResultResponse(collectionReferenceService.updateDisplayNamesCollectionReference(collection, organisations, columnFilter, null, fieldsDisplayNames, null ));
+    }
+
+    @Timed
+    @Path("{collection}/display_names/shape_columns")
+    @PATCH
+    @Produces(UTF8JSON)
+    @Consumes(UTF8JSON)
+    @Operation(
+            summary = "Update a collection reference's display shape columns name attribute.",
+            description = "Update a collection reference's display shape columns name attribute."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = @Content(schema = @Schema(implementation = CollectionReference.class))),
+            @ApiResponse(responseCode = "400", description = "JSON parameter malformed.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "404", description = "Collection not found.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
+    public Response patchShapeColumnsDisplayNames(
+            @Context HttpHeaders headers,
+            @Parameter(name = "collection",
+                    description = "collection",
+                    required = true)
+            @PathParam(value = "collection") String collection,
+
+            @Parameter(name = "shapeColumnsDisplayNames",
+                    description = "shapeColumnsDisplayNames",
+                    required = true)
+            @NotNull Map<String,String> shapeColumnsDisplayNames,
+
+            @Parameter(hidden = true)
+            @HeaderParam(value = COLUMN_FILTER) String columnFilter,
+
+            @Parameter(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
+            // --------------------------------------------------------
+            // ----------------------- FORM -----------------------
+            // --------------------------------------------------------
+            @Parameter(name = "pretty",
+                    description = Documentation.FORM_PRETTY,
+                    schema = @Schema(defaultValue = "false"))
+            @QueryParam(value = "pretty") Boolean pretty
+
+    ) throws ArlasException {
+        if (collection != null && collection.equals(META_COLLECTION_NAME)) {
+            throw new NotAllowedException("'" + META_COLLECTION_NAME + "' cannot be updated");
+        }
+        return ResponseFormatter.getResultResponse(collectionReferenceService.updateDisplayNamesCollectionReference(collection, organisations, columnFilter,null,null,shapeColumnsDisplayNames ));
     }
 
     public CollectionReference save(String collection, CollectionReferenceParameters collectionReferenceParameters,
