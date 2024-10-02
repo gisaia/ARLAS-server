@@ -45,7 +45,7 @@ technicalRoles:
     permissions:
     - r:/aproc/processes/download/execution:POST
     - r:/aproc/processes/download:GET
-    - r:/aproc/jobs/.*:GET
+    - r:/aproc/jobs/.*:GET,DELETE
 
   role/arlas/datasets:
     description:
@@ -55,7 +55,7 @@ technicalRoles:
     - r:/aproc/processes/ingest/execution:POST
     - r:/aproc/processes/directory_ingest/execution:POST
     - r:/fam/.*:GET,POST
-    - r:/aproc/jobs/.*:GET
+    - r:/aproc/jobs/.*:GET,DELETE
     - r:/aproc/jobs:GET
     - r:/airs/collections/.*:GET,POST,PUT,DELETE
 
