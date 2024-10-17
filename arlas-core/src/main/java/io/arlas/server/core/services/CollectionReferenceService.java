@@ -20,6 +20,8 @@
 package io.arlas.server.core.services;
 
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.InvalidParameterException;
+import io.arlas.commons.exceptions.NotAllowedException;
 import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.exceptions.CollectionUnavailableException;
@@ -400,6 +402,32 @@ public abstract class CollectionReferenceService {
                                                Optional<String> organisations)
             throws CollectionUnavailableException {
         checkIfAllowedForOrganisations(collection, organisations, false);
+    }
+
+    public void checkIfIndexAllowedForOrganisations(CollectionReference collection,
+                                                    Optional<String> organisations, Optional<String> policyEnforcer)
+            throws InvalidParameterException,NotAllowedException {
+        if (organisations.isEmpty()) {
+            // no header, we'll trust the column filter if any
+            LOGGER.debug("No organisation header");
+            return;
+        }
+        if (policyEnforcer.isEmpty()) {
+            // no header, we'll trust the column filter if any
+            LOGGER.debug("No policyEnforcer defined");
+            return;
+        }
+        // In case of using arlas IAM
+        if(policyEnforcer.get().equals("io.arlas.filter.impl.HTTPPolicyEnforcer")){
+            String indexName = collection.params.indexName;
+            if(!indexName.contains("@")){
+                throw new InvalidParameterException("Index name must begin with org_name@.");
+            }
+            long validOrgNbr = Arrays.stream(organisations.get().split(",")).filter(o -> indexName.split("@")[0].equals(o) ).count();
+            if(validOrgNbr == 0){
+                throw new NotAllowedException("You are not authorized to create this collection.");
+            }
+        }
     }
 
     public void checkIfAllowedForOrganisations(CollectionReference collection,
