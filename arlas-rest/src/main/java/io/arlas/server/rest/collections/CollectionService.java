@@ -63,11 +63,14 @@ import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 public class CollectionService extends CollectionRESTServices {
 
     protected CollectionReferenceService collectionReferenceService;
+    protected ArlasServerConfiguration configuration;
+
     protected boolean inspireConfigurationEnabled;
     private static final String META_COLLECTION_NAME = "metacollection";
 
     public CollectionService(ArlasServerConfiguration configuration, CollectionReferenceService collectionReferenceService) throws ArlasException {
         super();
+        this.configuration = configuration;
         this.collectionReferenceService = collectionReferenceService;
         this.inspireConfigurationEnabled = configuration.inspireConfiguration.enabled;
         collectionReferenceService.initCollectionDatabase();
@@ -505,6 +508,7 @@ public class CollectionService extends CollectionRESTServices {
         }
         CheckParams.checkInvalidInspireParameters(collectionReference);
         collectionReferenceService.checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true);
+        collectionReferenceService.checkIfIndexAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), Optional.ofNullable(configuration.arlasAuthPolicyClass));
         return collectionReferenceService.putCollectionReference(collectionReference, checkFields);
     }
 

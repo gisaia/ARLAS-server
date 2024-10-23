@@ -68,7 +68,7 @@
     <elastic.version>8.13.3</elastic.version>
 
     <!-- GEO-->
-    <geotools.version>30.2</geotools.version>
+    <geotools.version>30.4</geotools.version>
     <protobuf.version>3.25.3</protobuf.version>
     <geojson.jackson.version>1.14</geojson.jackson.version>
     <spatial4j.version>0.8</spatial4j.version>
