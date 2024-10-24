@@ -368,11 +368,251 @@
           }
         } ],
         "requestBody" : {
-          "description" : "collectionParamsUpdate",
+          "description" : "organisationsParamsUpdate",
           "content" : {
             "application/json;charset=utf-8" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CollectionReferenceUpdate"
+                "$ref" : "#/components/schemas/CollectionReferenceUpdateOrg"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "content" : {
+              "application/json;charset=utf-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CollectionReference"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "JSON parameter malformed.",
+            "content" : {
+              "application/json;charset=utf-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Collection not found.",
+            "content" : {
+              "application/json;charset=utf-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "content" : {
+              "application/json;charset=utf-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/collections/{collection}/display_names/collection" : {
+      "patch" : {
+        "tags" : [ "collections" ],
+        "summary" : "Update a collection reference's display collection name attribute.",
+        "description" : "Update a collection reference's display collection name attribute.",
+        "operationId" : "patchCollectionDisplayName",
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "requestBody" : {
+          "description" : "collectionDisplayName",
+          "content" : {
+            "application/json;charset=utf-8" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "content" : {
+              "application/json;charset=utf-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CollectionReference"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "JSON parameter malformed.",
+            "content" : {
+              "application/json;charset=utf-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Collection not found.",
+            "content" : {
+              "application/json;charset=utf-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "content" : {
+              "application/json;charset=utf-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/collections/{collection}/display_names/fields" : {
+      "patch" : {
+        "tags" : [ "collections" ],
+        "summary" : "Update a collection reference's display fields name attribute.",
+        "description" : "Update a collection reference's display fields name attribute.",
+        "operationId" : "patchFieldsDisplayNames",
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "requestBody" : {
+          "description" : "fieldsDisplayNames",
+          "content" : {
+            "application/json;charset=utf-8" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "content" : {
+              "application/json;charset=utf-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CollectionReference"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "JSON parameter malformed.",
+            "content" : {
+              "application/json;charset=utf-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Collection not found.",
+            "content" : {
+              "application/json;charset=utf-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "content" : {
+              "application/json;charset=utf-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/collections/{collection}/display_names/shape_columns" : {
+      "patch" : {
+        "tags" : [ "collections" ],
+        "summary" : "Update a collection reference's display shape columns name attribute.",
+        "description" : "Update a collection reference's display shape columns name attribute.",
+        "operationId" : "patchShapeColumnsDisplayNames",
+        "parameters" : [ {
+          "name" : "collection",
+          "in" : "path",
+          "description" : "collection",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pretty",
+          "in" : "query",
+          "description" : "Pretty print",
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "requestBody" : {
+          "description" : "shapeColumnsDisplayNames",
+          "content" : {
+            "application/json;charset=utf-8" : {
+              "schema" : {
+                "type" : "object",
+                "additionalProperties" : {
+                  "type" : "string"
+                }
               }
             }
           },
@@ -3662,14 +3902,6 @@
           },
           "name" : {
             "type" : "string"
-          }
-        }
-      },
-      "CollectionReferenceUpdate" : {
-        "type" : "object",
-        "properties" : {
-          "organisations" : {
-            "$ref" : "#/components/schemas/CollectionReferenceUpdateOrg"
           }
         }
       },

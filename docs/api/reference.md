@@ -1328,12 +1328,10 @@ Update a collection reference's organisations attribute.
 
 ```json
 {
-  "organisations": {
-    "public": true,
-    "shared": [
-      "string"
-    ]
-  }
+  "public": true,
+  "shared": [
+    "string"
+  ]
 }
 ```
 
@@ -1343,7 +1341,7 @@ Update a collection reference's organisations attribute.
 |---|---|---|---|---|
 |collection|path|string|true|collection|
 |pretty|query|boolean|false|Pretty print|
-|body|body|[CollectionReferenceUpdate](#schemacollectionreferenceupdate)|true|collectionParamsUpdate|
+|body|body|[CollectionReferenceUpdateOrg](#schemacollectionreferenceupdateorg)|true|organisationsParamsUpdate|
 
 > Example responses
 
@@ -1511,6 +1509,614 @@ Update a collection reference's organisations attribute.
 ```
 
 <h3 id="update-a-collection-reference's-organisations-attribute.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Successful operation|[CollectionReference](#schemacollectionreference)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|JSON parameter malformed.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Collection not found.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Arlas Server Error.|[Error](#schemaerror)|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+## Update a collection reference's display collection name attribute.
+
+<a id="opIdpatchCollectionDisplayName"></a>
+
+`PATCH /collections/{collection}/display_names/collection`
+
+Update a collection reference's display collection name attribute.
+
+> Body parameter
+
+```json
+"string"
+```
+
+<h3 id="update-a-collection-reference's-display-collection-name-attribute.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|collection|path|string|true|collection|
+|pretty|query|boolean|false|Pretty print|
+|body|body|string|true|collectionDisplayName|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "collection_name": "string",
+  "params": {
+    "index_name": "string",
+    "id_path": "string",
+    "geometry_path": "string",
+    "centroid_path": "string",
+    "timestamp_path": "string",
+    "exclude_fields": "string",
+    "update_max_hits": 0,
+    "taggable_fields": "string",
+    "exclude_wfs_fields": "string",
+    "custom_params": {
+      "property1": "string",
+      "property2": "string"
+    },
+    "display_names": {
+      "collection": "string",
+      "fields": {
+        "property1": "string",
+        "property2": "string"
+      },
+      "shape_columns": {
+        "property1": "string",
+        "property2": "string"
+      }
+    },
+    "organisations": {
+      "owner": "string",
+      "shared": [
+        "string"
+      ],
+      "public": true
+    },
+    "atom_feed": {
+      "author": {
+        "name": "string",
+        "email": "string",
+        "uri": "string"
+      },
+      "contributor": {
+        "name": "string",
+        "email": "string",
+        "uri": "string"
+      },
+      "icon": "string",
+      "logo": "string",
+      "rights": "string",
+      "subtitle": "string",
+      "generator": {
+        "name": "string",
+        "version": "string",
+        "uri": "string"
+      }
+    },
+    "open_search": {
+      "short_name": "string",
+      "description": "string",
+      "contact": "string",
+      "tags": "string",
+      "long_name": "string",
+      "image_height": "string",
+      "image_width": "string",
+      "image_type": "string",
+      "image_url": "string",
+      "developer": "string",
+      "attribution": "string",
+      "syndication_right": "string",
+      "adult_content": "string",
+      "language": "string",
+      "input_encoding": "string",
+      "output_encoding": "string"
+    },
+    "inspire": {
+      "keywords": [
+        {
+          "value": "string",
+          "vocabulary": "string",
+          "date_of_publication": "string"
+        }
+      ],
+      "topic_categories": [
+        "string"
+      ],
+      "lineage": "string",
+      "languages": [
+        "string"
+      ],
+      "spatial_resolution": {
+        "value": 0,
+        "unit_of_measure": "string"
+      },
+      "inspire_uri": {
+        "code": "string",
+        "namespace": "string"
+      },
+      "inspire_limitation_access": {
+        "access_constraints": "string",
+        "other_constraints": "string",
+        "classification": "string"
+      },
+      "inspire_use_conditions": "string"
+    },
+    "dublin_core_element_name": {
+      "title": "string",
+      "creator": "string",
+      "subject": "string",
+      "description": "string",
+      "publisher": "string",
+      "contributor": "string",
+      "type": "string",
+      "format": "string",
+      "identifier": "string",
+      "source": "string",
+      "language": "string",
+      "bbox": {
+        "north": 0.1,
+        "south": 0.1,
+        "east": 0.1,
+        "west": 0.1
+      },
+      "date": "string",
+      "coverage": {},
+      "coverage_centroid": "string"
+    },
+    "raster_tile_url": {
+      "url": "string",
+      "id_path": "string",
+      "min_z": 0,
+      "max_z": 0,
+      "check_geometry": true
+    },
+    "raster_tile_width": 0,
+    "raster_tile_height": 0,
+    "filter": {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    },
+    "license_name": "string",
+    "license_urls": [
+      "string"
+    ]
+  }
+}
+```
+
+<h3 id="update-a-collection-reference's-display-collection-name-attribute.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Successful operation|[CollectionReference](#schemacollectionreference)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|JSON parameter malformed.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Collection not found.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Arlas Server Error.|[Error](#schemaerror)|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+## Update a collection reference's display fields name attribute.
+
+<a id="opIdpatchFieldsDisplayNames"></a>
+
+`PATCH /collections/{collection}/display_names/fields`
+
+Update a collection reference's display fields name attribute.
+
+> Body parameter
+
+```json
+{
+  "property1": "string",
+  "property2": "string"
+}
+```
+
+<h3 id="update-a-collection-reference's-display-fields-name-attribute.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|collection|path|string|true|collection|
+|pretty|query|boolean|false|Pretty print|
+|body|body|object|true|fieldsDisplayNames|
+|» **additionalProperties**|body|string|false|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "collection_name": "string",
+  "params": {
+    "index_name": "string",
+    "id_path": "string",
+    "geometry_path": "string",
+    "centroid_path": "string",
+    "timestamp_path": "string",
+    "exclude_fields": "string",
+    "update_max_hits": 0,
+    "taggable_fields": "string",
+    "exclude_wfs_fields": "string",
+    "custom_params": {
+      "property1": "string",
+      "property2": "string"
+    },
+    "display_names": {
+      "collection": "string",
+      "fields": {
+        "property1": "string",
+        "property2": "string"
+      },
+      "shape_columns": {
+        "property1": "string",
+        "property2": "string"
+      }
+    },
+    "organisations": {
+      "owner": "string",
+      "shared": [
+        "string"
+      ],
+      "public": true
+    },
+    "atom_feed": {
+      "author": {
+        "name": "string",
+        "email": "string",
+        "uri": "string"
+      },
+      "contributor": {
+        "name": "string",
+        "email": "string",
+        "uri": "string"
+      },
+      "icon": "string",
+      "logo": "string",
+      "rights": "string",
+      "subtitle": "string",
+      "generator": {
+        "name": "string",
+        "version": "string",
+        "uri": "string"
+      }
+    },
+    "open_search": {
+      "short_name": "string",
+      "description": "string",
+      "contact": "string",
+      "tags": "string",
+      "long_name": "string",
+      "image_height": "string",
+      "image_width": "string",
+      "image_type": "string",
+      "image_url": "string",
+      "developer": "string",
+      "attribution": "string",
+      "syndication_right": "string",
+      "adult_content": "string",
+      "language": "string",
+      "input_encoding": "string",
+      "output_encoding": "string"
+    },
+    "inspire": {
+      "keywords": [
+        {
+          "value": "string",
+          "vocabulary": "string",
+          "date_of_publication": "string"
+        }
+      ],
+      "topic_categories": [
+        "string"
+      ],
+      "lineage": "string",
+      "languages": [
+        "string"
+      ],
+      "spatial_resolution": {
+        "value": 0,
+        "unit_of_measure": "string"
+      },
+      "inspire_uri": {
+        "code": "string",
+        "namespace": "string"
+      },
+      "inspire_limitation_access": {
+        "access_constraints": "string",
+        "other_constraints": "string",
+        "classification": "string"
+      },
+      "inspire_use_conditions": "string"
+    },
+    "dublin_core_element_name": {
+      "title": "string",
+      "creator": "string",
+      "subject": "string",
+      "description": "string",
+      "publisher": "string",
+      "contributor": "string",
+      "type": "string",
+      "format": "string",
+      "identifier": "string",
+      "source": "string",
+      "language": "string",
+      "bbox": {
+        "north": 0.1,
+        "south": 0.1,
+        "east": 0.1,
+        "west": 0.1
+      },
+      "date": "string",
+      "coverage": {},
+      "coverage_centroid": "string"
+    },
+    "raster_tile_url": {
+      "url": "string",
+      "id_path": "string",
+      "min_z": 0,
+      "max_z": 0,
+      "check_geometry": true
+    },
+    "raster_tile_width": 0,
+    "raster_tile_height": 0,
+    "filter": {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    },
+    "license_name": "string",
+    "license_urls": [
+      "string"
+    ]
+  }
+}
+```
+
+<h3 id="update-a-collection-reference's-display-fields-name-attribute.-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|Successful operation|[CollectionReference](#schemacollectionreference)|
+|400|[Bad Request](https://tools.ietf.org/html/rfc7231#section-6.5.1)|JSON parameter malformed.|[Error](#schemaerror)|
+|404|[Not Found](https://tools.ietf.org/html/rfc7231#section-6.5.4)|Collection not found.|[Error](#schemaerror)|
+|500|[Internal Server Error](https://tools.ietf.org/html/rfc7231#section-6.6.1)|Arlas Server Error.|[Error](#schemaerror)|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+## Update a collection reference's display shape columns name attribute.
+
+<a id="opIdpatchShapeColumnsDisplayNames"></a>
+
+`PATCH /collections/{collection}/display_names/shape_columns`
+
+Update a collection reference's display shape columns name attribute.
+
+> Body parameter
+
+```json
+{
+  "property1": "string",
+  "property2": "string"
+}
+```
+
+<h3 id="update-a-collection-reference's-display-shape-columns-name-attribute.-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|collection|path|string|true|collection|
+|pretty|query|boolean|false|Pretty print|
+|body|body|object|true|shapeColumnsDisplayNames|
+|» **additionalProperties**|body|string|false|none|
+
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "collection_name": "string",
+  "params": {
+    "index_name": "string",
+    "id_path": "string",
+    "geometry_path": "string",
+    "centroid_path": "string",
+    "timestamp_path": "string",
+    "exclude_fields": "string",
+    "update_max_hits": 0,
+    "taggable_fields": "string",
+    "exclude_wfs_fields": "string",
+    "custom_params": {
+      "property1": "string",
+      "property2": "string"
+    },
+    "display_names": {
+      "collection": "string",
+      "fields": {
+        "property1": "string",
+        "property2": "string"
+      },
+      "shape_columns": {
+        "property1": "string",
+        "property2": "string"
+      }
+    },
+    "organisations": {
+      "owner": "string",
+      "shared": [
+        "string"
+      ],
+      "public": true
+    },
+    "atom_feed": {
+      "author": {
+        "name": "string",
+        "email": "string",
+        "uri": "string"
+      },
+      "contributor": {
+        "name": "string",
+        "email": "string",
+        "uri": "string"
+      },
+      "icon": "string",
+      "logo": "string",
+      "rights": "string",
+      "subtitle": "string",
+      "generator": {
+        "name": "string",
+        "version": "string",
+        "uri": "string"
+      }
+    },
+    "open_search": {
+      "short_name": "string",
+      "description": "string",
+      "contact": "string",
+      "tags": "string",
+      "long_name": "string",
+      "image_height": "string",
+      "image_width": "string",
+      "image_type": "string",
+      "image_url": "string",
+      "developer": "string",
+      "attribution": "string",
+      "syndication_right": "string",
+      "adult_content": "string",
+      "language": "string",
+      "input_encoding": "string",
+      "output_encoding": "string"
+    },
+    "inspire": {
+      "keywords": [
+        {
+          "value": "string",
+          "vocabulary": "string",
+          "date_of_publication": "string"
+        }
+      ],
+      "topic_categories": [
+        "string"
+      ],
+      "lineage": "string",
+      "languages": [
+        "string"
+      ],
+      "spatial_resolution": {
+        "value": 0,
+        "unit_of_measure": "string"
+      },
+      "inspire_uri": {
+        "code": "string",
+        "namespace": "string"
+      },
+      "inspire_limitation_access": {
+        "access_constraints": "string",
+        "other_constraints": "string",
+        "classification": "string"
+      },
+      "inspire_use_conditions": "string"
+    },
+    "dublin_core_element_name": {
+      "title": "string",
+      "creator": "string",
+      "subject": "string",
+      "description": "string",
+      "publisher": "string",
+      "contributor": "string",
+      "type": "string",
+      "format": "string",
+      "identifier": "string",
+      "source": "string",
+      "language": "string",
+      "bbox": {
+        "north": 0.1,
+        "south": 0.1,
+        "east": 0.1,
+        "west": 0.1
+      },
+      "date": "string",
+      "coverage": {},
+      "coverage_centroid": "string"
+    },
+    "raster_tile_url": {
+      "url": "string",
+      "id_path": "string",
+      "min_z": 0,
+      "max_z": 0,
+      "check_geometry": true
+    },
+    "raster_tile_width": 0,
+    "raster_tile_height": 0,
+    "filter": {
+      "f": [
+        [
+          {
+            "field": "string",
+            "op": "eq",
+            "value": "string"
+          }
+        ]
+      ],
+      "q": [
+        [
+          "string"
+        ]
+      ],
+      "dateformat": "string",
+      "righthand": true
+    },
+    "license_name": "string",
+    "license_urls": [
+      "string"
+    ]
+  }
+}
+```
+
+<h3 id="update-a-collection-reference's-display-shape-columns-name-attribute.-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
@@ -5146,31 +5752,6 @@ This operation does not require authentication
 |readDate|string(date-time)|false|none|none|
 |size|integer(int64)|false|none|none|
 |name|string|false|none|none|
-
-<h2 id="tocS_CollectionReferenceUpdate">CollectionReferenceUpdate</h2>
-<!-- backwards compatibility -->
-<a id="schemacollectionreferenceupdate"></a>
-<a id="schema_CollectionReferenceUpdate"></a>
-<a id="tocScollectionreferenceupdate"></a>
-<a id="tocscollectionreferenceupdate"></a>
-
-```json
-{
-  "organisations": {
-    "public": true,
-    "shared": [
-      "string"
-    ]
-  }
-}
-
-```
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|organisations|[CollectionReferenceUpdateOrg](#schemacollectionreferenceupdateorg)|false|none|none|
 
 <h2 id="tocS_CollectionReferenceUpdateOrg">CollectionReferenceUpdateOrg</h2>
 <!-- backwards compatibility -->
