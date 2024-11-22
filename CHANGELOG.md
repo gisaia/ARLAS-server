@@ -1,11 +1,16 @@
 # Change Log
 
-## [v26.0.3](https://github.com/gisaia/ARLAS-server/tree/v26.0.3) (2024-10-23)
+## [v26.0.4](https://github.com/gisaia/ARLAS-server/tree/v26.0.4) (2024-11-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.3...v26.0.4)
+
+## [v26.0.3](https://github.com/gisaia/ARLAS-server/tree/v26.0.3) (2024-10-24)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.1...v26.0.3)
 
 **New stuff:**
 
+- IAM: index\_path of a collection should be prefixed by the organisation name of the user at creation/edition [\#985](https://github.com/gisaia/ARLAS-server/issues/985)
 - add delete verb for aproc/jobs in datasets and downloader roles [\#981](https://github.com/gisaia/ARLAS-server/issues/981)
 - Add a new endpoint to patch the display\_name of a given collection [\#978](https://github.com/gisaia/ARLAS-server/issues/978) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
 - Remove the node "organisations" in PATCH organisation endpoint [\#977](https://github.com/gisaia/ARLAS-server/issues/977) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
