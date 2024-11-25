@@ -43,8 +43,8 @@ technicalRoles:
     description:
     - "Download data from ARLAS"
     permissions:
-    - r:/aproc/processes/download/execution:POST
     - r:/aproc/processes/download:GET
+    - r:/aproc/processes/download/execution:POST
     - r:/aproc/jobs/.*:GET,DELETE
 
   role/arlas/datasets:
@@ -52,8 +52,11 @@ technicalRoles:
     - "Managing data (ingest, update and enrich) in ARLAS"
     permissions:
     - r:datasets/.*:GET,PUT,POST,DELETE
+    - r:/aproc/processes/ingest:GET
     - r:/aproc/processes/ingest/execution:POST
+    - r:/aproc/processes/enrich:GET
     - r:/aproc/processes/enrich/execution:POST
+    - r:/aproc/processes/directory_ingest:GET
     - r:/aproc/processes/directory_ingest/execution:POST
     - r:/fam/.*:GET,POST
     - r:/aproc/jobs/.*:GET,DELETE
