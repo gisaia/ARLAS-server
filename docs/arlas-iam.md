@@ -6,6 +6,7 @@ IAM provides authentication (user login) and authorisation (permissions to acces
 components: server, WUI, hub, builder...
 
 The stack can be started with or without IAM. When started with, ARLAS can be connected to various "auth" platforms:
+
 - [Auth0](https://auth0.com/)
 - [Keycloak](https://www.keycloak.org/)
 - [ARLAS IAM](#iam-server)
@@ -13,13 +14,14 @@ The stack can be started with or without IAM. When started with, ARLAS can be co
 The platform to connect to is selected by the way of a specific **Policy Enforcer** which basically is a servlet request
 filter activated in backend components (server, persistence...).
 
-The open source ARLAS stack can only be started with Keycloack and Auth0 implementations (or a no policy enforcer,
+The open source ARLAS stack can only be started with Keycloak and Auth0 implementations (or a no policy enforcer,
 i.e. no authentication).  
 ARLAS IAM is only available with ARLAS Enterprise.
 
 ![IAM diagram](iam.png)
 
 IAM is composed of 2 main components:
+
 1. a set of implementations of ARLAS PolicyEnforcer (interface available in the ARLAS-server/arlas-commons module: `io.arlas.filter.core.PolicyEnforcer`)
     - Auth0 implementation (`io.arlas.filter.impl.Auth0PolicyEnforcer`)
     - Keycloak implementation (`io.arlas.filter.impl.KeycloakPolicyEnforcer`)
@@ -63,24 +65,32 @@ They are strings of characters with a specific formatting that are expected to b
 By default dashboards are only viewable and editable by their creator (owner).  
 One can share (view and/or edit rights) a dashboard with any group of users they already belong to,
 e.g. if `userA` belongs to groups `grp1` and `grp2`, they can share their dashboards with part or all of these groups,
-and these groups only.  
+and these groups only.
+
 It implies that prior to sharing a dashboard, groups must be created and assigned to users.  
 This is done by assigning specific roles whose names are formatted as `group/config.json/GRPNAME`,
 e.g. `group/config.json/spot6`(in this example, the group name is `spot6` and will be displayed as such in ARLAS hub).
+
 A good practice is to assign data protection headers to these roles in order to enforce an even better protection level, e.g.:
+
 - `group/config.json/spot6`
     - `h:column-filter:spot6_*:*`
 
 ### Protection of ARLAS APIs: rules
 The actions a user can do, i.e. API endpoints and HTTP verbs, can be limited to a configurable list of URIs.
-The expected format is `rule:resource:verbs` or `r:resource:verbs`. The `resource` part of the rule is used as a regex
-to match a requested URI.
+
+The expected format is `rule:resource:verbs` or `r:resource:verbs`. 
+
+The `resource` part of the rule is used as a regex to match a requested URI.
+
 Examples:
+
 - `r:explore/.*:GET,POST`
 - `r:collections/.*:GET`
 
 These rules do not need to be configured as they are already associated to default roles defined in the IAM module.  
 These roles are:
+
 - `role/arlas/user` (rules to view data)
 - `role/arlas/tagger` (rules to use the Tagger backend)
 - `role/arlas/builder` (rules to create/edit/delete ARLAS WUI dashboards)
@@ -93,8 +103,10 @@ The associated rules configured for these roles can be found in the file `arlas-
 ### Protection of data: headers
 The collections and data a user can read or write can be limited by the use of existing ARLAS mechanisms (column filter,
 partition filter).  
-The expected format is `header:name:value` or `h:name:value` (the value can contain the character `:`).  
+The expected format is `header:name:value` or `h:name:value` (the value can contain the character `:`).
+
 Examples (refer to ARLAS documentation for details on how to write them):
+
 - `h:column-filter:*:*`
 - `h:partition-filter:{"f":[[{"field":"sensor","op": "eq","value": "SPOT6"}]]}`
 
@@ -136,8 +148,9 @@ Keycloak is configured through multiple items. ARLAS uses only a subset of them,
   Modifications to a group (adding/removing roles) will be spread to all users belonging to the group. This is not the same concept as an ARLAS group.
 - **Users**: are accounts allowed to connect to ARLAS. They can (and should) belong to keycloak *groups* and can also be mapped to individual *client roles*.
 
-**/!\ The list of *client roles* associated to a user must result in at least one *resource* once the *permissions* are
-evaluated, as "no permissions" equals to 403 response (and not an empty permission list) when requesting the RPT from Keycloak**
+!!! warning
+    The list of *client roles* associated to a user must result in at least one *resource* once the *permissions* are
+    evaluated, as "no permissions" equals to 403 response (and not an empty permission list) when requesting the RPT from Keycloak
 
 ### Manual configuration
 In order to configure Keycloak from scratch, follow this tutorial, as a minimum set of settings to make it work with ARLAS.  
