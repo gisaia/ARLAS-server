@@ -214,7 +214,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                             logUAM(LOGGER::debug, ALLOWED, "public (no token): " + log);
                         }
                         // use a dummy CF in order to bypass the CFUtil and give access to public collections
-                        ctx.getHeaders().add(COLUMN_FILTER, "ThisIsADummyColumnFilter:*");
+                        ctx.getHeaders().add(COLUMN_FILTER, "*:*");
                     }
                     return;
                 }
