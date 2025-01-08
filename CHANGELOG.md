@@ -1,5 +1,13 @@
 # Change Log
 
+## [v26.0.7](https://github.com/gisaia/ARLAS-server/tree/v26.0.7) (2025-01-08)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.6...v26.0.7)
+
+**New stuff:**
+
+- Allow Geotile/Gohash/Geohex aggregation on geo-shape fields [\#969](https://github.com/gisaia/ARLAS-server/issues/969) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
 ## [v26.0.6](https://github.com/gisaia/ARLAS-server/tree/v26.0.6) (2024-11-25)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.4...v26.0.6)
