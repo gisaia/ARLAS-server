@@ -67,7 +67,7 @@ public class CSWCheckParam {
         }
         if(bbox!=null){
             if(bbox.split(",").length==5){
-                if(bbox.split(",")[4]!="urn:ogc:def:crs:EPSG::4326"){
+                if(!bbox.split(",")[4].equals("urn:ogc:def:crs:EPSG::4326")){
                     throw new OGCException(OGCExceptionCode.INVALID_PARAMETER_VALUE, "Invalid BBOX", "BBOX", Service.CSW);
                 }
             }

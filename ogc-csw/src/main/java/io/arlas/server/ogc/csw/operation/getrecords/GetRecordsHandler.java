@@ -122,7 +122,7 @@ public class GetRecordsHandler {
                 break;
         }
         getRecordsResponseType.setSearchResults(searchResultType);
-        searchResultType.setNextRecord(BigInteger.valueOf(startPosition + collections.size() + 1));
+        searchResultType.setNextRecord(BigInteger.valueOf(startPosition + collections.size() + 1L));
         searchResultType.setNumberOfRecordsReturned(BigInteger.valueOf(collections.size()));
         searchResultType.setNumberOfRecordsMatched(BigInteger.valueOf(recordsMatched));
         return getRecordsResponseType;

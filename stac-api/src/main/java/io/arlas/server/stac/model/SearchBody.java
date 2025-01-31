@@ -202,7 +202,7 @@ public class SearchBody  {
   public String getAfter() {
     return after;
   }
-  public void setAfter(String datetime) {
+  public void setAfter(String after) {
     this.after = after;
   }
 

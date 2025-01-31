@@ -164,7 +164,8 @@ public class SelfExpiringHashMap<K, V> implements SelfExpiringMap<K, V> {
             expireKey(oldKey);
             expiringKeys.put((K) key, delayedKey);
         }
-        delayQueue.offer(delayedKey);
+        // put will wait for space to become available but return void
+        delayQueue.put(delayedKey);
         return internalMap.put(key, value);
     }
 

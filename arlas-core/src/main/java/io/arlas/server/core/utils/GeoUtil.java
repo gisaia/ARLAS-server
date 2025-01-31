@@ -282,8 +282,7 @@ public class GeoUtil {
                 }
                 ps[i] = factory.createPolygon(outer, holes);
             }
-
-            Geometry reversed = isMultiPolygon ? factory.createMultiPolygon(ps) : ps[0];
+            Geometry reversed = isMultiPolygon ? factory.createMultiPolygon(ps) : Arrays.stream(ps).findFirst().get();
             reversed.setSRID(geometry.getSRID());
             reversed.setUserData(geometry.getUserData());
             return reversed;
@@ -324,7 +323,7 @@ public class GeoUtil {
                 ps[i] = factory.createPolygon(outer, holes);
             }
 
-            Geometry reversed = isMultiPolygon ? factory.createMultiPolygon(ps) : ps[0];
+            Geometry reversed = isMultiPolygon ? factory.createMultiPolygon(ps) : Arrays.stream(ps).findFirst().get();
             reversed.setSRID(geometry.getSRID());
             reversed.setUserData(geometry.getUserData());
             return reversed;

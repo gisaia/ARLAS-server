@@ -174,8 +174,10 @@ public class GetCapabilitiesHandler {
             eu.europa.ec.inspire.schemas.common._1.Keyword inspireKeyword = new eu.europa.ec.inspire.schemas.common._1.Keyword();
             inspireKeyword.setKeywordValue(keyword.value);
             OriginatingControlledVocabulary vocabulary = new OriginatingControlledVocabulary();
-            Optional.ofNullable(keyword.vocabulary).map(k -> {vocabulary.setTitle(keyword.vocabulary); return k;});
-            Optional.ofNullable(keyword.dateOfPublication).map(k -> {vocabulary.setDateOfCreation(keyword.dateOfPublication); return k;});
+
+            Optional.ofNullable(keyword.vocabulary).ifPresent(k -> vocabulary.setTitle(keyword.vocabulary));
+            Optional.ofNullable(keyword.dateOfPublication).ifPresent(k -> {vocabulary.setDateOfCreation(keyword.dateOfPublication);});
+
             if (!StringUtil.isNullOrEmpty(keyword.vocabulary)) {
                 inspireKeyword.setOriginatingControlledVocabulary(vocabulary);
             }
