@@ -120,7 +120,7 @@ public class ArlasHit {
                 if (e.contains(".")) {
                     String pathToRemove = e.substring(0,e.lastIndexOf("."));
                     String keyToRemove = e.substring(e.lastIndexOf(".")+1);
-                    Optional.ofNullable((Map) MapExplorer.getObjectFromPath(pathToRemove, source)).map(objectWithAttributeToRemove -> objectWithAttributeToRemove.remove(keyToRemove));
+                    Optional.ofNullable((Map) MapExplorer.getObjectFromPath(pathToRemove, source)).ifPresent(objectWithAttributeToRemove -> objectWithAttributeToRemove.remove(keyToRemove));
                 } else {
                     source.remove(e);
                 }

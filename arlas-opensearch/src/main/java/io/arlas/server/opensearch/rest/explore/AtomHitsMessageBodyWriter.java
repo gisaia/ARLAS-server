@@ -51,8 +51,7 @@ import java.util.*;
 @Produces(ATOM.APPLICATION_ATOM_XML)
 public class AtomHitsMessageBodyWriter implements MessageBodyWriter<Hits> {
 
-    public static final SimpleDateFormat dateFormater =
-            new SimpleDateFormat("yyyy-MM.dd'T'hh:mm:ssZ");
+    private final SimpleDateFormat dateFormater = new SimpleDateFormat("yyyy-MM.dd'T'hh:mm:ssZ");
 
     private ExploreService exploreService;
 

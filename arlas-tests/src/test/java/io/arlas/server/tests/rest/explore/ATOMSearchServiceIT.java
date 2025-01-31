@@ -31,6 +31,7 @@ import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matcher;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -43,6 +44,8 @@ import static org.hamcrest.core.Every.everyItem;
 import static org.junit.Assert.assertThat;
 
 public class ATOMSearchServiceIT extends AbstractProjectedTest {
+
+    private final SimpleDateFormat dateFormater = new SimpleDateFormat("yyyy-MM.dd'T'hh:mm:ssZ");
 
     @Override
     public String getUrlPath(String collection) {
@@ -86,7 +89,7 @@ public class ATOMSearchServiceIT extends AbstractProjectedTest {
                     .body(ATOM.XML_PREFIX + ":feed.entry[0].content.geo_params.centroid", equalTo("20,-10"))
                     .body(ATOM.XML_PREFIX + ":feed.entry[0].content.params.city.size()", equalTo(0))
 
-                    .body(ATOM.XML_PREFIX + ":feed.entry[0].update", equalTo(AtomHitsMessageBodyWriter.dateFormater.format(new Date(1009800))));
+                    .body(ATOM.XML_PREFIX + ":feed.entry[0].update", equalTo(dateFormater.format(new Date(1009800))));
         } else {
             then.statusCode(200)
                     .body("totalnb", equalTo(1))
