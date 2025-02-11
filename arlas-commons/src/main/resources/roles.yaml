@@ -4,6 +4,7 @@ technicalRoles:
     - "Public group"
     permissions:
     # ARLAS IAM session management
+    - h:arlas-organization:${org}
     - r:session:DELETE
     - r:permissions:GET
     - r:organisations:GET,POST
