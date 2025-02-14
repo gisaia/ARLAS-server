@@ -1,6 +1,11 @@
 name: Run Trivy
+run-name: Run Trivy - Vulnerability Scan
 
-on: push
+on:
+  push:
+  schedule:
+    # At 05:15 on Tuesday
+    - cron: '15 5 * * 2'
 
 jobs:
   build:
