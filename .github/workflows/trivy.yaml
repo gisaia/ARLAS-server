@@ -4,8 +4,8 @@ run-name: Run Trivy - Vulnerability Scan
 on:
   push:
   schedule:
-    # At 05:15 on Tuesday
-    - cron: '15 5 * * 2'
+    # At 05:15 UTC on day-of-month 2
+    - cron: '15 5 2 * *'
 
 jobs:
   build:
@@ -33,3 +33,10 @@ jobs:
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
         trivyignores: .github/workflows/.trivyignore
+    - name: Notify Google Chat
+      if: ${{ always() }} # Use always to ensure that the notification is also send on failure of former steps
+      uses: SimonScholz/google-chat-action@main
+      with:
+        webhookUrl: '${{ secrets.GOOGLE_CHAT_SCAN_CHANEL }}'
+        jobStatus: '${{ job.status }}'
+        title: 'Trivy Scan on ARLAS-server'
