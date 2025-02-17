@@ -73,6 +73,8 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
     public static final String ORGANIZATION_NAME = "organization.name";
     public static final String USER_ID = "user.id";
     public static final String USER_EMAIL = "user.emaild";
+    // This filter is used to protect private collection in public endpoint
+    public static final String DUMMY_COLUMN_FILTER = "dummy:*";
 
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractPolicyEnforcer.class);
     protected ArlasAuthConfiguration authConf;
@@ -214,7 +216,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                             logUAM(LOGGER::debug, ALLOWED, "public (no token): " + log);
                         }
                         // use a dummy CF in order to bypass the CFUtil and give access to public collections
-                        ctx.getHeaders().add(COLUMN_FILTER, "*:*");
+                        ctx.getHeaders().add(COLUMN_FILTER, DUMMY_COLUMN_FILTER);
                     }
                     return;
                 }
@@ -281,6 +283,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                 }
                 if (isPublic) {
                     putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.TRUE);
+                    ctx.getHeaders().add(COLUMN_FILTER, DUMMY_COLUMN_FILTER);
                     logUAM(LOGGER::debug, ALLOWED, "public (with token): " + log);
                     return;
                 }
@@ -290,6 +293,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     logUAM(LOGGER::warn, DENIED,"unauthorized (invalid token): " + log);
                     ctx.abortWith(Response.status(UNAUTHORIZED).build());
                 } else {
+                    ctx.getHeaders().add(COLUMN_FILTER, DUMMY_COLUMN_FILTER);
                     logUAM(LOGGER::debug, ALLOWED,"public (invalid token): " + log);
                 }
                 return;
