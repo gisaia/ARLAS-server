@@ -12,7 +12,7 @@
       "name" : "Apache 2.0",
       "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version" : "26.0.8"
+    "version" : "26.0.9-SNAPSHOT"
   },
   "externalDocs" : {
     "description" : "API documentation",
