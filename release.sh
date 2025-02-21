@@ -18,7 +18,7 @@ function clean_exit {
 	rm -rf target/tmp || echo "target/tmp already removed"
 	clean_docker
 	if [ "$SIMULATE" == "NO" ]; then
-        git checkout -- .
+        git checkout feat/26.0.x
         mvn clean
     else
         echo "=> Skip discard changes";
@@ -128,11 +128,6 @@ echo "Release : ${ARLAS_VERSION}"
 echo "API     : ${FULL_API_VERSION}"
 echo "Dev     : ${ARLAS_DEV_VERSION}"
 
-echo "=> Get develop branch"
-if [ "$SIMULATE" == "NO" ]; then
-    git checkout develop
-    git pull origin develop
-else echo "=> Skip develop checkout"; fi
 
 echo "=> Update project version"
 mvn clean
@@ -179,6 +174,8 @@ cp target/tmp/openapi.json openapi
 echo "=> Generate API documentation"
 mkdir -p docs/api
 docker run --rm \
+    -e GROUP_ID="$(id -g)" \
+    -e USER_ID="$(id -u)" \
     --mount dst=/input/api.json,src="$PWD/openapi/openapi.json",type=bind,ro \
     --mount dst=/input/env.json,src="$PWD/conf/doc/widdershins.json",type=bind,ro \
     --mount dst=/output,src="$PWD/docs/api",type=bind \
@@ -202,6 +199,8 @@ else
     echo "=> Generate client APIs"
     mkdir -p target/tmp/java-api
     docker run --rm \
+        -e GROUP_ID="$(id -g)" \
+        -e USER_ID="$(id -u)" \
         --mount dst=/input/api.json,src="$PWD/target/tmp/openapi.json",type=bind,ro \
         --mount dst=/input/config.json,src="$PWD/conf/swagger/java-config.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/java-api",type=bind \
@@ -210,6 +209,8 @@ else
 
     mkdir -p target/tmp/typescript-fetch
     docker run --rm \
+        -e GROUP_ID="$(id -g)" \
+        -e USER_ID="$(id -u)" \
         --mount dst=/input/api.json,src="$PWD/target/tmp/openapi.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
         gisaia/swagger-codegen-3.0.42 \
@@ -238,11 +239,8 @@ fi
 cd ${BASEDIR}
 
 if [ "$SIMULATE" == "NO" ]; then
-    echo "=> Tag arlas-server docker image"
-    docker tag gisaia/arlas-server:${ARLAS_VERSION} gisaia/arlas-server:latest
     echo "=> Push arlas-server docker image"
     docker push gisaia/arlas-server:${ARLAS_VERSION}
-    docker push gisaia/arlas-server:latest
 else echo "=> Skip docker push image"; fi
 
 
@@ -293,18 +291,8 @@ if [ "$SIMULATE" == "NO" ]; then
     git commit -a -m "release version ${ARLAS_VERSION}"
     git tag v${ARLAS_VERSION}
     git push origin v${ARLAS_VERSION}
-    git push origin develop
+    git push origin feat/26.0.x
 
-    echo "=> Merge develop into master"
-    git checkout master
-    git pull origin master
-    git merge origin/develop
-    git push origin master
-
-    echo "=> Rebase develop"
-    git checkout develop
-    git pull origin develop
-    git rebase origin/master
 else echo "=> Skip git push master"; fi
 
 echo "=> Update project version for develop"
@@ -319,5 +307,5 @@ if [ "$SIMULATE" == "NO" ]; then
     git add openapi/openapi.json
     git add openapi/openapi.yaml
     git commit -a -m "development version ${ARLAS_DEV_VERSION}-SNAPSHOT"
-    git push origin develop
+    git push origin feat/26.0.x
 else echo "=> Skip git push develop"; fi
