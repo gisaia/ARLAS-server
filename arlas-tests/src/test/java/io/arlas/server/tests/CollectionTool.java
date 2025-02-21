@@ -34,6 +34,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -153,6 +154,7 @@ public class CollectionTool extends AbstractTestContext {
                     params.rasterTileURL = DataSetTool.DATASET_TILE_URL;
                     params.dublinCoreElementName=dublinCoreElementName;
                     params.inspire = new Inspire();
+                    params.collectionOrganisations = new CollectionOrganisations();
                     params.inspire.lineage = DataSetTool.DATASET_INSPIRE_LINEAGE;
                     params.inspire.topicCategories = Arrays.asList(DataSetTool.DATASET_INSPIRE_TOPIC_CATEGORY);
                     String url = arlasPath + "collections/" + dublinCoreElementName.title.split(" ")[0].toLowerCase();
@@ -175,7 +177,6 @@ public class CollectionTool extends AbstractTestContext {
     }
 
     public  void deleteCsw() throws IOException, ArlasException {
-        DataSetTool.clearDataSet();
         InputStreamReader dcelementForCollection = new InputStreamReader(CollectionTool.class.getClassLoader().getResourceAsStream("csw.collection.dcelements.json"));
         ObjectMapper objectMapper = new ObjectMapper();
         DublinCoreElementName[] dcelements = objectMapper.readValue(dcelementForCollection, DublinCoreElementName[].class);
@@ -185,6 +186,7 @@ public class CollectionTool extends AbstractTestContext {
                     when().delete(url).then().statusCode(200);
                 }
         );
+        DataSetTool.clearDataSet();
     }
 
     @Override

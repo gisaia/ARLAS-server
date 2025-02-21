@@ -172,8 +172,9 @@ public class CollectionService extends CollectionRESTServices {
         Set<String> allowedCollections = ColumnFilterUtil.getAllowedCollections(Optional.ofNullable(columnFilter));
         for (CollectionReference collection : collections) {
             for (String c : allowedCollections) {
+                // In case of collection/* POST is public, we import only public collection, because of dummy column filter ctx.getHeaders().add(COLUMN_FILTER, "dummy:*");
                 if ((c.endsWith("*") && collection.collectionName.startsWith(c.substring(0, c.indexOf("*"))))
-                        || collection.collectionName.equals(c)) {
+                        || collection.collectionName.equals(c) || collection.params.collectionOrganisations.isPublic) {
                     try {
                         savedCollections.add(save(collection.collectionName, collection.params, true, organisations));
                     } catch (Exception e) {
@@ -531,6 +532,8 @@ public class CollectionService extends CollectionRESTServices {
     })
 
     public Response delete(
+            @Parameter(hidden = true)
+            @HeaderParam(value = ARLAS_ORGANISATION) String organisations,
             @Parameter(name = "collection",
                     description = "collection",
                     required = true)
@@ -547,6 +550,8 @@ public class CollectionService extends CollectionRESTServices {
         if (collection != null && collection.equals(META_COLLECTION_NAME)) {
             throw new NotAllowedException("Forbidden operation on '" + META_COLLECTION_NAME + "'");
         }
+        CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collection,Optional.ofNullable(organisations));
+        collectionReferenceService.checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true);
         collectionReferenceService.deleteCollectionReference(collection);
         return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
     }
