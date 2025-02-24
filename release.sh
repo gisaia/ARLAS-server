@@ -146,6 +146,8 @@ if [ "$SIMULATE" == "NO" ]; then
 else
     echo "=> Build arlas-server"
     docker run \
+        -e GROUP_ID="$(id -g)" \
+        -e USER_ID="$(id -u)" \
         --mount dst=/mnt/.m2,src="$HOME/.m2/",type=bind \
         --mount dst=/opt/maven,src="$PWD",type=bind \
         -w /opt/maven \
@@ -202,6 +204,8 @@ else
     echo "=> Generate client APIs"
     mkdir -p target/tmp/java-api
     docker run --rm \
+        -e GROUP_ID="$(id -g)" \
+        -e USER_ID="$(id -u)" \
         --mount dst=/input/api.json,src="$PWD/target/tmp/openapi.json",type=bind,ro \
         --mount dst=/input/config.json,src="$PWD/conf/swagger/java-config.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/java-api",type=bind \
@@ -210,6 +214,8 @@ else
 
     mkdir -p target/tmp/typescript-fetch
     docker run --rm \
+        -e GROUP_ID="$(id -g)" \
+        -e USER_ID="$(id -u)" \
         --mount dst=/input/api.json,src="$PWD/target/tmp/openapi.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
         gisaia/swagger-codegen-3.0.42 \
