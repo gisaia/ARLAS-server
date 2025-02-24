@@ -32,7 +32,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 description = "Explore the content of ARLAS collections",
                 license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
                 contact = @Contact(email = "contact@gisaia.com", name = "Gisaia", url = "http://www.gisaia.com/"),
-                version = "API_VERSION"),
+                version = "27.0.1"),
         externalDocs = @ExternalDocumentation(
                 description = "API documentation",
                 url="https://docs.arlas.io/arlas-api/"),
