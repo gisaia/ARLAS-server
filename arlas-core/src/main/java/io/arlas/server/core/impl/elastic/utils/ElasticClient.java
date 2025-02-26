@@ -275,7 +275,7 @@ public class ElasticClient {
             return res;
         } catch (IOException | ElasticsearchException e) {
             processException(e, index);
-            return null;
+            return Map.of();
         }
     }
 
@@ -384,9 +384,11 @@ public class ElasticClient {
     }
 
     private void processException(Exception e, String index) throws ArlasException {
-        if (e instanceof ResponseException) {
-            if (((ResponseException) e).getResponse().getStatusLine().getStatusCode() == 404) {
-                throw new NotFoundException("Index " + index + " does not exist.");
+        if (e instanceof ElasticsearchException exception) {
+            if (exception.response().error().type().equals("index_not_found_exception")) {
+                LOGGER.warn("Index {} does not exist.", index);
+                // We do not raise exception anymore, silent error in case of index_not_found_exception in ES
+                return;
             }
         }
         LOGGER.warn("Exception while communicating with ES: " + e.getMessage(), e);
