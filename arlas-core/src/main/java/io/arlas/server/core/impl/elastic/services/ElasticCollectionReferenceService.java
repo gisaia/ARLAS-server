@@ -103,23 +103,19 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
                 }
                 hits = client.search(requestBuilder.build(), CollectionReferenceParameters.class).hits().hits();
                 for (Hit<CollectionReferenceParameters> hit : hits) {
-                    try {
                         CollectionReference colRef = new CollectionReference(hit.id(), hit.source());
-                        checkIfAllowedForOrganisations(colRef, organisations);
-                        if (CollectionUtil.isCollectionPublic(colRef)) {
-                            collections.add(colRef);
-                        } else {
-                            for (String c : allowedCollections) {
-                                if (CollectionUtil.matches(c, hit.id())) {
-                                    collections.add(colRef);
-                                    break;
+                        if (checkIfAllowedForOrganisations(colRef, organisations)) {
+                            if (CollectionUtil.isCollectionPublic(colRef)) {
+                                collections.add(colRef);
+                            } else {
+                                for (String c : allowedCollections) {
+                                    if (CollectionUtil.matches(c, hit.id())) {
+                                        collections.add(colRef);
+                                        break;
+                                    }
                                 }
                             }
                         }
-                    } catch (CollectionUnavailableException e) {
-                        LOGGER.warn(String.format("Collection %s not available for this organisation %s",
-                                hit.id(), organisations));
-                    }
                 }
             } while (!hits.isEmpty());
         } catch (NotFoundException e) {

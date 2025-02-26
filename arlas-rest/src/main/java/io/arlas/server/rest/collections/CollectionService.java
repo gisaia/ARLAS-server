@@ -508,9 +508,12 @@ public class CollectionService extends CollectionRESTServices {
             CheckParams.checkInvalidDublinCoreElementsForInspire(collectionReference);
         }
         CheckParams.checkInvalidInspireParameters(collectionReference);
-        collectionReferenceService.checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true);
-        collectionReferenceService.checkIfIndexAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), Optional.ofNullable(configuration.arlasAuthPolicyClass));
-        return collectionReferenceService.putCollectionReference(collectionReference, checkFields);
+        if (collectionReferenceService.checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true)) {
+            collectionReferenceService.checkIfIndexAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), Optional.ofNullable(configuration.arlasAuthPolicyClass));
+            return collectionReferenceService.putCollectionReference(collectionReference, checkFields);
+        } else {
+            throw new CollectionUnavailableException("The collection not available with organisation header: " + Optional.ofNullable(organisations).get());
+        }
     }
 
     @Timed
@@ -551,9 +554,12 @@ public class CollectionService extends CollectionRESTServices {
             throw new NotAllowedException("Forbidden operation on '" + META_COLLECTION_NAME + "'");
         }
         CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collection,Optional.ofNullable(organisations));
-        collectionReferenceService.checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true);
-        collectionReferenceService.deleteCollectionReference(collection);
-        return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
+        if (collectionReferenceService.checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true)) {
+            collectionReferenceService.deleteCollectionReference(collection);
+            return ResponseFormatter.getSuccessResponse("Collection " + collection + " deleted.");
+        } else {
+            throw new CollectionUnavailableException("The collection not available with organisation header: " + Optional.ofNullable(organisations).get());
+        }
     }
 
     private void removeMetacollection(List<CollectionReference> collectionReferences) {
