@@ -53,13 +53,13 @@ The other parts must be specified or not depending on the aggregation type. All 
 
 | Parameter                 | Aggregation type                    | Description                                      |
 | ---------                 | -------------                       | ------------------------------------------------ |
-| **interval**              | `datehistogram, histogram, geohash, geotile` | mandatory                                        |
+| **interval**              | `datehistogram, histogram, geohash, geotile` | mandatory                               |
 | **format**                | `datehistogram`                     | optional (default value : `yyyy-MM-dd-HH:mm:ss`) |
 | (**collect_field**,**collect_fct**) | All types                 | optional and multiple                            |
 | (**order**,**on**)        | `term, histogram, datehistogram`    | optional                                         |
-| **size**                  | `term, geohash, geotile`             | optional                                         |
+| **size**                  | `term, geohash, geotile`            | optional                                         |
 | **include**               | `term`                              | optional                                         |
-| **aggregated_geometries** | All types                           | optional                                         |
+| **aggregated_geometries** | `geohash, geotile`                  | optional                                         |
 | **raw_geometries**        | All types                           | optional                                         |
 | **fetch_hits**            | All types                           | optional                                         |
 
@@ -67,11 +67,11 @@ The other parts must be specified or not depending on the aggregation type. All 
 
 The sub-parameters possible values are:
 
-| Parameter         | Values                                          | Description                              |
-| ----------------- | ----------------------------------------------  | ---------------------------------------- |
-| **{type}**        | `datehistogram`, `histogram`, `geohash`, `geotile`, `term` | Type of aggregation |
-| **{field}**       | {field}                                         | Aggregates on {field} |
-| **interval**      | {interval}                                      | Size of the intervals.(1)                   |
+| Parameter         | Values                                                     | Description                              |
+| ----------------- | ---------------------------------------------------------  | ---------------------------------------- |
+| **{type}**        | `datehistogram`, `histogram`, `geohash`, `geotile`, `term` | Type of aggregation                      |
+| **{field}**       | {field}                                                    | Aggregates on {field}                    |
+| **interval**      | {interval}                                                 | Size of the intervals.(1)                |
 | **format**        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.         |
 | **collect_field** | `{collect_field}`                               | The field used to aggregate collections. |
 | **collect_fct**   | `avg,cardinality,max,min,sum,geobbox,geocentroid (2)` | The aggregation function to apply to collections on the specified **collect_field**. |
