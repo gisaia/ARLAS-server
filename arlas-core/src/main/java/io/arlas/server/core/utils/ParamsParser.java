@@ -49,7 +49,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static io.arlas.server.core.services.FluidSearchService.*;
 import static io.arlas.server.core.utils.CheckParams.GEO_AGGREGATION_TYPE_ENUMS;
 
@@ -80,6 +81,7 @@ public class ParamsParser {
     public static final String RANGE_ALIASES_CHARACTER = "$";
     public static final String TIMESTAMP_ALIAS = "timestamp";
     public static final String BAD_FIELD_ALIAS = "This alias does not represent a collection configured field. ";
+    private static Logger LOGGER = LoggerFactory.getLogger(ParamsParser.class);
 
 
     public static List<Aggregation> getAggregations(CollectionReference collectionReference, List<String> agg) throws ArlasException {
@@ -274,8 +276,9 @@ public class ParamsParser {
                 try {
                     fList = objectMapper.readValue(sf, new TypeReference<List<Filter>>() {});
                 } catch (JsonProcessingException ex) {
-
-                    throw new InvalidParameterException(INVALID_FILTER + ": '" + sf + "'", ex);
+                    // We dont print the filter in the exception to hide it from the final user
+                    LOGGER.error("{} : '{}'", INVALID_FILTER, sf);
+                    throw new InvalidParameterException(INVALID_FILTER, ex);
                 }
             }
             return fList;
