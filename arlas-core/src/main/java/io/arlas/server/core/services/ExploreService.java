@@ -147,7 +147,8 @@ public abstract class ExploreService {
             if (filter.f != null && !filter.f.isEmpty()) {
                 CollectionReference collectionReference = fluidSearch.getCollectionReference();
                 if (!filterFHasDateQuery(filter, collectionReference) && !StringUtil.isNullOrEmpty(filter.dateformat)) {
-                    throw new BadRequestException("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
+                    filter.dateformat = null;
+                    LOGGER.warn("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
                 }
                 for (MultiValueFilter<Expression> f : filter.f) {
                     fluidSearch = fluidSearch.filter(f, filter.dateformat, filter.righthand);
@@ -169,7 +170,8 @@ public abstract class ExploreService {
                     if (f.f != null && !f.f.isEmpty()) {
                         CollectionReference collectionReference = fluidSearch.getCollectionReference();
                         if (!filterFHasDateQuery(f, collectionReference) && !StringUtil.isNullOrEmpty(f.dateformat)) {
-                            throw new BadRequestException("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
+                            f.dateformat = null;
+                            LOGGER.warn("dateformat is specified but no date field is queried in f filter (gt, lt, gte, lte or range operations)");
                         }
                     }
                 }

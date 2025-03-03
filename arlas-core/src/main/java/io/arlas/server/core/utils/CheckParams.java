@@ -36,6 +36,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -78,6 +80,7 @@ public class CheckParams {
     public static final String RAW_GEOMETRIES_NULL_OR_EMPTY = "'geometries' should not be null nor empty";
 
     public static final List<AggregationTypeEnum> GEO_AGGREGATION_TYPE_ENUMS = Arrays.asList(AggregationTypeEnum.geohash, AggregationTypeEnum.geotile, AggregationTypeEnum.geohex);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(CheckParams.class);
 
     public CheckParams() {
     }
@@ -161,7 +164,9 @@ public class CheckParams {
 
     public static void checkFilter(Filter filter) throws ArlasException {
         if ((filter.f == null || filter.f.isEmpty()) && !StringUtil.isNullOrEmpty(filter.dateformat)) {
-            throw new BadRequestException("Date format is specified but no date field is queried in f filter");
+            LOGGER.warn("Date format is specified but no date field is queried in f filter");
+            // Dont check the dateformat if no date filter provided
+            return;
         }
         checkDateFormat(filter.dateformat);
     }

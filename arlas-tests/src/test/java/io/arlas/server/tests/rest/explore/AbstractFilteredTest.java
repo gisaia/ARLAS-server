@@ -2083,14 +2083,6 @@ public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
         handleInvalidParameters(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
                 .param("dateformat", request.filter.dateformat).when().get(getUrlPath("geodata")).then());
         handleInvalidParameters(header(request.filter));
-
-        // DATEFORMAT : format set when no date field is queried
-        request.filter.f = Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.like, "Architect")));
-        request.filter.dateformat = "dd-MM-yyyy";
-        handleInvalidParameters(post(request));
-        handleInvalidParameters(givenFilterableRequestParams().param("f", request.filter.f.get(0).get(0).toString())
-                .param("dateformat", request.filter.dateformat).when().get(getUrlPath("geodata")).then());
-        handleInvalidParameters(header(request.filter));
     }
 
     @Test
