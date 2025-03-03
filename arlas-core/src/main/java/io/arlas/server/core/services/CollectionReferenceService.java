@@ -81,12 +81,16 @@ public abstract class CollectionReferenceService {
             collectionReference = getCollectionReferenceFromDao(ref);
             cacheManager.putCollectionReference(ref, collectionReference);
         }
-        checkIfAllowedForOrganisations(collectionReference, organisations);
-        if (!getMapping(collectionReference.params.indexName).isEmpty()){
-            return collectionReference;
+        if (checkIfAllowedForOrganisations(collectionReference, organisations)) {
+            if (!getMapping(collectionReference.params.indexName).isEmpty()) {
+                return collectionReference;
+            } else {
+                throw new ArlasException("Collection " + ref + " exists but can not be described. Check if index or template ".concat(collectionReference.params.indexName).concat(" exists"));
+            }
         } else {
-            throw new ArlasException("Collection " + ref + " exists but can not be described. Check if index or template ".concat(collectionReference.params.indexName).concat(" exists"));
+            throw new CollectionUnavailableException("The collection not available with organisation header: " + Optional.ofNullable(organisations).get());
         }
+
     }
 
     protected Map<String, Map<String, Object>> getMapping(String indexName) throws ArlasException {
@@ -118,20 +122,23 @@ public abstract class CollectionReferenceService {
             throws ArlasException {
         CollectionReference collectionReference = getCollectionReference(collection, Optional.ofNullable(organisations));
         ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), List.of(collectionReference));
-        checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true);
-        if (collectionReference.params.collectionDisplayNames == null) {
-            collectionReference.params.collectionDisplayNames = new CollectionDisplayNames();
+        if (checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true)) {
+            if (collectionReference.params.collectionDisplayNames == null) {
+                collectionReference.params.collectionDisplayNames = new CollectionDisplayNames();
+            }
+            if(fieldsDisplayNames != null){
+                collectionReference.params.collectionDisplayNames.fields = fieldsDisplayNames;
+            }
+            if(shapeColumnsDisplayNames != null){
+                collectionReference.params.collectionDisplayNames.shapeColumns = shapeColumnsDisplayNames;
+            }
+            if(collectionDisplayName != null){
+                collectionReference.params.collectionDisplayNames.collection = collectionDisplayName;
+            }
+            return putCollectionReference(collectionReference, true);
+        } else {
+            throw new CollectionUnavailableException("The collection not available with organisation header: " + Optional.ofNullable(organisations).get());
         }
-        if(fieldsDisplayNames != null){
-            collectionReference.params.collectionDisplayNames.fields = fieldsDisplayNames;
-        }
-        if(shapeColumnsDisplayNames != null){
-            collectionReference.params.collectionDisplayNames.shapeColumns = shapeColumnsDisplayNames;
-        }
-        if(collectionDisplayName != null){
-            collectionReference.params.collectionDisplayNames.collection = collectionDisplayName;
-        }
-        return putCollectionReference(collectionReference, true);
     }
 
     public CollectionReference updateOrganisationsParamsCollectionReference(String collection,
@@ -142,10 +149,13 @@ public abstract class CollectionReferenceService {
             throws ArlasException {
         CollectionReference collectionReference = getCollectionReference(collection, Optional.ofNullable(organisations));
         ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), List.of(collectionReference));
-        checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true);
-        collectionReference.params.collectionOrganisations.isPublic = isPublic;
-        collectionReference.params.collectionOrganisations.sharedWith = sharedWith;
-        return putCollectionReference(collectionReference, true);
+        if (checkIfAllowedForOrganisations(collectionReference, Optional.ofNullable(organisations), true)) {
+            collectionReference.params.collectionOrganisations.isPublic = isPublic;
+            collectionReference.params.collectionOrganisations.sharedWith = sharedWith;
+            return putCollectionReference(collectionReference, true);
+        } else {
+            throw new CollectionUnavailableException("The collection not available with organisation header: " + Optional.ofNullable(organisations).get());
+        }
     }
 
     public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
@@ -398,10 +408,10 @@ public abstract class CollectionReferenceService {
         return ret.get();
     }
 
-    protected void checkIfAllowedForOrganisations(CollectionReference collection,
+    protected Boolean checkIfAllowedForOrganisations(CollectionReference collection,
                                                Optional<String> organisations)
             throws CollectionUnavailableException {
-        checkIfAllowedForOrganisations(collection, organisations, false);
+        return checkIfAllowedForOrganisations(collection, organisations, false);
     }
 
     public void checkIfIndexAllowedForOrganisations(CollectionReference collection,
@@ -430,14 +440,14 @@ public abstract class CollectionReferenceService {
         }
     }
 
-    public void checkIfAllowedForOrganisations(CollectionReference collection,
+    public Boolean checkIfAllowedForOrganisations(CollectionReference collection,
                                                Optional<String> organisations,
                                                boolean ownerOnly)
             throws CollectionUnavailableException {
         if (organisations.isEmpty()) {
             // no header, we'll trust the column filter if any
             LOGGER.debug("No organisation header");
-            return;
+            return true;
         }
 
         if (collection.params.collectionOrganisations == null) {
@@ -448,7 +458,7 @@ public abstract class CollectionReferenceService {
 
         if (!ownerOnly && collection.params.collectionOrganisations.isPublic) {
             LOGGER.debug(String.format("Collection %s organisation is public.", collection.collectionName));
-            return;
+            return true;
         }
 
         List<String> o = new ArrayList<>();
@@ -461,7 +471,9 @@ public abstract class CollectionReferenceService {
         o.retainAll(Arrays.stream(organisations.get().split(",")).toList());
         LOGGER.debug("allowed org=" + o);
         if (o.isEmpty()) {
-            throw new CollectionUnavailableException("The collection not available with organisation header: " + organisations.get());
+            // the collection not available with the provided organisation header
+            return false;
         }
+        return true;
     }
 }

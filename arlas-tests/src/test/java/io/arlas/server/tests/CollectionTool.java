@@ -170,10 +170,10 @@ public class CollectionTool extends AbstractTestContext {
     }
 
     public  void delete() throws IOException, ArlasException {
-        DataSetTool.clearDataSet();
         //DELETE collection
         when().delete(getUrlPath()).then().statusCode(200);
         when().delete(arlasPath + "collections/" + COLLECTION_NAME_ACTOR).then().statusCode(200);
+        DataSetTool.clearDataSet();
     }
 
     public  void deleteCsw() throws IOException, ArlasException {
