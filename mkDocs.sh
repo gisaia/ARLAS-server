@@ -12,6 +12,14 @@ trap clean_exit EXIT
 SCRIPT_PATH=`cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd`
 cd ${SCRIPT_PATH}
 
+# Clean and Copy documentation to target/generated-docs
+rm -rf target/generated-docs
+mkdir -p target/generated-docs
+
+echo "=> Get md documentation"
+cp -r docs/docs/* target/generated-docs
+
+# Get Typescript documentation
 mkdir -p target/tmp/typescript-fetch
 
 echo "=> Generate API"
