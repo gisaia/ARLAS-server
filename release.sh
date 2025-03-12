@@ -178,13 +178,6 @@ mkdir -p openapi
 cp target/tmp/openapi.yaml openapi
 cp target/tmp/openapi.json openapi
 
-echo "=> Generate API documentation"
-mkdir -p docs/api
-docker run --rm \
-    --mount dst=/input/api.json,src="$PWD/openapi/openapi.json",type=bind,ro \
-    --mount dst=/input/env.json,src="$PWD/conf/doc/widdershins.json",type=bind,ro \
-    --mount dst=/output,src="$PWD/docs/api",type=bind \
-	gisaia/widdershins:4.0.1
 
 echo "=> Stop arlas-server stack"
 docker compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v
@@ -295,7 +288,6 @@ if [ "$SIMULATE" == "NO" ]; then
     echo "=> Commit release version"
     git add openapi/openapi.json
     git add openapi/openapi.yaml
-    git add docs/api
     git commit -a -m "release version ${ARLAS_VERSION}"
     git tag v${ARLAS_VERSION}
     git push origin v${ARLAS_VERSION}
