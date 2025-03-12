@@ -19,10 +19,14 @@ mkdir -p target/generated-docs
 echo "=> Get md documentation"
 cp -r docs/docs/* target/generated-docs
 
+# Get up-to-date openapi file
+mkdir -p docs/api
+cp openapi/openapi.json target/generated-docs/api
+
 # Get Typescript documentation
 mkdir -p target/tmp/typescript-fetch
 
-echo "=> Generate API"
+echo "=> Generate Typescript API"
 docker run --rm \
     --mount dst=/input/api.json,src="$PWD/openapi/openapi.json",type=bind,ro \
     --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
@@ -51,7 +55,7 @@ docker run --rm \
 	busybox \
         sh -c 'mv /opt/maven/target/tmp/typescript-fetch/typedoc_docs/* /opt/maven/target/generated-docs/typescript-doc'
 
-echo "=> Generate API documentation"
+echo "=> Generate Typescript API documentation"
 docker run --rm \
     -v $PWD:/opt/maven \
 	-v $HOME/.m2:/root/.m2 \
