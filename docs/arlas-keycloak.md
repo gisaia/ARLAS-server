@@ -82,7 +82,7 @@ Another way is to import the default configuration file given with this module (
 6. *(Clients/Arlas-backend/Roles)* Add the following roles:
     - `group/public` (required to allow dashboards to be shared to anonymous users)
     - `role/arlas/builder` (rules to create/edit/delete ARLAS WUI dashboards)
-    - `role/arlas/importer` (rule to import collections via the dedicated ARLAS server endpoint, mainly used by M2M processes)
+    - `role/m2m/importer` (rule to import collections via the dedicated ARLAS server endpoint, mainly used by M2M processes)
     - `role/arlas/tagger` (rules to use the [Tagger]() backend)
     - `role/arlas/user`  (rules to view data)
     - `role/arlas/downloader` (rules to download data with [AIAS])
@@ -111,7 +111,7 @@ Another way is to import the default configuration file given with this module (
     - Save
 14. *(Clients/Arlasm2m/Service Account Roles)* Select `arlas-backend` in the Client Roles drop down list and add selected roles:
     - role/arlas/user
-    - role/arlas/importer
+    - role/m2m/importer
 15. *(Clients/Lookup/Create)* Create a new client with:
     - Client ID=`arlas-front` (must be configured in arlas frontend app configurations)
     - Client Protocol=`openid-connect`

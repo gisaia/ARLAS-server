@@ -269,7 +269,7 @@
         "attributes" : { }
       }, {
         "id" : "fe6f2757-4b94-4c13-90d8-1a4b92603705",
-        "name" : "role/arlas/importer",
+        "name" : "role/m2m/importer",
         "description" : "",
         "composite" : false,
         "clientRole" : true,
@@ -488,7 +488,7 @@
     "requiredActions" : [ ],
     "realmRoles" : [ "default-roles-arlas" ],
     "clientRoles" : {
-      "arlas-backend" : [ "role/arlas/importer", "role/arlas/user" ]
+      "arlas-backend" : [ "role/m2m/importer", "role/arlas/user" ]
     },
     "notBefore" : 0,
     "groups" : [ ]
@@ -511,7 +511,7 @@
     "requiredActions" : [ ],
     "realmRoles" : [ "default-roles-arlas" ],
     "clientRoles" : {
-      "arlas-backend" : [ "role/arlas/tagger", "role/arlas/importer", "role/arlas/datasets", "role/arlas/downloader", "role/arlas/builder", "role/arlas/user" ]
+      "arlas-backend" : [ "role/arlas/tagger", "role/m2m/importer", "role/arlas/datasets", "role/arlas/downloader", "role/arlas/builder", "role/arlas/user" ]
     },
     "notBefore" : 0,
     "groups" : [ "/basic-user-group" ]
@@ -797,13 +797,13 @@
         }
       }, {
         "id" : "2ba042ea-929e-470f-9497-c8b01abc37d1",
-        "name" : "is role/arlas/importer",
+        "name" : "is role/m2m/importer",
         "description" : "",
         "type" : "role",
         "logic" : "POSITIVE",
         "decisionStrategy" : "UNANIMOUS",
         "config" : {
-          "roles" : "[{\"id\":\"arlas-backend/role/arlas/importer\",\"required\":false}]"
+          "roles" : "[{\"id\":\"arlas-backend/role/m2m/importer\",\"required\":false}]"
         }
       }, {
         "id" : "1b35c507-edce-4a1b-a624-f1f33f459aca",

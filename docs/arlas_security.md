@@ -72,7 +72,7 @@ These roles are:
 - `role/arlas/tagger` (rules to use the Tagger backend)
 - `role/arlas/builder` (rules to create/edit/delete ARLAS WUI dashboards)
 - `role/arlas/owner` (rules to manage collections in ARLAS server and organisations/users in [ARLAS-IAM](arlas-iam.md) server)
-- `role/arlas/importer` (rules to import collections via the dedicated ARLAS server endpoint, mainly used by M2M processes)
+- `role/m2m/importer` (rules to import collections via the dedicated ARLAS server endpoint, mainly used by M2M processes)
 - `role/iam/admin` (rules to manage organisations and users in [ARLAS-IAM](arlas-iam.md) server)
 
 The associated rules configured for these roles can be found in the file `arlas-commons/src/main/resources/roles.yaml`.
