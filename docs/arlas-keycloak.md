@@ -112,6 +112,7 @@ Another way is to import the default configuration file given with this module (
 14. *(Clients/Arlasm2m/Service Account Roles)* Select `arlas-backend` in the Client Roles drop down list and add selected roles:
     - role/arlas/user
     - role/m2m/importer
+    - group/public (to create public dashboard)
 15. *(Clients/Lookup/Create)* Create a new client with:
     - Client ID=`arlas-front` (must be configured in arlas frontend app configurations)
     - Client Protocol=`openid-connect`
