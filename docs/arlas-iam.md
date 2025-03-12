@@ -15,7 +15,7 @@ IAM is composed of 2 main components:
 
 1. an implementation of the ARLAS PolicyEnforcer (interface available in the ARLAS-server/arlas-commons module: `io.arlas.filter.core.PolicyEnforcer`)
     - ARLAS IAM implementation (`io.arlas.filter.impl.HTTPPolicyEnforcer`)
-2. an IAM server, [ARLAS IAM](#iam-server)
+2. an IAM server
 
 ## Policy Enforcers configuration
 The policy enforcers are in the `arlas-commons` module.  
