@@ -62,26 +62,26 @@ The `atom_feed`, `dublin_core_element_name`, `inspire`, `open_search` and `ratse
 
 The most important fields are:
 
-| Attribute      | Description                                       | Mention   |
-| ---------------| ------------------------------------------------- | --------- |
-| index_name     | Name of the index in elasticsearch                | Mandatory |
-| id_path        | Path to the id field in the indexed documents     | Optional  |
-| geometry_path  | Path to an [Elasticsearch geometric](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/geo-shape.html) field in the indexed documents| Optional  |
-| centroid_path  | Path to an [Elasticsearch Geo-point field](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/geo-point.html)  in the indexed documents. | Optional  |
-| timestamp_path | Path to a timestamp/date field in the indexed documents, that meets the [Elasticsearch date format](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/mapping-date-format.html), set when indexing data. | Optional  |
-| include_fields | Comma separated fields names that will be included in ARLAS-server responses. By default, all the fields are included | Optional  |
-| exclude_fields | Comma separated fields names that will be excluded from ARLAS-server responses. By default, none of the fields are excluded | Optional|
-| raster_tile_width | In case the tile is too big, the crop width to apply. Set to -1 if not check must be applied |  Optional |  -1 |
-| raster_tile_height | In case the tile is too big, the crop height to apply. Set to -1 if not check must be applied  |  Optional |  -1 |
-| taggable_fields| Comma separated fields names/paths that are allowed to be updated by the [tag service](arlas-api-tagging). By default no field is taggable| Optional|
-| update_max_hits | Maximum number of hits you can tag with one `tag request` | Optional|
+| Attribute      | Description                                                                                                                                                                                                                          | Mention   |
+| ---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| --------- |
+| index_name     | Name of the index in elasticsearch                                                                                                                                                                                                   | Mandatory |
+| id_path        | Path to the id field in the indexed documents                                                                                                                                                                                        | Optional  |
+| geometry_path  | Path to an [Elasticsearch geometric](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/geo-shape.html){:target="_blank"} field in the indexed documents                                                                    | Optional  |
+| centroid_path  | Path to an [Elasticsearch Geo-point field](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/geo-point.html){:target="_blank"}  in the indexed documents.                                                                                    | Optional  |
+| timestamp_path | Path to a timestamp/date field in the indexed documents, that meets the [Elasticsearch date format](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/mapping-date-format.html){:target="_blank"}, set when indexing data. | Optional  |
+| include_fields | Comma separated fields names that will be included in ARLAS-server responses. By default, all the fields are included                                                                                                                | Optional  |
+| exclude_fields | Comma separated fields names that will be excluded from ARLAS-server responses. By default, none of the fields are excluded                                                                                                          | Optional|
+| raster_tile_width | In case the tile is too big, the crop width to apply. Set to -1 if not check must be applied                                                                                                                                         |  Optional |  -1 |
+| raster_tile_height | In case the tile is too big, the crop height to apply. Set to -1 if not check must be applied                                                                                                                                        |  Optional |  -1 |
+| taggable_fields| Comma separated fields names/paths that are allowed to be updated by the [tag service](../ARLAS-tagger/arlas-api-tagging.md). By default no field is taggable                                                                        | Optional|
+| update_max_hits | Maximum number of hits you can tag with one `tag request`                                                                                                                                                                            | Optional|
 
 !!! info "Important 1"
     Taggable fields paths should not contain `tags`. It's a reserved word.
     
 !!! info "Important 2"
     Taggable fields must initially be set to a value or to null at index time in ES.
-    For instance, if you use [`Logstash`](https://www.elastic.co/products/logstash) to index in ES, you can add in this line in Logstash config file to set the field values to null
+    For instance, if you use [`Logstash`](https://www.elastic.co/products/logstash){:target="_blank"} to index in ES, you can add in this line in Logstash config file to set the field values to null
     
     ```
         ruby {
@@ -225,11 +225,11 @@ The `inspire` node is mandatory only if INSPIRE option is enabled in `configurat
 
 | Attribute      | Description                                       | Mention   |
 | ---------------| ------------------------------------------------- | --------- |
-|  keywords.value |  Value of the keyword. If the keyword is originated from [Classification of Spatial data Services vocabulary](http://inspire.ec.europa.eu/metadata-codelist/SpatialDataServiceCategory), then the camel-case keyword should be set. For example : `thematicImageProcessingService` |  Mandatory |
-|  keywords.vocabulary | Vocabulary from which the keyword value was taken. For example [GEMET Inspire-themes](https://www.eionet.europa.eu/gemet/en/inspire-themes/) or [Classification of Spatial data Services vocabulary](http://inspire.ec.europa.eu/metadata-codelist/SpatialDataServiceCategory)  | Mandatory for each keyword if the keyword value originates from a controlled vocabulary  |
+|  keywords.value |  Value of the keyword. If the keyword is originated from [Classification of Spatial data Services vocabulary](http://inspire.ec.europa.eu/metadata-codelist/SpatialDataServiceCategory){:target="_blank"}, then the camel-case keyword should be set. For example : `thematicImageProcessingService` |  Mandatory |
+|  keywords.vocabulary | Vocabulary from which the keyword value was taken. For example [GEMET Inspire-themes](https://www.eionet.europa.eu/gemet/en/inspire-themes/){:target="_blank"} or [Classification of Spatial data Services vocabulary](http://inspire.ec.europa.eu/metadata-codelist/SpatialDataServiceCategory){:target="_blank"}  | Mandatory for each keyword if the keyword value originates from a controlled vocabulary  |
 |  keywords.date_of_publication |  Date of publication of the Vocabulary. Must be in `YYYY-MM-DD` format. |  Optional |
 |  languages |  The language(s) used within the resource. The value domain of this metadata element is limited to the languages defined in ISO 639-2. |  Mandatory if the resource includes textual information. |
-|  topic_categories |  List of topic categories. A topic category is a high-level classification scheme to assist in the grouping and topic-based search of available spatial data resources. Must be one of the values in [this list](http://inspire.ec.europa.eu/metadata-codelist/TopicCategory). The value should be in camel-case. For example, the topic category of [Climatology / Meteorology / Atmosphere](http://inspire.ec.europa.eu/metadata-codelist/TopicCategory/climatologyMeteorologyAtmosphere), must be set as : `climatologyMeteorologyAtmosphere` |  Mandatory |
+|  topic_categories |  List of topic categories. A topic category is a high-level classification scheme to assist in the grouping and topic-based search of available spatial data resources. Must be one of the values in [this list](http://inspire.ec.europa.eu/metadata-codelist/TopicCategory){:target="_blank"}. The value should be in camel-case. For example, the topic category of [Climatology / Meteorology / Atmosphere](http://inspire.ec.europa.eu/metadata-codelist/TopicCategory/climatologyMeteorologyAtmosphere){:target="_blank"}, must be set as : `climatologyMeteorologyAtmosphere` |  Mandatory |
 |  lineage | (Free text) This is a statement on process history and/or overall quality of the spatial data set. Where appropriate it may include a statement whether the data set has been validated or quality assured, whether it is the official version (if multiple versions exist) |  Mandatory |
 |  spatial_resolution | Spatial resolution refers to the level of detail of the data set. It shall be expressed as a set of zero to many resolution distances (typically for gridded data and imagery-derived products) or equivalent scales (typically for maps or map-derived product |  Mandatory if an equivalent scale or a resolution distance can be specified |
 |  spatial_resolution.value | An equivalent scale is expressed as an integer value expressing the scale denominator. A resolution distance should be expressed as a numerical value associated with a unit of length. |  Mandatory if an equivalent scale or a resolution distance can be specified |

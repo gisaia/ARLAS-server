@@ -4,7 +4,7 @@ The ARLAS Server offers 6 endpoints:
 
 - a collection API for [managing collections](arlas-api-collection.md) (`http://.../arlas/collections/`)
 - an exploration API for [exploring](arlas-api-exploration.md), meaning searching and analyzing, spatial-temoral big data (`http://.../arlas/explore/`)
-- a RATSER [tile service](arlas-tile-service.md) for rendering RASTER tiles based on the collection and on a tile service such as WMTS or X/Y/Z service
+- a RASTER [tile service](arlas-tile-service.md) for rendering RASTER tiles based on the collection and on a tile service such as WMTS or X/Y/Z service
 - OGC/opensearch services:
     - a CSW service (`http://.../arlas/ogc/csw`)
     - a CSW opensearch service (`http://.../arlas/ogc/csw/opensearch`)

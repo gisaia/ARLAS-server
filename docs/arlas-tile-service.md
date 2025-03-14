@@ -1,6 +1,6 @@
 # ARLAS RASTER Tile Service
 
-This API is available for generating RASTER tiles for `hits` in ARLAS `collections` matching a filter and availables through a tile service (see the collection [configuration](arlas-collection-model.md)). 
+This API is available for generating RASTER tiles for `hits` in ARLAS `collections` matching a filter and available through a tile service (see the collection [configuration](arlas-collection-model.md)). 
 It is assumed that for a given image, its PNG tiles are available with a URL pattern such as:
 
 ```
