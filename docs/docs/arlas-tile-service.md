@@ -25,6 +25,7 @@ GET /explore/{collection}/_tile/{z}/{x}/{y}.png
 
 The ARLAS tile service looks for the `hits` of the `{collection}` matching the `{z}/{x}/{y}` extends and stack them until the tile is painted enough: once the percentage of painted pixel is greater than `coverage`.
 Tiles are stacked by using the `sort` parameter:
+
 - the first tile is painted. If the coverage is reached, it ends here
 - otherwise, the next tile is painted on the transparent pixels. If the coverage is reached, it ends here
 - otherwise, it goes on until all the hits have been processed. The number of hits used for rendering the tile is the one defined in the `size`parameter.
@@ -39,6 +40,7 @@ The service accepts the query parameters of a search (except for the include/exc
 - pagination (size, from, sort, after)
 
 and also two further parameters:
+
 - sampling: step for transparent pixel testing: 1-> test every pixel, 10-> test every 10 pixel in x and every 10 pixel in y
 - coverage: the min percentage of the tile that must painted.
 

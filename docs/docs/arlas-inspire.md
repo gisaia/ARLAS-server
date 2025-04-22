@@ -133,6 +133,7 @@ The `constraint` parameter accepts queries written in `OGC Filter 2.0` constrain
 > Example: `constraint=<Filter xmlns:wfs="http://www.opengis.net/wfs/2.0"><PropertyIsEqualTo matchAction="Any" matchCase="true"><ValueReference>OrganisationName</ValueReference><Literal>Arlas</Literal></PropertyIsEqualTo></Filter>`
 
 In this query :
+
 - `ValueReference` corresponds to the **queryable** (`OrganisationName` in this example) that represents a metadata element. 
 - `Literal` corresponds to the value of the queryable (`Arlas` in this example.)
 
@@ -173,6 +174,7 @@ The table below maps metadata elements to the additional **queryables** defined 
 | Limitations on public access :  classification | `Classification` |
 
 !!! note
+
     - All the OGC queryables are advertised in CSW GetCapabilities response in the section `SupportedISOQueryables`
     - All the INSPIRE queryables are advertised in CSW GetCapabilities response in the section `AdditionalQueryables`
 
