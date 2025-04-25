@@ -48,6 +48,9 @@ public class CollectionTool extends AbstractTestContext {
 
     public static void main(String[] args) throws IOException, ArlasException {
         switch (args[0]) {
+            case "loadstac":
+                new CollectionTool().load(true);
+                break;
             case "load":
                 new CollectionTool().load();
                 break;
@@ -73,10 +76,24 @@ public class CollectionTool extends AbstractTestContext {
         load(sleepAfter, true);
     }
 
+    public  void load(boolean addDatetime) throws ArlasException {
+
+        try {
+            DataSetTool.loadDataSet(addDatetime);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
     public  void load(long sleepAfter, boolean exclude) throws ArlasException {
 
         try {
-            DataSetTool.loadDataSet();
+            DataSetTool.loadDataSet(false);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -130,7 +147,7 @@ public class CollectionTool extends AbstractTestContext {
 
     public  void loadCsw(long sleepAfter) throws IOException {
         try {
-            DataSetTool.loadDataSet();
+            DataSetTool.loadDataSet(false);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {

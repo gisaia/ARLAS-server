@@ -27,6 +27,7 @@ public class Data {
     public String text_search;
     public DataParams params = new DataParams();
     public GeometryParams geo_params = new GeometryParams();
+    public Properties properties = new Properties();
 
     public class DataParams {
         public String job;
@@ -36,6 +37,10 @@ public class Data {
         public String country;
         public Long startdate;
         public Long stopdate;
+    }
+
+    public class Properties  {
+        public Long datetime;
     }
 
     public class GeometryParams {

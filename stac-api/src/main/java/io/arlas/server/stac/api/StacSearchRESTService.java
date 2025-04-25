@@ -32,6 +32,7 @@ import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.GeoUtil;
 import io.arlas.server.stac.model.SearchBody;
+import io.arlas.server.stac.model.SortBy;
 import io.arlas.server.stac.model.StacFeatureCollection;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,6 +50,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -191,7 +193,7 @@ public class StacSearchRESTService extends StacRESTService {
             searchBody.setIntersects(GeoUtil.geojsonReader.readValue(intersects));
         }
 
-        return cache(Response.ok(getItems(partitionFilter, Optional.ofNullable(columnFilter), Optional.ofNullable(organisations), uriInfo, searchBody, "GET")), 0);
+        return cache(Response.ok(getItems(partitionFilter, Optional.ofNullable(columnFilter), Optional.ofNullable(organisations), uriInfo, (SearchBody<String>) searchBody, "GET")), 0);
 
     }
 
@@ -212,7 +214,7 @@ public class StacSearchRESTService extends StacRESTService {
                     content = @Content(schema = @Schema(implementation = Error.class)))
     })
     public Response postItemSearch(@Context UriInfo uriInfo,
-                                   @Valid SearchBody body,
+                                   @Valid SearchBody<List<SortBy>> body,
 
                                    @Parameter(hidden = true)
                                    @HeaderParam(value = PARTITION_FILTER) String partitionFilter,
@@ -229,7 +231,7 @@ public class StacSearchRESTService extends StacRESTService {
 
     // -----------
 
-    private StacFeatureCollection getItems(String partitionFilter, Optional<String> columnFilter, Optional<String> organisations, UriInfo uriInfo, SearchBody body, String method) throws ArlasException {
+    private <T> StacFeatureCollection getItems(String partitionFilter, Optional<String> columnFilter, Optional<String> organisations, UriInfo uriInfo, SearchBody<T> body, String method) throws ArlasException {
         // TODO search in more than the first collection given as parameter
         CollectionReference collectionReference = body.getCollections() == null || body.getCollections().isEmpty() ?
                 collectionReferenceService.getAllCollectionReferences(columnFilter, organisations).get(0) :

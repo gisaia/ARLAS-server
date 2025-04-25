@@ -208,12 +208,13 @@ function test_stac() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.8.5-openjdk-17 \
-        mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="load" -pl arlas-tests -B
+        mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="loadstac" -pl arlas-tests -B
 
     docker run --rm \
          --net arlas_default \
          --env STAC_URL="${ARLAS_BASE_URI}stac" \
-         gisaia/stac-api-validator:latest
+         --env STAC_COLLECTION="geodata" \
+         gisaia/stac-api-validator:2.0.0
 
     docker run --rm \
          --net arlas_default \

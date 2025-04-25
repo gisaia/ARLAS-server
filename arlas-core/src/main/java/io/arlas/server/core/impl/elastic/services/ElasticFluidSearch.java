@@ -1127,6 +1127,101 @@ public class ElasticFluidSearch extends FluidSearchService {
         return point;
     }
 
+    private JSONObject createMultiPoint(MultiPoint geomMultiPoint) {
+        String wkt = geomMultiPoint.toText();
+        // remove parenthesis
+        String pointsString = wkt.substring(wkt.indexOf('(')).replaceAll("[()]", "");
+        String[] pointPairs = pointsString.split(",");
+        JSONArray coordinates = new JSONArray();
+        for (String point : pointPairs) {
+            String[] coords = point.trim().split("\\s+");
+            double x = Double.parseDouble(coords[0]);
+            double y = Double.parseDouble(coords[1]);
+            JSONArray coord = new JSONArray();
+            coord.add(x);
+            coord.add(y);
+            coordinates.add(coord);
+        }
+        JSONObject multiPoint = new JSONObject();
+        multiPoint.put("type", "MultiPoint");
+        multiPoint.put("coordinates", coordinates);
+        return multiPoint;
+    }
+
+    private JSONObject createMultiLine(MultiLineString geomMultiLine) {
+        String wkt = geomMultiLine.toText();
+        // Get between first parenthesis
+        String inner = wkt.substring(wkt.indexOf('('));
+        // Remove double parenthesis
+        inner = inner.replaceAll("^\\(\\(", "").replaceAll("\\)\\)$", "");
+        // Get lines
+        String[] lineStrings = inner.split("\\)\\s*,\\s*\\(");
+        JSONArray multiLineCoordinates = new JSONArray();
+        for (String line : lineStrings) {
+            String[] points = line.trim().split(",");
+            JSONArray lineArray = new JSONArray();
+            for (String point : points) {
+                String[] coords = point.trim().split("\\s+");
+                JSONArray coord = new JSONArray();
+                coord.add(Double.parseDouble(coords[0]));
+                coord.add(Double.parseDouble(coords[1]));
+                lineArray.add(coord);
+            }
+            multiLineCoordinates.add(lineArray);
+        }
+        JSONObject multiLine = new JSONObject();
+        multiLine.put("type", "MultiLineString");
+        multiLine.put("coordinates", multiLineCoordinates);
+
+        return multiLine;
+    }
+
+    private JSONObject createGeometryCollection(GeometryCollection geometryCollection) throws ArlasException {
+        String wkt = geometryCollection.toText();
+        String inner = wkt.substring(wkt.indexOf('(') + 1, wkt.lastIndexOf(')')).trim();
+        List<String> geometries = splitGeometries(inner);
+        JSONArray geometriesArray = new JSONArray();
+        for (String geometry : geometries) {
+            geometriesArray.add(parseGeometry(geometry.trim()));
+        }
+        JSONObject geoCollection = new JSONObject();
+        geoCollection.put("type", "GeometryCollection");
+        geoCollection.put("geometries", geometriesArray);
+        return geoCollection;
+    }
+
+    private static List<String> splitGeometries(String wktPart) {
+        List<String> result = new ArrayList<>();
+        int level = 0;
+        StringBuilder current = new StringBuilder();
+        for (int i = 0; i < wktPart.length(); i++) {
+            char c = wktPart.charAt(i);
+            if (c == '(') level++;
+            if (c == ')') level--;
+            if (c == ',' && level == 0) {
+                result.add(current.toString());
+                current = new StringBuilder();
+            } else {
+                current.append(c);
+            }
+        }
+        if (current.length() > 0) result.add(current.toString());
+        return result;
+    }
+
+    private JSONObject parseGeometry(String wkt) throws ArlasException {
+        Geometry wktGeometry = GeoUtil.readWKT(wkt);
+        String type = wkt.substring(0, wkt.indexOf('(')).trim().toUpperCase();
+        return switch (type) {
+            case "POLYGON" -> createPolygon((org.locationtech.jts.geom.Polygon) wktGeometry);
+            case "MULTIPOLYGON" -> createMultiPolygon((MultiPolygon) wktGeometry);
+            case "LINESTRING" -> createLineString((LineString) wktGeometry);
+            case "POINT" -> createPoint((Point) wktGeometry);
+            case "MULTIPOINT" -> createMultiPoint((MultiPoint) wktGeometry);
+            case "MULTILINESTRING" -> createMultiLine((MultiLineString) wktGeometry);
+            default -> throw new InvalidParameterException("The given geometry is not handled.");
+        };
+    }
     private JSONObject getShapeObject(String geometry) throws ArlasException {
         // test if geometry is 'west,south,east,north' or wkt string
         if (CheckParams.isBboxMatch(geometry)) {
@@ -1138,15 +1233,16 @@ public class ElasticFluidSearch extends FluidSearchService {
     }
 
     private JSONObject getShapeObject(Geometry wktGeometry) throws ArlasException {
-        // test if geometry is 'west,south,east,north' or wkt string
-            // TODO: multilinestring
-            if (wktGeometry != null) {
+        if (wktGeometry != null) {
                 String geometryType = wktGeometry.getGeometryType().toUpperCase();
                 return switch (geometryType) {
                     case "POLYGON" -> createPolygon((org.locationtech.jts.geom.Polygon) wktGeometry);
                     case "MULTIPOLYGON" -> createMultiPolygon((MultiPolygon) wktGeometry);
                     case "LINESTRING" -> createLineString((LineString) wktGeometry);
                     case "POINT" -> createPoint((Point) wktGeometry);
+                    case "MULTIPOINT" -> createMultiPoint((MultiPoint) wktGeometry);
+                    case "MULTILINESTRING" -> createMultiLine((MultiLineString) wktGeometry);
+                    case "GEOMETRYCOLLECTION" -> createGeometryCollection((GeometryCollection) wktGeometry);
                     default -> throw new InvalidParameterException("The given geometry is not handled.");
                 };
             }

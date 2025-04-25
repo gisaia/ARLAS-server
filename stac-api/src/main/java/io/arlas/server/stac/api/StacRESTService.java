@@ -21,6 +21,7 @@ package io.arlas.server.stac.api;
 
 import com.ethlo.time.ITU;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.arlas.commons.exceptions.ArlasException;
@@ -34,6 +35,8 @@ import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.ComputationRequest;
 import io.arlas.server.core.model.request.MixedRequest;
 import io.arlas.server.core.model.request.Search;
+import io.arlas.server.core.model.response.ArlasHit;
+import io.arlas.server.core.model.response.Hits;
 import io.arlas.server.core.model.response.MD;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
@@ -43,6 +46,7 @@ import io.arlas.server.stac.model.*;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -104,6 +108,11 @@ public abstract class StacRESTService {
                 .href(fromUri(new UriInfoWrapper(uriInfo,baseUri).getBaseUri()).path(StacRESTService.class).build().toString());
     }
 
+    protected StacLink getParentLink(UriInfo uriInfo) {
+        return new StacLink().rel("parent").type(MediaType.APPLICATION_JSON)
+                .href(fromUri(new UriInfoWrapper(uriInfo,baseUri).getBaseUri()).path(StacRESTService.class).build().toString());
+    }
+
     protected StacLink getSelfLink(UriInfo uriInfo) {
         return new StacLink().rel("self").type(MediaType.APPLICATION_JSON)
                 .href(uriInfo.getRequestUriBuilder().build().toString());
@@ -146,6 +155,7 @@ public abstract class StacRESTService {
         // https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md#link-object
         List<StacLink> cLinks = new ArrayList<>();
         cLinks.add(getRootLink(uriInfo));
+        cLinks.add(getParentLink(uriInfo));
         if(collectionReference.params.licenseUrls != null &&  !collectionReference.params.licenseUrls.isEmpty()){
             collectionReference.params.licenseUrls.forEach(l -> cLinks.add(getRawLink(l, "licence")));
         }
@@ -163,7 +173,7 @@ public abstract class StacRESTService {
         return new Collection()
                 .id(collectionReference.collectionName)
                 .stacVersion(configuration.stacVersion)
-                .stacExtensions(new ArrayList<>()) // TODO optional
+                .stacExtensions(new ArrayList<>())
                 .title(collectionReference.params.dublinCoreElementName.title)
                 .description(collectionReference.params.dublinCoreElementName.description)
                 .keywords(collectionReference.params.inspire.keywords.stream().map(k -> k.value).collect(Collectors.toList()))
@@ -177,21 +187,40 @@ public abstract class StacRESTService {
                 ;
     }
 
-    protected Item getItem(Feature feature, CollectionReference collection, UriInfo uriInfo) {
-        List<StacLink> links = new ArrayList<>();
-        links.add(getSelfLink(uriInfo));
-        links.add(getRootLink(uriInfo));
-        links.add(getRootLink(uriInfo));
-        links.add(getLink(uriInfo, "collections/" + collection.collectionName, "parent", MediaType.APPLICATION_JSON));
-        links.add(getLink(uriInfo, "collections/" + collection.collectionName, "collection", MediaType.APPLICATION_JSON));
+    protected Item getItem(ArlasHit hit,CollectionReference collection, UriInfo uriInfo){
+        List<StacLink> links = getItemLinks(uriInfo, collection, hit.md.id);
+        return new Item()
+                .stacVersion(configuration.stacVersion)
+                .stacExtensions(configuration.stacExtensions)
+                .itemStacModel(hit,collection.collectionName, GeoUtil.getBbox(hit.getGeometry(collection.params.geometryPath)))
+                .links(links);
+    }
 
+    protected Item getItem(Feature feature, CollectionReference collection, UriInfo uriInfo) {
         // add datetime https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md#properties-object
         MD md = feature.getProperty(MD.class.getSimpleName().toLowerCase());
+        List<StacLink> links = getItemLinks(uriInfo, collection, md.id);
         feature.setProperty("datetime", ITU.formatUtc(OffsetDateTime.ofInstant(Instant.ofEpochMilli(md.timestamp), ZoneOffset.UTC)));
 
         Map<String, Object> assets = new HashMap<>();
-        assets.put("geojson", getAggregateUrl(uriInfo, collection, "_geosearch", md.id));
-        assets.put("shapefile", getAggregateUrl(uriInfo, collection, "_shapesearch", md.id));
+        Asset geojsonAsset = new Asset()
+                .name("geojson")
+                .title("Export geojson")
+                .description("Get this item in geosjon format")
+                .href(getAggregateUrl(uriInfo, collection, "_geosearch", md.id))
+                .type("application/geo+json")
+                .roles(new ArrayList<>(Collections.singleton("geojson")));
+
+        Asset shapeFileAsset = new Asset()
+                .name("shapefile")
+                .title("Export shapefile")
+                .description("Get this item in shapefile format")
+                .href(getAggregateUrl(uriInfo, collection, "_shapesearch", md.id))
+                .type("application/zip")
+                .roles(new ArrayList<>(Collections.singleton("shapefile")));
+
+        assets.put("geojson", geojsonAsset);
+        assets.put("shapefile", shapeFileAsset);
 
         // https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md#item-fields
         return new Item()
@@ -204,6 +233,15 @@ public abstract class StacRESTService {
                 .links(links)
                 .assets(assets)
                 .collection(collection.collectionName);
+    }
+
+    private List<StacLink> getItemLinks(UriInfo uriInfo, CollectionReference collection, String id){
+        List<StacLink> links = new ArrayList<>();
+        links.add(getLink(uriInfo, "collections/" + collection.collectionName  + "/items/" + id, "self", MediaType.APPLICATION_JSON));
+        links.add(getRootLink(uriInfo));
+        links.add(getLink(uriInfo, "collections/" + collection.collectionName, "parent", MediaType.APPLICATION_JSON));
+        links.add(getLink(uriInfo, "collections/" + collection.collectionName, "collection", MediaType.APPLICATION_JSON));
+        return links;
     }
 
     private static String getCleanSortBy(String idPath, String sortByParam) {
@@ -224,20 +262,27 @@ public abstract class StacRESTService {
         return String.join(",", sort);
     }
 
-    protected StacFeatureCollection getStacFeatureCollection(CollectionReference collectionReference,
-                                                             String partitionFilter,
-                                                             Optional<String> columnFilter,
-                                                             SearchBody body,
-                                                             List<String> filter,
-                                                             UriInfo uriInfo,
-                                                             String method,
-                                                             boolean isOgc) throws ArlasException {
+    protected <T> StacFeatureCollection getStacFeatureCollection(CollectionReference collectionReference,
+                                                                 String partitionFilter,
+                                                                 Optional<String> columnFilter,
+                                                                 SearchBody<T> body,
+                                                                 List<String> filter,
+                                                                 UriInfo uriInfo,
+                                                                 String method,
+                                                                 boolean isOgc) throws ArlasException {
         Search search = new Search();
         search.filter = ParamsParser.getFilter(collectionReference, filter, null, null, true);
         if (body != null) {
+            String sortBy = null;
+            if(body.getSortBy() instanceof String){
+                sortBy = (String) body.getSortBy();
+            }else if(body.getSortBy() instanceof List){
+                sortBy = ((List<SortBy>) body.getSortBy()).stream()
+                        .map(sb -> SortBy.getCharDirection(sb.getDirection()) + sb.getField()).collect(Collectors.joining(","));
+            }
             search.page = ParamsParser.getPage(new IntParam(body.getLimit().toString()),
                     new IntParam(body.getFrom().toString()),
-                    getCleanSortBy(collectionReference.params.idPath, body.getSortBy()),
+                    getCleanSortBy(collectionReference.params.idPath, sortBy),
                     body.getAfter(), body.getBefore());
         }
         exploreService.setValidGeoFilters(collectionReference, search);
@@ -252,11 +297,27 @@ public abstract class StacRESTService {
         request.columnFilter = ColumnFilterUtil.getCollectionRelatedColumnFilter(columnFilter, collectionReference);
 
         HashMap<String, Object> context = new HashMap<>();
-        FeatureCollection features = exploreService.getFeatures(request, collectionReference, false,
-                uriInfo, method, context);
+
 
         List<StacLink> links = new ArrayList<>(); // TODO what do we put in there?
         links.add(getRootLink(uriInfo));
+        links.add(getParentLink(uriInfo));
+
+        List<Item> items;
+        if(collectionReference.params.isStacModel){
+            Hits hits = exploreService.search(request, collectionReference, false, uriInfo, method);
+            items = hits.hits.stream()
+                    .map(hit ->  getItem(hit, collectionReference, uriInfo))
+                    .collect(Collectors.toList());
+            context.putAll(hits.links);
+            context.put("matched",hits.totalnb);
+        }else{
+            FeatureCollection features = exploreService.getFeatures(request, collectionReference, false,
+                    uriInfo, method, context);
+            items = features.getFeatures().stream()
+                    .map(feat ->  getItem(feat, collectionReference, uriInfo))
+                    .collect(Collectors.toList());
+        }
         if (context.get("self") == null) {
             links.add(getSelfLink(uriInfo));
         } else {
@@ -271,14 +332,9 @@ public abstract class StacRESTService {
                 }
             });
         }
-        List<Item> items = features.getFeatures().stream()
-                .map(feat ->  getItem(feat, collectionReference, uriInfo))
-                .collect(Collectors.toList());
-
         StacFeatureCollection response = new StacFeatureCollection();
         response.setFeatures(items);
         response.setLinks(links);
-
         if (isOgc) {
             response.setNumberMatched(((Long)context.get("matched")).intValue());
             response.setNumberReturned(items.size());
@@ -350,7 +406,7 @@ public abstract class StacRESTService {
                 return StringUtil.concat(dateField, ":", OperatorEnum.range.name(), ":[", getTimestamp(parts[0]), "<", getTimestamp(parts[1]), "]");
             }
         } else {
-            throw new ArlasException("Invalid datetime format for value " + datetime);
+            throw new InvalidParameterException("Invalid datetime format for value " + datetime);
         }
     }
 
@@ -359,7 +415,7 @@ public abstract class StacRESTService {
             try {
                 // righthand parameter is forced for STAC; therefore, passed righthand WKTs will be used correctly;
                 Geometry geometry = reader.read(writer.writeValueAsString(geojson));
-                return StringUtil.concat(collectionReference.params.centroidPath, ":", OperatorEnum.intersects.name(), ":",
+                return StringUtil.concat(collectionReference.params.geometryPath, ":", OperatorEnum.intersects.name(), ":",
                         geometry.toText());
             } catch (ParseException | JsonProcessingException e) {
                 throw new InvalidParameterException("Invalid geojson:" +e.getMessage());
@@ -463,7 +519,7 @@ public abstract class StacRESTService {
         if (ITU.isValid(datetime)) {
             return String.valueOf(ITU.parseDateTime(datetime).toInstant().toEpochMilli());
         } else {
-            throw new ArlasException("Datetime value is not RFC 3339 compatible: " + datetime);
+            throw new InvalidParameterException("Datetime value is not RFC 3339 compatible: " + datetime);
         }
     }
 }

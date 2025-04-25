@@ -54,6 +54,7 @@ public class CollectionReference implements Serializable {
     public static final String DUBLIN_CORE_TITLE = "title";
     public static final String DUBLIN_CORE_DESCRIPTION = "description";
     public static final String DUBLIN_CORE_LANGUAGE = "language";
+    public static final String IS_STAC_MODEL = "is_stac_model";
 
 
     @JsonProperty(value = COLLECTION_NAME, required = true)
