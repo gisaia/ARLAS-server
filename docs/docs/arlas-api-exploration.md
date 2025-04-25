@@ -197,6 +197,7 @@ The `filter` url part allows the following parameters to be specified:
 #### Filter parameters algebra
 
 For each parameter, you can provide multiple filters. There are 2 different ways to do this :
+
 - in distinct filter parameters = **AND** operator between filters
 - in the same filter parameter as a semi-colon separated list = **OR** operator between filters
 
@@ -366,6 +367,7 @@ The `compute` url part is used in `_compute` service.
 | **metric**   | ``       | `max, min, avg, sum, cardinality, spanning, geobbox, geocentroid` | The metric to compute  | false    |
 
 !!! note 'Note'
+
     - `max` : the maximum value of the given field. Field should be numeric or date.
     - `min` : the minimum value of the given field. Field should be numeric or date.
     - `avg` : the average of the given field values. Field should be numeric or date.
@@ -376,6 +378,7 @@ The `compute` url part is used in `_compute` service.
     - `geocentroid` : the centroid of data based on the given geo-point field.
 
 !!! info '_range endpoint is removed'
+
     Starting from v13.7.0, `_range` endpoint is removed. You can use the endpoint `_compute` instead.
     - If you used `_range` to get the `(max-min)` value of the given field, then you can call :  `_compute?field=your_field&metric=spanning`
     - If you used `_range` to get separately the `min` and `max` values of the given field, then you can call `_compute` twice using `_compute?field=your_field&metric=min` and `_compute?field=your_field&metric=max`

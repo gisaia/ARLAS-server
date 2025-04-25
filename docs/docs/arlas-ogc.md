@@ -129,6 +129,7 @@ You can query data using the following parameters
 | typenames      | Name of the feature type to describe   | Must contain the name of the `{collection}` | Optional |
 
 !!! note
+
    - `bbox` and `resourceid` can't be used together
    - `bbox` and `filter` can't be used together
    - `resourceid` and `filter` can't be used together
@@ -190,6 +191,7 @@ You can choose which metadata to return :
 (1) Possible values of `elementName` are : `title, abstract, identifier, subject, creator, publisher, contributor, type, format, source, language, modified, boundingbox`.
 
 !!! note
+
    - `elementName` and `elementSetName` can't be used together
 
 You can choose the format :
@@ -211,6 +213,7 @@ You can query collection references metadata using the following parameters
 | constraintLanguage | Language of the constraint  | `Filter` | Optional |
 
 !!! note
+
    - `bbox` and `recordids` can't be used together
    - `recordids` and `q` can't be used together
 
