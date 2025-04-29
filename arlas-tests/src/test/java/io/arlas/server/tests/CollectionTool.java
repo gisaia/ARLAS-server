@@ -49,7 +49,7 @@ public class CollectionTool extends AbstractTestContext {
     public static void main(String[] args) throws IOException, ArlasException {
         switch (args[0]) {
             case "loadstac":
-                new CollectionTool().load(true);
+                new CollectionTool().load(0,true,true);
                 break;
             case "load":
                 new CollectionTool().load();
@@ -73,27 +73,12 @@ public class CollectionTool extends AbstractTestContext {
     }
 
     public  void load(long sleepAfter) throws ArlasException {
-        load(sleepAfter, true);
+        load(sleepAfter, true, false);
     }
 
-    public  void load(boolean addDatetime) throws ArlasException {
-
+    public  void load(long sleepAfter, boolean exclude, boolean addDatetime) throws ArlasException {
         try {
             DataSetTool.loadDataSet(addDatetime);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
-
-    public  void load(long sleepAfter, boolean exclude) throws ArlasException {
-
-        try {
-            DataSetTool.loadDataSet(false);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
