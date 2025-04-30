@@ -98,6 +98,19 @@ public class DataSetTool {
         DataSetTool.loadDataSet(false);
     }
 
+    public static void loadDataSetStac() throws IOException, ArlasException {
+        String mappingFileName = "arlaseo.mapping.json";
+        createIndex(DATASET_INDEX_NAME,mappingFileName);
+        List<DataStac> dataStacList =  DataStacGenerator.generateDataStacList();
+        dataStacList.stream().forEach(d -> {
+            try {
+                client.index(DATASET_INDEX_NAME, "ES_ID_TEST" + d.id, d);
+            } catch (ArlasException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     public static void loadDataSet(boolean addDatetime ) throws IOException, ArlasException {
         String mappingFileName = "dataset.mapping.json";
         String mappingAlternateFileName = "dataset.alternate.mapping.json";

@@ -208,18 +208,18 @@ function test_stac() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.8.5-openjdk-17 \
-        mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="loadstac" -pl arlas-tests -B
+        mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="$1" -pl arlas-tests -B
 
     docker run --rm \
          --net arlas_default \
          --env STAC_URL="${ARLAS_BASE_URI}stac" \
          --env STAC_COLLECTION="geodata" \
-         gisaia/stac-api-validator:2.0.0
+         gisaia/stac-api-validator:0.6.5
 
     docker run --rm \
          --net arlas_default \
          --env STAC_URL="${ARLAS_BASE_URI}stac/" \
-         gisaia/ets-ogcapi-features10:latest
+         gisaia/ets-ogcapi-features10:1.9.0
 
     docker run --rm \
         -w /opt/maven \
@@ -233,7 +233,7 @@ function test_stac() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.8.5-openjdk-17 \
-        mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="delete" -pl arlas-tests -B
+        mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="$2" -pl arlas-tests -B
 }
 
 
@@ -304,11 +304,13 @@ echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 if [ "$STAGE" == "REST" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_rest; fi
 if [ "$STAGE" == "WFS" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_wfs; fi
 if [ "$STAGE" == "CSW" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_csw; fi
-if [ "$STAGE" == "STAC" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_stac; fi
+if [ "$STAGE" == "STAC" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_stac "loadstac" "delete"; fi
 if [ "$STAGE" == "REST_WKT_GEOMETRIES" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="true"; test_rest; fi
 if [ "$STAGE" == "REST_ALIASED" ]; then export ALIASED_COLLECTION="true"; export WKT_GEOMETRIES="false"; test_rest; fi
 if [ "$STAGE" == "WFS_ALIASED" ]; then export ALIASED_COLLECTION="true"; export WKT_GEOMETRIES="false"; test_wfs; fi
 if [ "$STAGE" == "CSW_ALIASED" ]; then export ALIASED_COLLECTION="true"; export WKT_GEOMETRIES="false"; test_csw; fi
-if [ "$STAGE" == "STAC_ALIASED" ]; then export ALIASED_COLLECTION="true"; export WKT_GEOMETRIES="false"; test_stac; fi
+if [ "$STAGE" == "STAC_ALIASED" ]; then export ALIASED_COLLECTION="true"; export WKT_GEOMETRIES="false"; test_stac "loadstac" "delete"; fi
 if [ "$STAGE" == "DOC" ]; then test_doc; fi
 if [ "$STAGE" == "AUTH" ]; then test_auth; fi
+if [ "$STAGE" == "STAC_ARLASEO" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_stac "loadstacmodel" "deletestacmodel"; fi
+

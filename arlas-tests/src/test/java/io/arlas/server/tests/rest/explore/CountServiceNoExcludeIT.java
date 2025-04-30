@@ -29,6 +29,6 @@ public class CountServiceNoExcludeIT extends CountServiceIT {
 
     @BeforeClass
     public static void beforeClass() throws ArlasException, IOException {
-        new CollectionTool().load(10000, false, false);
+        new CollectionTool().load(10000, false, false, false);
     }
 }

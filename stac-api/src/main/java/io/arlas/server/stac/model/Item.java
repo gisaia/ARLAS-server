@@ -252,7 +252,7 @@ public class Item extends Feature {
             .bbox(bbox)
             .centroid((ArrayList<Double>) data.get("centroid"))
             .assets(computeStacProperties((Map<String, Object>) data.get("assets")))
-            .properties(computeStacProperties((Map<String, Object>) data.get("properties")));
+            .properties(computeStacProperties(properties));
   }
 
   @Override

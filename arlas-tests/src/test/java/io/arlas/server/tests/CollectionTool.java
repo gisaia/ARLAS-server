@@ -48,8 +48,11 @@ public class CollectionTool extends AbstractTestContext {
 
     public static void main(String[] args) throws IOException, ArlasException {
         switch (args[0]) {
+            case "loadstacmodel":
+                new CollectionTool().load(0,false,true,true);
+                break;
             case "loadstac":
-                new CollectionTool().load(0,true,true);
+                new CollectionTool().load(0,true,true,false);
                 break;
             case "load":
                 new CollectionTool().load();
@@ -58,7 +61,10 @@ public class CollectionTool extends AbstractTestContext {
                 new CollectionTool().loadCsw(0);
                 break;
             case "delete":
-                new CollectionTool().delete();
+                new CollectionTool().delete(true);
+                break;
+            case "deletestacmodel":
+                new CollectionTool().delete(false);
                 break;
             case "deletecsw":
                 new CollectionTool().deleteCsw();
@@ -73,12 +79,16 @@ public class CollectionTool extends AbstractTestContext {
     }
 
     public  void load(long sleepAfter) throws ArlasException {
-        load(sleepAfter, true, false);
+        load(sleepAfter, true, false, false);
     }
 
-    public  void load(long sleepAfter, boolean exclude, boolean addDatetime) throws ArlasException {
+    public  void load(long sleepAfter, boolean exclude, boolean addDatetime, boolean isStacModel) throws ArlasException {
         try {
-            DataSetTool.loadDataSet(addDatetime);
+            if(isStacModel){
+                DataSetTool.loadDataSetStac();
+            }else {
+                DataSetTool.loadDataSet(addDatetime);
+            }
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -91,11 +101,17 @@ public class CollectionTool extends AbstractTestContext {
         CollectionReferenceParameters params = new CollectionReferenceParameters();
         params.indexName = DataSetTool.DATASET_INDEX_NAME;
         params.idPath = DataSetTool.DATASET_ID_PATH;
-        params.geometryPath = DataSetTool.WKT_GEOMETRIES ? DataSetTool.DATASET_WKT_GEOMETRY_PATH:DataSetTool.DATASET_GEOMETRY_PATH;
-        params.centroidPath = DataSetTool.DATASET_CENTROID_PATH;
-        params.timestampPath = DataSetTool.DATASET_TIMESTAMP_PATH;
+        if (isStacModel){
+            params.geometryPath = DataStac.GEOMETRY_PATH;
+            params.centroidPath = DataStac.CENTROID_PATH;
+            params.timestampPath = DataStac.TIMESTAMP_PATH;
+        }else{
+            params.geometryPath = DataSetTool.WKT_GEOMETRIES ? DataSetTool.DATASET_WKT_GEOMETRY_PATH:DataSetTool.DATASET_GEOMETRY_PATH;
+            params.centroidPath = DataSetTool.DATASET_CENTROID_PATH;
+            params.timestampPath = DataSetTool.DATASET_TIMESTAMP_PATH;
+            params.excludeWfsFields = DataSetTool.DATASET_EXCLUDE_WFS_FIELDS;
+        }
         if (exclude) params.excludeFields = DataSetTool.DATASET_EXCLUDE_FIELDS;
-        params.excludeWfsFields = DataSetTool.DATASET_EXCLUDE_WFS_FIELDS;
         params.rasterTileURL = DataSetTool.DATASET_TILE_URL;
         params.rasterTileWidth=256;
         params.rasterTileHeight=256;
@@ -109,15 +125,16 @@ public class CollectionTool extends AbstractTestContext {
         params.collectionOrganisations = new CollectionOrganisations();
         params.collectionOrganisations.owner = DataSetTool.DATASET_ORG_OWNER;
         params.collectionOrganisations.sharedWith = List.of(DataSetTool.DATASET_ORG_SHARED);
-
+        params.isStacModel = isStacModel;
 
         // PUT new collection
         given().contentType("application/json").body(params).when().put(getUrlPath()).then().statusCode(200);
-        Filter filter = new Filter();
-        filter.f =Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0])));
-        params.filter =filter;
-        given().contentType("application/json").body(params).when().put(arlasPath + "collections/" + COLLECTION_NAME_ACTOR).then().statusCode(200);
-
+        if(!isStacModel){
+            Filter filter = new Filter();
+            filter.f =Arrays.asList(new MultiValueFilter<>(new Expression("params.job", OperatorEnum.eq, DataSetTool.jobs[0])));
+            params.filter =filter;
+            given().contentType("application/json").body(params).when().put(arlasPath + "collections/" + COLLECTION_NAME_ACTOR).then().statusCode(200);
+        }
         try {
             Thread.sleep(sleepAfter);
         } catch (InterruptedException e) {
@@ -171,10 +188,12 @@ public class CollectionTool extends AbstractTestContext {
         }
     }
 
-    public  void delete() throws IOException, ArlasException {
+    public  void delete(boolean deleteActor) throws IOException, ArlasException {
         //DELETE collection
         when().delete(getUrlPath()).then().statusCode(200);
-        when().delete(arlasPath + "collections/" + COLLECTION_NAME_ACTOR).then().statusCode(200);
+        if(deleteActor){
+            when().delete(arlasPath + "collections/" + COLLECTION_NAME_ACTOR).then().statusCode(200);
+        }
         DataSetTool.clearDataSet();
     }
 
