@@ -95,7 +95,7 @@ public class StacCoreRESTService extends StacRESTService {
         links.add(getApiLink(uriInfo));
 //        links.add(getLink(uriInfo, "api.html", "service-doc", MediaType.TEXT_HTML)); // TODO (recommended)
         links.add(getLink(uriInfo, "collections", "data", MediaType.APPLICATION_JSON));
-        links.add(getLink(uriInfo, "search", "search", "application/geo+json"));
+        links.add(getLink(uriInfo, "search","GET" ,"search", "application/geo+json"));
         links.add(getLink(uriInfo, "search", "POST", "search", "application/geo+json"));
         collectionReferenceService.getAllCollectionReferences(Optional.ofNullable(columnFilter), Optional.ofNullable(organisations)).forEach(c -> {
             if (!c.collectionName.equals("metacollection")) {

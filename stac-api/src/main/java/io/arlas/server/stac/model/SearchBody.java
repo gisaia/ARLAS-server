@@ -27,7 +27,7 @@ import org.geojson.GeoJsonObject;
 import java.util.List;
 import java.util.Objects;
 
-public class SearchBody  {
+public class SearchBody<T>  {
   private @Valid List<Double> bbox;
 
   private @Valid String datetime = null;
@@ -42,7 +42,7 @@ public class SearchBody  {
 
   private @Valid Integer from = 0;
 
-  private @Valid String sortBy = null;
+  private @Valid T sortBy = null;
 
   private @Valid String after = null;
 
@@ -172,7 +172,7 @@ public class SearchBody  {
 
   /**
    **/
-  public SearchBody sortBy(String sortBy) {
+  public SearchBody sortBy(T sortBy) {
     this.sortBy = sortBy;
     return this;
   }
@@ -181,10 +181,10 @@ public class SearchBody  {
   @Schema()
   @JsonProperty("sortby")
 
-  public String getSortBy() {
+  public T getSortBy() {
     return sortBy;
   }
-  public void setSortBy(String sortBy) {
+  public void setSortBy(T sortBy) {
     this.sortBy = sortBy;
   }
 

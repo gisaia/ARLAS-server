@@ -40,7 +40,7 @@ public abstract class AbstractTestWithDataSet extends AbstractTestContext {
     @BeforeClass
     public static void beforeClass() {
         try {
-            DataSetTool.loadDataSet();
+            DataSetTool.loadDataSet(false);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {

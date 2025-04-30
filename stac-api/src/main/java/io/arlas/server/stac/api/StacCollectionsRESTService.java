@@ -98,6 +98,7 @@ public class StacCollectionsRESTService extends StacRESTService {
 
         List<StacLink> links = new ArrayList<>(); // TODO what do we put in there?
         links.add(getSelfLink(uriInfo));
+        links.add(getRootLink(uriInfo));
 
         List<Collection> collectionList = new ArrayList<>();
         for (CollectionReference c :
@@ -311,8 +312,8 @@ public class StacCollectionsRESTService extends StacRESTService {
                 java.util.Collections.singletonList(getIdFilter(featureId, collectionReference)),
                 uriInfo, "GET", true);
 
-        if (features.getFeatures().size() == 1) {
-            Item response = getItem(features.getFeatures().get(0), collectionReference, uriInfo);
+        if (features.getFeatures().size() > 0) {
+            Item response = features.getFeatures().get(0);
             return cache(Response.ok(response), 0);
         } else {
             throw new NotFoundException("Item not found");

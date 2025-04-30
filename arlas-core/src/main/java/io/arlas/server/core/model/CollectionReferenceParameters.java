@@ -107,6 +107,9 @@ public class CollectionReferenceParameters implements Serializable {
     @JsonProperty(value = "license_urls")
     public List<String> licenseUrls = null;
 
+    @JsonProperty(value = CollectionReference.IS_STAC_MODEL)
+    public Boolean isStacModel = false;
+
     @JsonIgnore
     private Map<String, GeoTypeEnum> geoTypes = new ConcurrentHashMap<>();
 

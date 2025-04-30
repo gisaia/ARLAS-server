@@ -95,21 +95,27 @@ public class DataSetTool {
     }
 
     public static void main(String[] args) throws IOException, ArlasException {
-        DataSetTool.loadDataSet();
+        DataSetTool.loadDataSet(false);
     }
 
-    public static void loadDataSet() throws IOException, ArlasException {
+    public static void loadDataSet(boolean addDatetime ) throws IOException, ArlasException {
+        String mappingFileName = "dataset.mapping.json";
+        String mappingAlternateFileName = "dataset.alternate.mapping.json";
+        if(addDatetime){
+            mappingFileName = "dataset.mapping.datetime.json";
+            mappingAlternateFileName = "dataset.alternate.mapping.datetime.json";
+        }
         if(!ALIASED_COLLECTION) {
             //Create a single index with all data
-            createIndex(DATASET_INDEX_NAME,"dataset.mapping.json");
-            fillIndex(DATASET_INDEX_NAME,-170,170,-80,80);
+            createIndex(DATASET_INDEX_NAME,mappingFileName);
+            fillIndex(DATASET_INDEX_NAME,-170,170,-80,80, addDatetime);
             LOGGER.info("Index created : " + DATASET_INDEX_NAME);
         } else {
             //Create 2 indices, split data between them and create an alias above these 2 indices
-            createIndex(DATASET_INDEX_NAME+"_original","dataset.mapping.json");
-            fillIndex(DATASET_INDEX_NAME+"_original",-170,0,-80,80);
-            createIndex(DATASET_INDEX_NAME+"_alt","dataset.alternate.mapping.json");
-            fillIndex(DATASET_INDEX_NAME+"_alt",10,170,-80,80);
+            createIndex(DATASET_INDEX_NAME+"_original",mappingFileName);
+            fillIndex(DATASET_INDEX_NAME+"_original",-170,0,-80,80, addDatetime);
+            createIndex(DATASET_INDEX_NAME+"_alt", mappingAlternateFileName);
+            fillIndex(DATASET_INDEX_NAME+"_alt",10,170,-80,80, addDatetime);
             addAlias(DATASET_INDEX_NAME+"*", DATASET_INDEX_NAME);
             LOGGER.info("Indices created : " + DATASET_INDEX_NAME + "_original," + DATASET_INDEX_NAME + "_alt");
             LOGGER.info("Alias created : " + DATASET_INDEX_NAME);
@@ -128,7 +134,7 @@ public class DataSetTool {
         client.aliasIndex(index, alias);
     }
 
-    private static void fillIndex(String indexName, int lonMin, int lonMax, int latMin, int latMax) throws IOException, ArlasException {
+    private static void fillIndex(String indexName, int lonMin, int lonMax, int latMin, int latMax, boolean addDateTime) throws IOException, ArlasException {
         Data data;
 
         for (int i = lonMin; i <= lonMax; i += 10) {
@@ -143,6 +149,9 @@ public class DataSetTool {
                 data.params.startdate = (long) (i + 1000) * (j + 1000);
                 if (data.params.startdate >= 1013600) {
                     data.params.weight = (i + 10) * (j + 10);
+                }
+                if(addDateTime){
+                    data.properties.datetime = (long) Math.round(((i + 1000) * (j + 1000) + 100));
                 }
                 data.params.stopdate = (long) (i + 1000) * (j + 1000) + 100;
                 data.geo_params.centroid = j + "," + i;

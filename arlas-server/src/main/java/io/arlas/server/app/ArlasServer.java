@@ -216,7 +216,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
             if (baseUri.endsWith("/")) {
                 baseUri = baseUri.substring(0, baseUri.length()-1);
             }
-            Info info = new Info().title("ARLAS STAC API").version("1.0.0");
+            Info info = new Info().title("ARLAS STAC API").version(configuration.stacConfiguration.stacVersion);
             Reader reader = new Reader(new OpenAPI().info(info).servers(Collections.singletonList(new Server().url(baseUri))));
             OpenAPI openAPI = reader.read(Stream.of(
                             StacCoreRESTService.class,

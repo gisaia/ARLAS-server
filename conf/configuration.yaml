@@ -150,6 +150,8 @@ arlas_stac:
   id: ${ARLAS_STAC_ID:-arlas}
   title: ${ARLAS_STAC_TITLE:-Arlas Exploration}
   description: ${ARLAS_STAC_DESCRIPTION:-Catalog for Arlas Exploration items}
+  stac_extensions:
+    - https://stac-extensions.github.io/projection/v2.0.0/schema.json
   conforms_to:
     - https://api.stacspec.org/v1.0.0/core
     - https://api.stacspec.org/v1.0.0-beta.2/core
@@ -157,7 +159,6 @@ arlas_stac:
     - https://api.stacspec.org/v1.0.0/ogcapi-features
     - https://api.stacspec.org/v1.0.0/collections
     - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core
-    - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30
 #   - http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson
     - https://api.stacspec.org/v1.0.0/item-search#sort
     - https://api.stacspec.org/v1.0.0/item-search#context

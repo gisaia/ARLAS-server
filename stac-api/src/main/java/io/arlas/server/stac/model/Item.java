@@ -19,18 +19,26 @@
 
 package io.arlas.server.stac.model;
 
+import com.ethlo.time.ITU;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.arlas.server.core.model.response.ArlasHit;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.geojson.Feature;
 import org.geojson.GeoJsonObject;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
-
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
+// To override type=Class name in GeoJsonObject parent class
+@JsonTypeInfo(
+        property = "type",
+        use = JsonTypeInfo.Id.NONE
+)
 public class Item extends Feature {
 
   private @Valid String stacVersion = null;
@@ -44,6 +52,10 @@ public class Item extends Feature {
   private @Valid String collection = null;
 
   private @Valid Map<String, Object> assets = null;
+
+  private @Valid String catalog = null;
+
+  private @Valid  ArrayList<Double> centroid = null;
 
   /**
    **/
@@ -142,6 +154,42 @@ public class Item extends Feature {
     this.links = links;
   }
 
+
+  /**
+   **/
+  public Item catalog(String catalog) {
+    this.catalog = catalog;
+    return this;
+  }
+
+  @Schema()
+  @JsonProperty("catalog")
+
+  public String getCatalog() {
+    return catalog;
+  }
+  public void setCatalog(String catalog) {
+    this.catalog = catalog;
+  }
+
+
+  /**
+   **/
+  public Item centroid(ArrayList<Double> centroid) {
+    this.centroid = centroid;
+    return this;
+  }
+
+  @Schema()
+  @JsonProperty("centroid")
+
+  public ArrayList<Double> getCentroid() {
+    return centroid;
+  }
+  public void setCentroid(ArrayList<Double> centroid) {
+    this.centroid = centroid;
+  }
+
   /**
    **/
   public Item collection(String collection) {
@@ -186,6 +234,26 @@ public class Item extends Feature {
     this.assets = assets;
   }
 
+
+  public Item itemStacModel(ArlasHit hit, String collection, double[] bbox ){
+    Map<String, Object> data = hit.getDataAsMap();
+    Map<String, Object> properties =  (Map<String, Object>) data.get("properties");
+    Arrays.asList("datetime", "start_datetime", "end_datetime").forEach(date -> {
+      Object datetime = properties.get(date);
+      if(datetime instanceof Integer){
+        properties.put(date, ITU.formatUtc(OffsetDateTime.ofInstant(Instant.ofEpochSecond((int) datetime), ZoneOffset.UTC)));
+      }
+    });
+    return this.type("Feature")
+            .collection(collection)
+            .catalog((String) data.get("catalog"))
+            .id((String) data.get("id"))
+            .geometry(hit.md.geometry)
+            .bbox(bbox)
+            .centroid((ArrayList<Double>) data.get("centroid"))
+            .assets(computeStacProperties((Map<String, Object>) data.get("assets")))
+            .properties(computeStacProperties((Map<String, Object>) data.get("properties")));
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -242,4 +310,27 @@ public class Item extends Feature {
     }
     return o.toString().replace("\n", "\n    ");
   }
+
+  private String computeStacPropertyName(String propertyName){
+    return propertyName.replaceFirst("__",":");
+  }
+
+  private  Map<String, Object> computeStacProperties(Map<String, Object> stacProperties) {
+    Map<String, Object> modified = new LinkedHashMap<>();
+
+    for (Map.Entry<String, Object> entry : stacProperties.entrySet()) {
+      String computedKey = computeStacPropertyName(entry.getKey());
+      Object value = entry.getValue();
+
+      if (value instanceof Map) {
+        value = computeStacProperties((Map<String, Object>) value);
+      }
+
+      modified.put(computedKey, value);
+    }
+
+    return modified;
+  }
+
+
 }

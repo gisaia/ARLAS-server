@@ -28,6 +28,9 @@ public class STACConfiguration {
     @JsonProperty("stac_version")
     public String stacVersion;
 
+    @JsonProperty("stac_extensions")
+    public List<String> stacExtensions;
+
     @JsonProperty("type")
     public String type;
 
