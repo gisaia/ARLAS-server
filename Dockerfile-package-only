@@ -1,12 +1,12 @@
 ###################
 # PACKAGING STAGE #
 ###################
-FROM gisaia/arlas-openjdk-17-distroless:20250430092326
+FROM gisaia/arlas-openjdk-17-distroless:20250505175408
 
 # application placed into /opt/app
 WORKDIR /opt/app
-ADD arlas-server/target/arlas-server*.jar /opt/app/arlas-server.jar
-ADD conf/configuration.yaml /opt/app/configuration.yaml
+COPY arlas-server/target/arlas-server*.jar /opt/app/arlas-server.jar
+COPY conf/configuration.yaml /opt/app/configuration.yaml
 EXPOSE 9999
 
 ENV JDK_JAVA_OPTIONS="-Xmx1g -XX:+ExitOnOutOfMemoryError"

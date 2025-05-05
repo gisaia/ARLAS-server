@@ -1,5 +1,5 @@
-name: Run Trivy
-run-name: Run Trivy - Vulnerability Scan
+name: Run Trivy - Hadolint- Dockle
+run-name: Run Trivy - Hadolint- Dockle - Vulnerability Scan
 
 on:
   push:
@@ -14,11 +14,20 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
+    - name: Run Hadolint
+      uses: hadolint/hadolint-action@v3.1.0
+      with:
+        failure-threshold: "error"
+        dockerfile: "Dockerfile"
     - name: Build an image from Dockerfile
       run: |
         docker build -t docker.io/gisaia/arlas-server:${{ github.sha }} .
-
+    - name: Run Dockle
+      uses: erzz/dockle-action@v1
+      with:
+        image: 'docker.io/gisaia/arlas-server:${{ github.sha }}'
+        exit-code: 1
+        failure-threshold: fatal
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       env:
