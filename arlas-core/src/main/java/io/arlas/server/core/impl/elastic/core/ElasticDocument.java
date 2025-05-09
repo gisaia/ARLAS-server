@@ -31,12 +31,12 @@ import java.util.Optional;
 
 public class ElasticDocument {
 
-    public ElasticClient client;
+    private ElasticClient client;
 
     public ElasticDocument(ElasticClient client) {
         this.client = client;
     }
-
+    
     public Map<String, Object> getSource(CollectionReference collectionReference, String identifier, String[] includes) throws ArlasException {
         String[] excludes = collectionReference.params.excludeFields.split(",");
         SearchRequest request = SearchRequest.of(r -> r

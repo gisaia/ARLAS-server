@@ -22,7 +22,7 @@ package io.arlas.server.rest.explore.aggregate;
 import com.codahale.metrics.annotation.Timed;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.rest.response.Error;
-import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.app.ArlasBaseConfiguration;
 import io.arlas.server.core.app.Documentation;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.request.AggregationsRequest;
@@ -37,7 +37,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.Explode;
 import io.swagger.v3.oas.annotations.enums.ParameterStyle;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -269,7 +268,7 @@ public class AggregateRESTService extends ExploreRESTServices {
                 element.flattenedElements = new HashMap<>();
                 element.flattenedElements.putAll(exploreService.flat(
                         element,
-                        new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR),
+                        new MapExplorer.ReduceArrayOnKey(ArlasBaseConfiguration.FLATTEN_CHAR),
                         s -> (!"elements".equals(s))
                 ));
                 element.elements = null;

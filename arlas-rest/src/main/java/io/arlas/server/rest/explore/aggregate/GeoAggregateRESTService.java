@@ -23,7 +23,7 @@ import com.codahale.metrics.annotation.Timed;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InvalidParameterException;
 import io.arlas.commons.rest.response.Error;
-import io.arlas.server.core.app.ArlasServerConfiguration;
+import io.arlas.server.core.app.ArlasBaseConfiguration;
 import io.arlas.server.core.app.Documentation;
 import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.model.enumerations.AggregationGeometryEnum;
@@ -31,6 +31,7 @@ import io.arlas.server.core.model.enumerations.AggregationTypeEnum;
 import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.*;
 import io.arlas.server.core.model.response.AggregationResponse;
+import io.arlas.server.core.model.response.ReturnedGeometry;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.*;
 import io.arlas.server.rest.explore.ExploreRESTServices;
@@ -54,7 +55,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static io.arlas.commons.rest.utils.ServerConstants.*;
 
@@ -396,7 +396,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
         List<AggregationResponse> aggResponses = futureList.stream()
                 .map(CompletableFuture::join)
-                .collect(Collectors.toList());
+                .toList();
 
         return cache(Response.ok(toGeoJson(merge(aggResponses), aggType, Boolean.TRUE.equals(flat), Optional.of(geohash))), maxagecache);
 
@@ -538,7 +538,7 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
 
         List<AggregationResponse> aggResponses = futureList.stream()
                 .map(CompletableFuture::join)
-                .collect(Collectors.toList());
+                .toList();
 
         return cache(Response.ok(toGeoJson(merge(aggResponses), aggType, Boolean.TRUE.equals(flat), Optional.of(z + "/" + x + "/" + y))), maxagecache);
 
@@ -607,10 +607,10 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
         if (aggResponses.size() > 1) {
             result.name = aggResponses.get(0).name;
             result.totalnb = aggResponses.stream().filter(r -> r.totalnb != null).mapToLong(r -> r.totalnb).sum();
-            result.elements = aggResponses.stream().map(r -> r.elements).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
-            result.metrics = aggResponses.stream().map(r -> r.metrics).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
-            result.hits = aggResponses.stream().map(r -> r.hits).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
-            result.geometries = aggResponses.stream().map(r -> r.geometries).filter(Objects::nonNull).flatMap(Collection::stream).collect(Collectors.toList());
+            result.elements = aggResponses.stream().map(r -> r.elements).filter(Objects::nonNull).flatMap(Collection::stream).toList();
+            result.metrics = aggResponses.stream().map(r -> r.metrics).filter(Objects::nonNull).flatMap(Collection::stream).toList();
+            result.hits = aggResponses.stream().map(r -> r.hits).filter(Objects::nonNull).flatMap(Collection::stream).toList();
+            result.geometries = aggResponses.stream().map(r -> r.geometries).filter(Objects::nonNull).flatMap(Collection::stream).toList();
         } else {
             return aggResponses.get(0);
         }
@@ -846,61 +846,62 @@ public class GeoAggregateRESTService extends ExploreRESTServices {
     private FeatureCollection toGeoJson(AggregationResponse aggregationResponse, AggregationTypeEnum mainAggregationType, boolean flat, Optional<String> tile) {
         FeatureCollection fc = new FeatureCollection();
         List<AggregationResponse> elements = aggregationResponse.elements;
-        if (!CollectionUtils.isEmpty(elements)) {
-            for (AggregationResponse element : elements) {
-               if (!CollectionUtils.isEmpty(element.geometries)) {
-                   element.geometries.forEach(g -> {
-                       Feature feature = new Feature();
-                       Map<String, Object> properties = new HashMap<>();
-                       properties.put("count", element.count);
-                       if (mainAggregationType == AggregationTypeEnum.geohash) {
-                           properties.put("geohash", element.keyAsString);
-                           tile.ifPresent(s -> properties.put("parent_geohash", s));
-                       } else if (mainAggregationType == AggregationTypeEnum.geohex) {
-                           properties.put("geohex", element.keyAsString);
-                           tile.ifPresent(s -> properties.put("parent_cell", s));
-                       } else if (mainAggregationType == AggregationTypeEnum.geotile) {
-                           properties.put("tile", element.keyAsString);
-                           tile.ifPresent(s -> properties.put("parent_tile", s));
-                       } else {
-                           properties.put("key", element.keyAsString);
-                       }
-                       if (flat) {
-                           properties.putAll(exploreService.flat(element, new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))));
-                           // To remove the geometry from the properties when we make a raw geom with include
-                           String keyToRemove = "";
-                           for (String key: properties.keySet()) {
-                               List<String> kElements =  Arrays.asList(key.split(ArlasServerConfiguration.FLATTEN_CHAR));
-                               if(kElements.size()>1 && kElements.get(0).equals("hits") ){
-                                   if(String.join(".", kElements.subList(2,kElements.size())).equals(g.reference)){
-                                       keyToRemove=key;
-                                   }
-                               }
-                           }
-                           properties.remove(keyToRemove);
-                       }else{
-                           properties.put("elements", element.elements);
-                           properties.put("metrics", element.metrics);
-                           if (element.hits != null) {
-                               properties.put("hits", element.hits.stream());
-                           }
-                       }
-                       feature.setProperties(properties);
-                       feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
-                       feature.setProperty(GEOMETRY_REFERENCE, g.reference);
-
-                       String aggregationGeometryType = g.isRaw ? AggregationGeometryEnum.RAW.value() : AggregationGeometryEnum.AGGREGATED.value();
-                       feature.setProperty(GEOMETRY_TYPE, aggregationGeometryType);
-                       if (g.isRaw) {
-                           feature.setProperty(GEOMETRY_SORT, g.sort);
-                       }
-                       GeoJsonObject geometry = g.geometry;
-                       feature.setGeometry(geometry);
-                       fc.add(feature);
-                   });
-               }
-            }
+        if (CollectionUtils.isEmpty(elements)) return fc;
+        for (AggregationResponse element : elements) {
+            if (CollectionUtils.isEmpty(element.geometries)) continue;
+            element.geometries.forEach(g -> {
+                Feature feature = new Feature();
+                Map<String, Object> properties = new HashMap<>();
+                setBaseProperties(mainAggregationType, tile, element, properties);
+                if (flat) {
+                    setFlatProperties(element, g, properties);
+                }else{
+                    properties.put("elements", element.elements);
+                    properties.put("metrics", element.metrics);
+                    Optional.ofNullable(element.hits).ifPresent(h ->properties.put("hits",h.stream()));
+                }
+                feature.setProperties(properties);
+                feature.setProperty(FEATURE_TYPE_KEY, FEATURE_TYPE_VALUE);
+                feature.setProperty(GEOMETRY_REFERENCE, g.reference);
+                String aggregationGeometryType = g.isRaw ? AggregationGeometryEnum.RAW.value() : AggregationGeometryEnum.AGGREGATED.value();
+                feature.setProperty(GEOMETRY_TYPE, aggregationGeometryType);
+                if (g.isRaw) {
+                    feature.setProperty(GEOMETRY_SORT, g.sort);
+                }
+                GeoJsonObject geometry = g.geometry;
+                feature.setGeometry(geometry);
+                fc.add(feature);
+            });
         }
         return fc;
+    }
+
+    private void setFlatProperties(AggregationResponse element, ReturnedGeometry g, Map<String, Object> properties) {
+        properties.putAll(exploreService.flat(element, new MapExplorer.ReduceArrayOnKey(ArlasBaseConfiguration.FLATTEN_CHAR), s -> (!"elements".equals(s))));
+        // To remove the geometry from the properties when we make a raw geom with include
+        String keyToRemove = "";
+        for (String key: properties.keySet()) {
+            List<String> kElements =  Arrays.asList(key.split(ArlasBaseConfiguration.FLATTEN_CHAR));
+            if(kElements.size()>1 && kElements.get(0).equals("hits") && String.join(".", kElements.subList(2,kElements.size())).equals(g.reference)){
+                    keyToRemove=key;
+                }
+        }
+        properties.remove(keyToRemove);
+    }
+
+    private static void setBaseProperties(AggregationTypeEnum mainAggregationType, Optional<String> tile, AggregationResponse element, Map<String, Object> properties) {
+        properties.put("count", element.count);
+        if (mainAggregationType == AggregationTypeEnum.geohash) {
+            properties.put("geohash", element.keyAsString);
+            tile.ifPresent(s -> properties.put("parent_geohash", s));
+        } else if (mainAggregationType == AggregationTypeEnum.geohex) {
+            properties.put("geohex", element.keyAsString);
+            tile.ifPresent(s -> properties.put("parent_cell", s));
+        } else if (mainAggregationType == AggregationTypeEnum.geotile) {
+            properties.put("tile", element.keyAsString);
+            tile.ifPresent(s -> properties.put("parent_tile", s));
+        } else {
+            properties.put("key", element.keyAsString);
+        }
     }
 }
