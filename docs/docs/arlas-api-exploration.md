@@ -67,21 +67,21 @@ The other parts must be specified or not depending on the aggregation type. All 
 
 The sub-parameters possible values are:
 
-| Parameter         | Values                                                     | Description                              |
-| ----------------- | ---------------------------------------------------------  | ---------------------------------------- |
-| **{type}**        | `datehistogram`, `histogram`, `geohash`, `geotile`, `term` | Type of aggregation                      |
-| **{field}**       | {field}                                                    | Aggregates on {field}                    |
-| **interval**      | {interval}                                                 | Size of the intervals.(1)                |
+| Parameter         | Values                                                                                                                                                                       | Description                              |
+| ----------------- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ---------------------------------------- |
+| **{type}**        | `datehistogram`, `histogram`, `geohash`, `geotile`, `term`                                                                                                                   | Type of aggregation                      |
+| **{field}**       | {field}                                                                                                                                                                      | Aggregates on {field}                    |
+| **interval**      | {interval}                                                                                                                                                                   | Size of the intervals.(1)                |
 | **format**        | [Date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-daterange-aggregation.html#date-format-pattern) for key aggregation | Date format for key aggregation.         |
-| **collect_field** | `{collect_field}`                               | The field used to aggregate collections. |
-| **collect_fct**   | `avg,cardinality,max,min,sum,geobbox,geocentroid (2)` | The aggregation function to apply to collections on the specified **collect_field**. |
-| **order**         | `asc,desc`                                      | Sorts the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation, ascending or descending. |
-| **on**            | `field,count,result` (3) (3')                       | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
-| **size**          | {size}                                          | Defines how many buckets should be returned. |
-| **include**       | Comma separated strings (4)                     | Specifies the values for which buckets will be created. |
-| **aggregated_geometries** | Comma separated strings : `bbox`, `centroid`, `tile_center`, `tile` |  Allows to specify a list of aggregated forms of geometries that represent the bucket (5)(6)|
-| **raw_geometries** | `{geo_field1}(+{field1}, ...);{geo_field2}(-{field2}, ...)` |  Allows to specify a list of raw geometries provided by hits that represent the bucket and that are elected by a sort (7)(8)|
-| **fetch_hits**     | `{optionalNumberOfHist}(+{field1}, {field2}, -{field3}, ...)`    | Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits. The hits can be sorted according 0-* fields by preceding the field name by `+` for ascending sort, `-` for descending sort or nothing if no sort is desired on a field.(9)|
+| **collect_field** | `{collect_field}`                                                                                                                                                            | The field used to aggregate collections. |
+| **collect_fct**   | `avg,cardinality,max,min,sum,geobbox,geocentroid (2)`                                                                                                                        | The aggregation function to apply to collections on the specified **collect_field**. |
+| **order**         | `asc,desc`                                                                                                                                                                   | Sorts the aggregation buckets on the field name, on the count of the buckets or on the the result of a metric sub-aggregation, ascending or descending. |
+| **on**            | `field,count,result` (3) (3')                                                                                                                                                | {on} is set to specify whether the **order** is on the field name, on the count of the aggregation or the result of a metric subaggregation. |
+| **size**          | {size}                                                                                                                                                                       | Defines how many buckets should be returned. |
+| **include**       | Comma separated strings (4)                                                                                                                                                  | Specifies the values for which buckets will be created. |
+| **aggregated_geometries** | Comma separated strings : `bbox`, `centroid`, `cell_center`, `cell`                                                                                                          |  Allows to specify a list of aggregated forms of geometries that represent the bucket (5)(6)|
+| **raw_geometries** | `{geo_field1}(+{field1}, ...);{geo_field2}(-{field2}, ...)`                                                                                                                  |  Allows to specify a list of raw geometries provided by hits that represent the bucket and that are elected by a sort (7)(8)|
+| **fetch_hits**     | `{optionalNumberOfHist}(+{field1}, {field2}, -{field3}, ...)`                                                                                                                | Specifies the number of hits to retrieve inside each aggregation bucket and which fields to include in the hits. The hits can be sorted according 0-* fields by preceding the field name by `+` for ascending sort, `-` for descending sort or nothing if no sort is desired on a field.(9)|
 
 (1) Each aggregation type ({type}) has its own type of interval. The table below lists the semantic of the interval sub-parameter.
 
@@ -105,8 +105,8 @@ The `order` is applied on the first collect_fct `avg` (that is different from `g
 
  - `bbox`: returns the data extent (bbox) inside the bucket.
  - `centroid`: returns the centroid of data inside the bucket.
- - `tile`: returns the tile extent (zxy or geohash) of each bucket. This form is supported for **geohash** and **geotile** aggregation type only.
- - `tile_center`: returns the 'center' of the tile extent that represents the bucket. This form is supported for **geohash** and **geotile** aggregation type only.
+ - `cell`: returns the tile extent (zxy or geohash) of each bucket. This form is supported for **geohash** and **geotile** aggregation type only.
+ - `cell_center`: returns the 'center' of the tile extent that represents the bucket. This form is supported for **geohash** and **geotile** aggregation type only.
 
 (6) The response:
 

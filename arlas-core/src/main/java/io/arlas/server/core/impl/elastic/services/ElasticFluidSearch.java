@@ -227,7 +227,11 @@ public class ElasticFluidSearch extends FluidSearchService {
                 orBoolQueryBuilder = orBoolQueryBuilder.should(filterGWithin(field, value));
                 break;
             default:
-                throw new ArlasException("'within' op on field '" + field + "' of type '" + wType + "' is not supported");
+                if(Boolean.TRUE.equals(within) ) {
+                    throw new ArlasException("'within' op on field '" + field + "' of type '" + wType + "' is not supported");
+                } else {
+                    throw new ArlasException("'not within' op on field '" + field + "' of type '" + wType + "' is not supported");
+                }
         }
         if(Boolean.TRUE.equals(within) ) {
             ret = ret.filter(orBoolQueryBuilder.minimumShouldMatch("1").build()._toQuery());
@@ -379,31 +383,6 @@ public class ElasticFluidSearch extends FluidSearchService {
                                 .bottomRight(b3 -> b3.coords(Arrays.asList(east, south)))
                         )
                 ).build()._toQuery();
-    }
-
-    public List<Query> filterNotPWithin(String field, String notpwithinFilter) throws ArlasException {
-        List<Query> builderList = new ArrayList<>();
-        if (CheckParams.isBboxMatch(notpwithinFilter)) {
-            double[] tlbr = CheckParams.toDoubles(notpwithinFilter);
-            builderList.add(filterPWithin(field, tlbr[0], tlbr[1], tlbr[2], tlbr[3]));
-        } else {
-            Geometry p = GeoUtil.readWKT(notpwithinFilter);
-            String geometryType = p.getGeometryType();
-            if (geometryType.equals(POLYGON) || geometryType.equals(MULTI_POLYGON)) {
-                     for (int i = 0; i< p.getNumGeometries(); i++) {
-                    JSONObject shapeObject = getShapeObject(p.getGeometryN(i));
-                    GeoShapeQuery.Builder andQueryBuilder = QueryBuilders.geoShape()
-                            .field(field)
-                            .shape(s -> s
-                                    .relation(GeoShapeRelation.Within)
-                                    .shape(JsonData.of(shapeObject)));
-                    builderList.add(andQueryBuilder.build()._toQuery());
-                }
-            } else {
-                throw new NotImplementedException(geometryType + " WKT is not supported for `notpwithin`");
-            }
-        }
-        return builderList;
     }
 
     public Query filterGWithin(String field, String geometry ) throws ArlasException {
@@ -629,7 +608,7 @@ public class ElasticFluidSearch extends FluidSearchService {
         Builder.ContainerBuilder dateHistogramContainerBuilder = new Builder().dateHistogram(dateHistogramAggregationBuilder.build());
         dateHistogramContainerBuilder.aggregations(metricsAggregation);
         setAggregatedGeometries(aggregationModel, dateHistogramContainerBuilder);
-        dateHistogramContainerBuilder =  setRawGeometriesAndFetch(aggregationModel, dateHistogramContainerBuilder);
+        setRawGeometriesAndFetch(aggregationModel, dateHistogramContainerBuilder);
         return dateHistogramContainerBuilder;
     }
 
@@ -805,23 +784,21 @@ public class ElasticFluidSearch extends FluidSearchService {
                 } else if (ag == AggregatedGeometryEnum.CENTROID) {
                     GeoCentroidAggregation metricAggregation = AggregationBuilders.geoCentroid().field(aggregationGeoField).build();
                     containerBuilder.aggregations(AggregatedGeometryEnum.CENTROID.value() + AGGREGATED_GEOMETRY_SUFFIX, metricAggregation._toAggregation());
-                    // TODO deal with the other case : CELLCENTER
                 }
             });
         }
     }
 
-    private Builder.ContainerBuilder setRawGeometriesAndFetch(Aggregation aggregationModel, Builder.ContainerBuilder containerBuilder) throws ArlasException {
+    private void setRawGeometriesAndFetch(Aggregation aggregationModel, Builder.ContainerBuilder containerBuilder) throws ArlasException {
         if (aggregationModel.rawGeometries != null && aggregationModel.fetchHits != null) {
-            return handleRawGeometriesWithFetch(aggregationModel, containerBuilder);
+             handleRawGeometriesWithFetch(aggregationModel, containerBuilder);
         }
         if (aggregationModel.rawGeometries != null) {
-            return setRawGeometries(aggregationModel, containerBuilder);
+             setRawGeometries(aggregationModel, containerBuilder);
         }
         if (aggregationModel.fetchHits != null) {
-            return setHitsToFetch(aggregationModel, containerBuilder);
+             setHitsToFetch(aggregationModel, containerBuilder);
         }
-        return containerBuilder;
     }
 
     private Builder.ContainerBuilder handleRawGeometriesWithFetch(Aggregation aggregationModel, Builder.ContainerBuilder containerBuilder) throws ArlasException {
@@ -878,14 +855,16 @@ public class ElasticFluidSearch extends FluidSearchService {
             for (String field : sort.split(",")) {
                 String unsignedField = field.replaceFirst(ORDER_SIGN_REGEX, "");
                 CollectionUtil.checkAliasMappingFields(client.getMappings(collectionReference.params.indexName), unsignedField);
-                SortOrder order = field.startsWith("+") ? SortOrder.Asc : SortOrder.Desc;
-                topHitsBuilder.sort(s -> s.field(FieldSort.of(f -> f.field(unsignedField).order(order))));
+                if(field.startsWith("+") || field.startsWith("-")) {
+                    SortOrder order = field.startsWith("+") ? SortOrder.Asc : SortOrder.Desc;
+                    topHitsBuilder.sort(s -> s.field(FieldSort.of(f -> f.field(unsignedField).order(order))));
+                }
             }
             containerBuilder.aggregations(RAW_GEOMETRY_SUFFIX + FETCH_HITS_AGG + sort, topHitsBuilder.build()._toAggregation());
         }
         return containerBuilder;
     }
-    private Builder.ContainerBuilder setRawGeometries(Aggregation aggregationModel, Builder.ContainerBuilder containerBuilder) throws ArlasException {
+    private void setRawGeometries(Aggregation aggregationModel, Builder.ContainerBuilder containerBuilder) throws ArlasException {
             Map<String, Set<String>> rgs = new HashMap<>();
             aggregationModel.rawGeometries.forEach(rg -> {
                 Set<String> geos = rgs.get(rg.sort);
@@ -913,10 +892,9 @@ public class ElasticFluidSearch extends FluidSearchService {
                 containerBuilder
                         .aggregations(RAW_GEOMETRY_SUFFIX + sort,topHitsAggregationBuilder.build()._toAggregation());
             }
-        return containerBuilder;
     }
 
-    private Builder.ContainerBuilder setHitsToFetch(Aggregation aggregationModel, Builder.ContainerBuilder containerBuilder) throws ArlasException {
+    private void setHitsToFetch(Aggregation aggregationModel, Builder.ContainerBuilder containerBuilder) throws ArlasException {
             TopHitsAggregation.Builder topHitsAggregationBuilder = AggregationBuilders.topHits();
             Integer size = Optional.ofNullable(aggregationModel.fetchHits.size).orElse(1);
             topHitsAggregationBuilder.size(size);
@@ -940,7 +918,6 @@ public class ElasticFluidSearch extends FluidSearchService {
                 topHitsAggregationBuilder.source(builder -> builder.filter(builder1 -> builder1.includes(Arrays.stream(hitsToInclude).toList())));
             }
             containerBuilder.aggregations(FETCH_HITS_AGG,topHitsAggregationBuilder.build()._toAggregation());
-        return containerBuilder;
     }
 
     private void setGeoMetricAggregationCollectField(Metric metric) throws ArlasException {
