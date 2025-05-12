@@ -111,10 +111,10 @@ public abstract class ExploreRESTServices extends ArlasRESTServices {
                             // the geometry column name of schema for saving into a shapefile must be "the_geom"
                             builder.add("the_geom", adesc.getType().getBinding(), CRS_WGS84);
                         } else {
-                            LOGGER.debug("Original column name : " + adesc.getLocalName());
+                            LOGGER.debug(String.format("Original column name : %s",adesc.getLocalName()));
                             String columnName = shapeColumnNames!=null && shapeColumnNames.containsKey(adesc.getLocalName()) ?
                                     shapeColumnNames.get(adesc.getLocalName()) : adesc.getLocalName();
-                            LOGGER.debug("Final column name : " + columnName);
+                            LOGGER.debug(String.format("Final column name : %s",columnName));
                             builder.add(getShortColumnName(columnName, colNum.get()),
                                     adesc.getType().getBinding() == Object.class ? String.class : adesc.getType().getBinding());
                         }
