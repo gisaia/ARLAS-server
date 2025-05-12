@@ -48,6 +48,6 @@ public abstract class AbstractTestWithCollection extends AbstractTestContext {
 
     @AfterClass
     public static void afterClass() throws IOException, ArlasException {
-        new CollectionTool().delete();
+        new CollectionTool().delete(true);
     }
 }

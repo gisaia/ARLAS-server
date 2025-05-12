@@ -121,6 +121,19 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
         run: scripts/ci/tests-integration-stage.sh --stage=STAC
 
+  run-test-stac-eo:
+    runs-on: ubuntu-latest
+    name: Run tests [STAC ARLAS EO]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/workflows/prepare
+      - name: Run tests [STAC ARLAS EO]
+        env:
+          # secrets are defined here : https://github.com/organizations/gisaia/settings/secrets/actions
+          DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        run: scripts/ci/tests-integration-stage.sh --stage=STAC_ARLASEO
+
   run-test-doc:
     runs-on: ubuntu-latest
     name: Run tests [DOC]
