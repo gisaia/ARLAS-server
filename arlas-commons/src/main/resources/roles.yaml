@@ -58,6 +58,8 @@ technicalRoles:
     - r:/aproc/processes/enrich/execution:POST
     - r:/aproc/processes/directory_ingest:GET
     - r:/aproc/processes/directory_ingest/execution:POST
+    - r:/aproc/processes/dc3build:GET
+    - r:/aproc/processes/dc3build/execution:POST
     - r:/fam/.*:GET,POST
     - r:/aproc/jobs/.*:GET,DELETE
     - r:/aproc/jobs:GET
