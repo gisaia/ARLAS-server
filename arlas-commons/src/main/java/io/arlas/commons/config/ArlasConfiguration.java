@@ -43,7 +43,7 @@ public class ArlasConfiguration extends Configuration {
     public String arlasCacheFactoryClass;
 
     @JsonProperty("arlas-check-organisations")
-    public boolean arlasCheckOrganisations;
+    public Boolean arlasCheckOrganisations;
 
     @JsonProperty("arlas-cache-timeout")
     public int arlasCacheTimeout;
@@ -58,7 +58,10 @@ public class ArlasConfiguration extends Configuration {
             arlasAuthConfiguration = new ArlasAuthConfiguration();
         }
         arlasAuthConfiguration.check();
-
+        /** If arlas-check-organisations is not set, we consider that organisation-related checks should be performed. */
+        if (arlasCheckOrganisations == null) {
+            arlasCheckOrganisations = Boolean.TRUE;
+        }
         if (arlasCorsConfiguration == null) {
             arlasCorsConfiguration = new ArlasCorsConfiguration();
             arlasCorsConfiguration.enabled = false;

@@ -460,41 +460,41 @@ public abstract class CollectionReferenceService {
             Optional<String> organisations,
             boolean ownerOnly)
             throws CollectionUnavailableException {
-        if (configuration.arlasCheckOrganisations) {
-            if (organisations.isEmpty()) {
-                // no header, we'll trust the column filter if any
-                LOGGER.debug("No organisation header");
-                return true;
-            }
-
-            if (collection.params.collectionOrganisations == null) {
-                throw new CollectionUnavailableException(
-                        String.format("The collection %s is not available because has no organisation parameters",
-                                collection.collectionName));
-            }
-
-            if (!ownerOnly && collection.params.collectionOrganisations.isPublic) {
-                LOGGER.debug(String.format("Collection %s organisation is public.", collection.collectionName));
-                return true;
-            }
-
-            List<String> o = new ArrayList<>();
-            o.add(collection.params.collectionOrganisations.owner);
-            if (!ownerOnly && collection.params.collectionOrganisations.sharedWith != null) {
-                o.addAll(collection.params.collectionOrganisations.sharedWith);
-            }
-            LOGGER.debug("collection's organisations=" + o);
-            LOGGER.debug("header=" + organisations.get());
-            o.retainAll(Arrays.stream(organisations.get().split(",")).toList());
-            LOGGER.debug("allowed org=" + o);
-            if (o.isEmpty()) {
-                // the collection not available with the provided organisation header
-                return false;
-            }
-            return true;
-        } else {
+        if (configuration.arlasCheckOrganisations != null && !configuration.arlasCheckOrganisations) {
             return true;
         }
+
+        if (organisations.isEmpty()) {
+                // no header, we'll trust the column filter if any
+            LOGGER.debug("No organisation header");
+            return true;
+        }
+
+        if (collection.params.collectionOrganisations == null) {
+            throw new CollectionUnavailableException(
+                    String.format("The collection %s is not available because has no organisation parameters",
+                            collection.collectionName));
+        }
+
+        if (!ownerOnly && collection.params.collectionOrganisations.isPublic) {
+            LOGGER.debug(String.format("Collection %s organisation is public.", collection.collectionName));
+            return true;
+        }
+
+        List<String> o = new ArrayList<>();
+        o.add(collection.params.collectionOrganisations.owner);
+        if (!ownerOnly && collection.params.collectionOrganisations.sharedWith != null) {
+            o.addAll(collection.params.collectionOrganisations.sharedWith);
+        }
+        LOGGER.debug("collection's organisations=" + o);
+        LOGGER.debug("header=" + organisations.get());
+        o.retainAll(Arrays.stream(organisations.get().split(",")).toList());
+        LOGGER.debug("allowed org=" + o);
+        if (o.isEmpty()) {
+            // the collection not available with the provided organisation header
+            return false;
+        }
+        return true;
 
     }
 }
