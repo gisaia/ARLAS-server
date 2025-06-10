@@ -19,31 +19,37 @@
 
 package io.arlas.server.core.impl.elastic.services;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import co.elastic.clients.elasticsearch._types.Result;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import io.arlas.commons.config.ArlasConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InternalServerErrorException;
 import io.arlas.commons.exceptions.NotFoundException;
-import io.arlas.server.core.exceptions.CollectionUnavailableException;
+import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
 import io.arlas.server.core.managers.CacheManager;
 import io.arlas.server.core.model.CollectionReference;
+import static io.arlas.server.core.model.CollectionReference.INCLUDE_FIELDS;
 import io.arlas.server.core.model.CollectionReferenceParameters;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.utils.CollectionUtil;
 import io.arlas.server.core.utils.ColumnFilterUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static io.arlas.server.core.model.CollectionReference.INCLUDE_FIELDS;
 
 public class ElasticCollectionReferenceService extends CollectionReferenceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticCollectionReferenceService.class);
@@ -53,8 +59,8 @@ public class ElasticCollectionReferenceService extends CollectionReferenceServic
 
     private final ElasticClient client;
 
-    public ElasticCollectionReferenceService(ElasticClient client, String arlasIndex, CacheManager cacheManager) {
-        super(arlasIndex, cacheManager);
+    public ElasticCollectionReferenceService(ElasticClient client, String arlasIndex, CacheManager cacheManager, ArlasConfiguration configuration) {
+        super(arlasIndex, cacheManager, configuration);
         this.client = client;
     }
 

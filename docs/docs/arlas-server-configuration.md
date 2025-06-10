@@ -107,12 +107,23 @@ Refer to [ARLAS IAM configuration](arlas-iam.md) for a comprehensive configurati
 
 !!! info "Important" 
     `elastic-host` and `elastic-port` configuration variables do not longer exist in 10.6.0. You can use `elastic-nodes` instead.
-    
+
+
+### Organisations
+
+| Environment variable                   | ARLAS Server configuration variable                     | Default                                           | Description                                                          |
+|----------------------------------------|---------------------------------------------------------|---------------------------------------------------|----------------------------------------------------------------------|
+| ARLAS_CHECK_ORGANISATIONS              | arlas-check-organisations                               | true                                              | Whether to include organisation-related checks when performing arlas services. This variable MUST be true for IAM deployment.                               |
+
+
+!!! info "Important" 
+    `arlas-check-organisations` MUST be true for an IAM deployment.
+
 ### Collection Cache & Disovery
 
 | Environment variable                   | ARLAS Server configuration variable                     | Default                                           | Description                                                          |
 |----------------------------------------|---------------------------------------------------------|---------------------------------------------------|----------------------------------------------------------------------|
-| ARLAS_CACHE_FACTORY_CLASS              | Cache manager class                                     | io.arlas.server.core.impl.cache.LocalCacheFactory | Class to be used for the cache manager                               |
+| ARLAS_CACHE_FACTORY_CLASS              | arlas_cache_factory_class                                    | io.arlas.server.core.impl.cache.LocalCacheFactory | Class to be used for the cache manager                               |
 | ARLAS_CACHE_SIZE                       | arlas-cache-size                                        | 1000                                              | Size of the cache used for managing the collections                  |
 | ARLAS_CACHE_TIMEOUT                    | arlas-cache-timeout                                     | 60                                                | Number of seconds for the cache used for managing the collections    |
 | ARLAS_REST_CACHE_TIMEOUT               | arlas-rest-cache-timeout                                | 0                                                 | Number of seconds for the cache used for managing the REST responses |

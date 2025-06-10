@@ -20,6 +20,7 @@
 package io.arlas.commons.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.dropwizard.core.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
@@ -40,6 +41,9 @@ public class ArlasConfiguration extends Configuration {
 
     @JsonProperty("arlas_cache_factory_class")
     public String arlasCacheFactoryClass;
+
+    @JsonProperty("arlas-check-organisations")
+    public boolean arlasCheckOrganisations;
 
     @JsonProperty("arlas-cache-timeout")
     public int arlasCacheTimeout;

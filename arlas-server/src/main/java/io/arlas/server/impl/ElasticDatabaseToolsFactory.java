@@ -18,27 +18,28 @@
  */
 package io.arlas.server.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.codahale.metrics.health.HealthCheck;
-import io.arlas.server.core.app.ArlasServerConfiguration;
-import io.arlas.server.app.DatabaseToolsFactory;
-import io.arlas.server.core.services.CollectionReferenceService;
+
 import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.arlas.server.admin.health.ElasticsearchHealthCheck;
-import io.arlas.server.core.impl.elastic.services.ElasticCollectionReferenceService;
+import io.arlas.server.app.DatabaseToolsFactory;
+import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.impl.elastic.exceptions.ElasticsearchExceptionMapper;
+import io.arlas.server.core.impl.elastic.services.ElasticCollectionReferenceService;
 import io.arlas.server.core.impl.elastic.services.ElasticExploreService;
 import io.arlas.server.core.impl.elastic.utils.ElasticClient;
 import io.arlas.server.core.managers.CacheManager;
+import io.arlas.server.core.services.CollectionReferenceService;
+import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.ogc.common.dao.ElasticOGCCollectionReferenceDao;
 import io.arlas.server.ogc.common.dao.OGCCollectionReferenceDao;
 import io.arlas.server.ogc.common.model.Service;
 import io.arlas.server.ogc.wfs.services.ElasticWFSToolService;
 import io.arlas.server.ogc.wfs.services.WFSToolService;
-import io.arlas.server.core.services.ExploreService;
 import io.dropwizard.core.setup.Environment;
-
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class ElasticDatabaseToolsFactory extends DatabaseToolsFactory {
@@ -54,7 +55,7 @@ public class ElasticDatabaseToolsFactory extends DatabaseToolsFactory {
         environment.jersey().register(new ElasticsearchExceptionMapper());
 
         this.elasticClient = new ElasticClient(configuration.elasticConfiguration);
-        this.collectionReferenceService = new ElasticCollectionReferenceService(elasticClient, configuration.arlasIndex, cacheManager);
+        this.collectionReferenceService = new ElasticCollectionReferenceService(elasticClient, configuration.arlasIndex, cacheManager, configuration);
         this.exploreService = new ElasticExploreService(elasticClient, collectionReferenceService, configuration.arlasBaseUri,
                 configuration.arlasRestCacheTimeout,configuration.elasticConfiguration.elasticMaxPrecisionThreshold);
         if (configuration.arlasServiceCSWEnabled) {
