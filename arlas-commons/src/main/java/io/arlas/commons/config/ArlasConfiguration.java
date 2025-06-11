@@ -20,6 +20,7 @@
 package io.arlas.commons.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.dropwizard.core.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
@@ -41,6 +42,9 @@ public class ArlasConfiguration extends Configuration {
     @JsonProperty("arlas_cache_factory_class")
     public String arlasCacheFactoryClass;
 
+    @JsonProperty("arlas-check-organisations")
+    public Boolean arlasCheckOrganisations;
+
     @JsonProperty("arlas-cache-timeout")
     public int arlasCacheTimeout;
 
@@ -54,7 +58,10 @@ public class ArlasConfiguration extends Configuration {
             arlasAuthConfiguration = new ArlasAuthConfiguration();
         }
         arlasAuthConfiguration.check();
-
+        /** If arlas-check-organisations is not set, we consider that organisation-related checks should be performed. */
+        if (arlasCheckOrganisations == null) {
+            arlasCheckOrganisations = Boolean.TRUE;
+        }
         if (arlasCorsConfiguration == null) {
             arlasCorsConfiguration = new ArlasCorsConfiguration();
             arlasCorsConfiguration.enabled = false;

@@ -16,9 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package io.arlas.server.core.services;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.Stack;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.arlas.commons.config.ArlasConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InvalidParameterException;
 import io.arlas.commons.exceptions.NotAllowedException;
@@ -36,27 +53,22 @@ import io.arlas.server.core.utils.CheckParams;
 import io.arlas.server.core.utils.CollectionUtil;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.core.utils.FilterMatcherUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * DAO for collection references
  */
 @SuppressWarnings({"rawtypes"})
 public abstract class CollectionReferenceService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CollectionReferenceService.class);
     protected final String arlasIndex;
     protected final CacheManager cacheManager;
+    protected final ArlasConfiguration configuration;
 
-    public CollectionReferenceService(String arlasIndex, CacheManager cacheManager) {
+    public CollectionReferenceService(String arlasIndex, CacheManager cacheManager, ArlasConfiguration configuration) {
         this.arlasIndex = arlasIndex;
         this.cacheManager = cacheManager;
+        this.configuration = configuration;
     }
 
     abstract protected CollectionReference getCollectionReferenceFromDao(String ref) throws ArlasException;
@@ -74,7 +86,6 @@ public abstract class CollectionReferenceService {
     abstract public void deleteCollectionReference(String ref) throws ArlasException;
 
     // -------
-
     public CollectionReference getCollectionReference(String ref, Optional<String> organisations) throws ArlasException {
         CollectionReference collectionReference = cacheManager.getCollectionReference(ref);
         if (collectionReference == null) {
@@ -115,10 +126,10 @@ public abstract class CollectionReferenceService {
         return collectionReference;
     }
 
-    public CollectionReference updateDisplayNamesCollectionReference(String collection, String organisations,String columnFilter,
-                                                                     String collectionDisplayName,
-                                                                           Map<String,String> fieldsDisplayNames,
-                                                                           Map<String,String> shapeColumnsDisplayNames)
+    public CollectionReference updateDisplayNamesCollectionReference(String collection, String organisations, String columnFilter,
+            String collectionDisplayName,
+            Map<String, String> fieldsDisplayNames,
+            Map<String, String> shapeColumnsDisplayNames)
             throws ArlasException {
         CollectionReference collectionReference = getCollectionReference(collection, Optional.ofNullable(organisations));
         ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), List.of(collectionReference));
@@ -126,13 +137,13 @@ public abstract class CollectionReferenceService {
             if (collectionReference.params.collectionDisplayNames == null) {
                 collectionReference.params.collectionDisplayNames = new CollectionDisplayNames();
             }
-            if(fieldsDisplayNames != null){
+            if (fieldsDisplayNames != null) {
                 collectionReference.params.collectionDisplayNames.fields = fieldsDisplayNames;
             }
-            if(shapeColumnsDisplayNames != null){
+            if (shapeColumnsDisplayNames != null) {
                 collectionReference.params.collectionDisplayNames.shapeColumns = shapeColumnsDisplayNames;
             }
-            if(collectionDisplayName != null){
+            if (collectionDisplayName != null) {
                 collectionReference.params.collectionDisplayNames.collection = collectionDisplayName;
             }
             return putCollectionReference(collectionReference, true);
@@ -142,10 +153,10 @@ public abstract class CollectionReferenceService {
     }
 
     public CollectionReference updateOrganisationsParamsCollectionReference(String collection,
-                                                         String organisations,
-                                                         String columnFilter,
-                                                         boolean isPublic,
-                                                         List<String> sharedWith)
+            String organisations,
+            String columnFilter,
+            boolean isPublic,
+            List<String> sharedWith)
             throws ArlasException {
         CollectionReference collectionReference = getCollectionReference(collection, Optional.ofNullable(organisations));
         ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), List.of(collectionReference));
@@ -159,10 +170,10 @@ public abstract class CollectionReferenceService {
     }
 
     public List<CollectionReferenceDescription> describeAllCollections(List<CollectionReference> collectionReferenceList,
-                                                                       Optional<String> columnFilter) throws CollectionUnavailableException {
+            Optional<String> columnFilter) throws CollectionUnavailableException {
 
         // Can't use lambdas because of the need to throw the exception of describeCollection()
-        List<CollectionReferenceDescription> res  = new ArrayList<>();
+        List<CollectionReferenceDescription> res = new ArrayList<>();
         for (CollectionReference collection : collectionReferenceList) {
             if (ColumnFilterUtil.cleanColumnFilter(columnFilter).isEmpty()
                     || CollectionUtil.isCollectionPublic(collection)
@@ -170,7 +181,8 @@ public abstract class CollectionReferenceService {
                 try {
                     CollectionReferenceDescription describe = describeCollection(collection, columnFilter);
                     res.add(describe);
-                } catch (ArlasException ignored) { }
+                } catch (ArlasException ignored) {
+                }
 
             }
         }
@@ -182,7 +194,7 @@ public abstract class CollectionReferenceService {
     }
 
     public CollectionReferenceDescription describeCollection(CollectionReference collectionReference,
-                                                             Optional<String> columnFilter) throws ArlasException {
+            Optional<String> columnFilter) throws ArlasException {
         ArrayList<Pattern> excludeFields = new ArrayList<>();
         if (collectionReference.params.excludeFields != null) {
             Arrays.asList(collectionReference.params.excludeFields.split(","))
@@ -204,18 +216,18 @@ public abstract class CollectionReferenceService {
         }
 
         collectionReferenceDescription.properties = properties;
-        if (properties.isEmpty()){
+        if (properties.isEmpty()) {
             throw new ArlasException("This collection can not be described. Check if index or template ".concat(collectionReferenceDescription.params.indexName).concat(" exist in Elasticsearch"));
         }
         return collectionReferenceDescription;
     }
 
     private Map<String, CollectionReferenceDescriptionProperty> union(Map<String, CollectionReferenceDescriptionProperty> source,
-                                                                      Map<String, CollectionReferenceDescriptionProperty> update) {
+            Map<String, CollectionReferenceDescriptionProperty> update) {
         Map<String, CollectionReferenceDescriptionProperty> ret = new HashMap<>(source);
         for (String key : update.keySet()) {
             if (!ret.containsKey(key)) {
-                ret.put(key,update.get(key));
+                ret.put(key, update.get(key));
             } else if (ret.get(key).type != update.get(key).type) {
                 LOGGER.error("Cannot union field [key=" + key + "] because type mismatch between indices' mappings");
             } else if (ret.get(key).properties != null && update.get(key).properties != null) {
@@ -226,10 +238,10 @@ public abstract class CollectionReferenceService {
     }
 
     protected Map<String, CollectionReferenceDescriptionProperty> getFromSource(CollectionReference collectionReference,
-                                                                              Map source, Stack<String> namespace,
-                                                                              ArrayList<Pattern> excludeFields,
-                                                                              Optional<Set<String>> columnFilterPredicates,
-                                                                              boolean parentIsIndexed) {
+            Map source, Stack<String> namespace,
+            ArrayList<Pattern> excludeFields,
+            Optional<Set<String>> columnFilterPredicates,
+            boolean parentIsIndexed) {
 
         Map<String, CollectionReferenceDescriptionProperty> ret = new HashMap<>();
 
@@ -247,11 +259,11 @@ public abstract class CollectionReferenceService {
                     }
                     if (FilterMatcherUtil.matchesOrWithin(columnFilterPredicates, path, collectionProperty.type == FieldType.OBJECT)) {
                         if (property.containsKey("fields")) {
-                            if(property.get("fields") instanceof Map){
-                                for (Object keyFields : ((Map)property.get("fields")).keySet()) {
-                                    if ( ((Map)property.get("fields")).get(keyFields) instanceof Map propertyFields) {
+                            if (property.get("fields") instanceof Map) {
+                                for (Object keyFields : ((Map) property.get("fields")).keySet()) {
+                                    if (((Map) property.get("fields")).get(keyFields) instanceof Map propertyFields) {
                                         if (propertyFields.containsKey("type")) {
-                                            if(propertyFields.get("type").equals(FieldType.MAPPER_MURMUR3.toString())){
+                                            if (propertyFields.get("type").equals(FieldType.MAPPER_MURMUR3.toString())) {
                                                 collectionProperty.hashField = keyFields.toString();
                                             }
                                         }
@@ -261,9 +273,9 @@ public abstract class CollectionReferenceService {
                         }
                         // check whether the field is declared in the mapping but not index
                         if (property.containsKey("enabled")) {
-                            collectionProperty.indexed = (boolean)property.get("enabled") && parentIsIndexed;
+                            collectionProperty.indexed = (boolean) property.get("enabled") && parentIsIndexed;
                         } else if (property.containsKey("index")) {
-                            collectionProperty.indexed = (boolean)property.get("index") && parentIsIndexed;
+                            collectionProperty.indexed = (boolean) property.get("index") && parentIsIndexed;
                         } else {
                             collectionProperty.indexed = parentIsIndexed;
                         }
@@ -290,12 +302,13 @@ public abstract class CollectionReferenceService {
     }
 
     /**
-     * Get the parameters paths of a collection, using the given filter predicates
+     * Get the parameters paths of a collection, using the given filter
+     * predicates
      */
     public Set<String> getCollectionFields(CollectionReference collectionReference, Optional<String> filterPredicates) throws ArlasException {
 
-        Map<String, CollectionReferenceDescriptionProperty> collectionFilteredProperties =
-                this.describeCollection(collectionReference, filterPredicates).properties;
+        Map<String, CollectionReferenceDescriptionProperty> collectionFilteredProperties
+                = this.describeCollection(collectionReference, filterPredicates).properties;
 
         return getPropertiesFields(collectionFilteredProperties, "")
                 .collect(Collectors.toSet());
@@ -333,14 +346,18 @@ public abstract class CollectionReferenceService {
         //get fields
         List<String> fields = new ArrayList<>();
         if (checkFields) {
-            if (collectionReference.params.idPath != null)
+            if (collectionReference.params.idPath != null) {
                 fields.add(collectionReference.params.idPath);
-            if (collectionReference.params.geometryPath != null)
+            }
+            if (collectionReference.params.geometryPath != null) {
                 fields.add(collectionReference.params.geometryPath);
-            if (collectionReference.params.centroidPath != null)
+            }
+            if (collectionReference.params.centroidPath != null) {
                 fields.add(collectionReference.params.centroidPath);
-            if (collectionReference.params.timestampPath != null)
+            }
+            if (collectionReference.params.timestampPath != null) {
                 fields.add(collectionReference.params.timestampPath);
+            }
             if (!StringUtil.isNullOrEmpty(collectionReference.params.excludeFields)) {
                 List<String> excludeField = Arrays.asList(collectionReference.params.excludeFields.split(","));
                 CheckParams.checkExcludeField(excludeField, fields);
@@ -366,7 +383,7 @@ public abstract class CollectionReferenceService {
             if (esField == null) {
                 return getUnknownType(field, collectionReference.collectionName, throwException);
             }
-            for (int i=1; i<props.length; i++) {
+            for (int i = 1; i < props.length; i++) {
                 esField = esField.properties.get(props[i]);
                 if (esField == null) {
                     return getUnknownType(field, collectionReference.collectionName, throwException);
@@ -378,7 +395,7 @@ public abstract class CollectionReferenceService {
         return fieldType;
     }
 
-    private FieldType getUnknownType(String parentField, String collectionName, boolean throwException) throws ArlasException{
+    private FieldType getUnknownType(String parentField, String collectionName, boolean throwException) throws ArlasException {
         if (throwException) {
             throw new NotFoundException("Field '" + parentField + "' not found in collection " + collectionName);
         } else {
@@ -394,12 +411,11 @@ public abstract class CollectionReferenceService {
         return getFieldType(field, index).isTextField();
     }
 
-
     public boolean isGeoField(String field, String index) throws ArlasException {
         return getFieldType(field, index).isGeoField();
     }
 
-    private FieldType getFieldType(String field, String index) throws ArlasException  {
+    private FieldType getFieldType(String field, String index) throws ArlasException {
         AtomicReference<FieldType> ret = new AtomicReference<>(FieldType.UNKNOWN);
         Optional.ofNullable(getMapping(index).get(index))
                 .flatMap(e -> Optional.ofNullable(e.get(field)))
@@ -409,14 +425,14 @@ public abstract class CollectionReferenceService {
     }
 
     protected Boolean checkIfAllowedForOrganisations(CollectionReference collection,
-                                               Optional<String> organisations)
+            Optional<String> organisations)
             throws CollectionUnavailableException {
         return checkIfAllowedForOrganisations(collection, organisations, false);
     }
 
     public void checkIfIndexAllowedForOrganisations(CollectionReference collection,
-                                                    Optional<String> organisations, Optional<String> policyEnforcer)
-            throws InvalidParameterException,NotAllowedException {
+            Optional<String> organisations, Optional<String> policyEnforcer)
+            throws InvalidParameterException, NotAllowedException {
         if (organisations.isEmpty()) {
             // no header, we'll trust the column filter if any
             LOGGER.debug("No organisation header");
@@ -428,24 +444,28 @@ public abstract class CollectionReferenceService {
             return;
         }
         // In case of using arlas IAM
-        if(policyEnforcer.get().equals("io.arlas.filter.impl.HTTPPolicyEnforcer")){
+        if (policyEnforcer.get().equals("io.arlas.filter.impl.HTTPPolicyEnforcer")) {
             String indexName = collection.params.indexName;
-            if(!indexName.contains("@")){
+            if (!indexName.contains("@")) {
                 throw new InvalidParameterException("Index name must begin with org_name@.");
             }
-            long validOrgNbr = Arrays.stream(organisations.get().split(",")).filter(o -> indexName.split("@")[0].equals(o) ).count();
-            if(validOrgNbr == 0){
+            long validOrgNbr = Arrays.stream(organisations.get().split(",")).filter(o -> indexName.split("@")[0].equals(o)).count();
+            if (validOrgNbr == 0) {
                 throw new NotAllowedException("You are not authorized to create this collection.");
             }
         }
     }
 
     public Boolean checkIfAllowedForOrganisations(CollectionReference collection,
-                                               Optional<String> organisations,
-                                               boolean ownerOnly)
+            Optional<String> organisations,
+            boolean ownerOnly)
             throws CollectionUnavailableException {
+        if (configuration.arlasCheckOrganisations != null && !configuration.arlasCheckOrganisations) {
+            return true;
+        }
+
         if (organisations.isEmpty()) {
-            // no header, we'll trust the column filter if any
+                // no header, we'll trust the column filter if any
             LOGGER.debug("No organisation header");
             return true;
         }
@@ -475,5 +495,6 @@ public abstract class CollectionReferenceService {
             return false;
         }
         return true;
+
     }
 }

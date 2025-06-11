@@ -23,6 +23,11 @@ arlas-service-csw-enabled: ${ARLAS_SERVICE_CSW_ENABLE:-false}
 arlas-service-raster-tiles-enabled: ${ARLAS_SERVICE_RASTER_TILES_ENABLE:-true}
 
 ########################################################
+############ ORGANISATIONS               ###############
+########################################################
+arlas-check-organisations: ${ARLAS_CHECK_ORGANISATIONS:-true}
+
+########################################################
 ############ HTTP SERVER                 ###############
 ########################################################
 # Configuration of the HTTP Server and of the HTTP ACCESS LOGGING
