@@ -6,9 +6,9 @@ jobs:
   integration-tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4.1.4
+    - uses: actions/checkout@v4
     - name: Cache Maven # From https://github.com/actions/cache/blob/main/examples.md
-      uses: actions/cache@v4.0.2
+      uses: actions/cache@v4
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
