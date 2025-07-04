@@ -1,5 +1,27 @@
 # Change Log
 
+## [v26.0.9](https://github.com/gisaia/ARLAS-server/tree/v26.0.9) (2025-07-04)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.1.0...v26.0.9)
+
+## [v27.1.0](https://github.com/gisaia/ARLAS-server/tree/v27.1.0) (2025-06-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.0.1...v27.1.0)
+
+**Fixed bugs:**
+
+- In Invalid filter parameter Exception hide the partition and column filter [\#992](https://github.com/gisaia/ARLAS-server/issues/992)
+- Collection reference pointing non-existing index creates an exception [\#908](https://github.com/gisaia/ARLAS-server/issues/908)
+
+**Miscellaneous:**
+
+- Unnecessary warnings while filtering collections against organisation [\#1001](https://github.com/gisaia/ARLAS-server/issues/1001)
+- Ignore dateformat parameter if a date is not provided [\#965](https://github.com/gisaia/ARLAS-server/issues/965)
+
+## [v27.0.1](https://github.com/gisaia/ARLAS-server/tree/v27.0.1) (2025-02-24)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.8...v27.0.1)
+
 ## [v26.0.8](https://github.com/gisaia/ARLAS-server/tree/v26.0.8) (2025-02-21)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.0.0...v26.0.8)
