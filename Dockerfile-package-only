@@ -1,12 +1,12 @@
 ###################
 # PACKAGING STAGE #
 ###################
-FROM gisaia/arlas-openjdk:17-distroless
+FROM gisaia/arlas-openjdk-17-distroless:20250610202353
 
 # application placed into /opt/app
 WORKDIR /opt/app
-ADD arlas-server/target/arlas-server*.jar /opt/app/arlas-server.jar
-ADD conf/configuration.yaml /opt/app/configuration.yaml
+COPY arlas-server/target/arlas-server*.jar /opt/app/arlas-server.jar
+COPY conf/configuration.yaml /opt/app/configuration.yaml
 EXPOSE 9999
 
 HEALTHCHECK --interval=5m --timeout=3s \
