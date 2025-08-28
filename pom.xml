@@ -50,7 +50,7 @@
     <!-- TESTS -->
     <junit.version>4.13.2</junit.version>
     <org.hamcrest.version>2.2</org.hamcrest.version>
-    <io.rest-assured.version>5.4.0</io.rest-assured.version>
+    <io.rest-assured.version>5.3.2</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
     <dropwizard.version>2.1.12</dropwizard.version>
@@ -69,7 +69,7 @@
 
     <!-- GEO-->
     <geotools.version>30.4</geotools.version>
-    <protobuf.version>3.25.3</protobuf.version>
+    <protobuf.version>3.24.3</protobuf.version>
     <geojson.jackson.version>1.14</geojson.jackson.version>
     <spatial4j.version>0.8</spatial4j.version>
     <jts.version>1.19.0</jts.version>
