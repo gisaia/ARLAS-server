@@ -41,3 +41,8 @@ CVE-2025-4802
 # Reason: ARLAS-server uses Java which performs its own memory management
 # Description: Potential Mitigations from https://avd.aquasec.com/nvd/2023/cve-2023-7272/ : [...] many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows
 CVE-2023-7272
+
+# Status: Can be ignored
+# Reason:  ARLAS-server uses Java which performs its own memory management
+# Description : Potential Mitigations fromhttps://avd.aquasec.com/nvd/2024/cve-2024-13009/ : [...] languages such as Java, Ruby, and Lisp perform automatic garbage collection that releases memory for objects that have been deallocated
+CVE-2024-13009
