@@ -36,7 +36,7 @@
 
   <properties>
     <!-- PROJECT-->
-    <log4j.version>2.19.0</log4j.version>
+    <log4j.version>2.23.0</log4j.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <skipTests>true</skipTests>
     <maven.surefire.version>2.22.2</maven.surefire.version>
@@ -59,7 +59,7 @@
     <jaxb.version>2.3.8</jaxb.version>
     <jersey-media-jaxb.version>2.41</jersey-media-jaxb.version>
     <activation.version>2.1.2</activation.version>
-    <jackson.dataformat.version>2.15.2</jackson.dataformat.version>
+    <jackson.dataformat.version>2.16.1</jackson.dataformat.version>
 
     <!-- CACHE-->
     <hazelcast.version>5.3.6</hazelcast.version>

@@ -36,3 +36,8 @@ CVE-2023-52425
 # Description: Untrusted LD_LIBRARY_PATH environment variable vulnerability in the GNU C Library version 2.27 to 2.38 allows attacker controlled loading of dynamically 1
 #  shared library in statically compiled setuid binaries that call dlopen
 CVE-2025-4802
+
+# Status: Can be ignored
+# Reason: ARLAS-server uses Java which performs its own memory management
+# Description: Potential Mitigations from https://avd.aquasec.com/nvd/2023/cve-2023-7272/ : [...] many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows
+CVE-2023-7272
