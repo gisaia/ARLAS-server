@@ -56,7 +56,7 @@ fi
 
 docker compose -f docker-compose.yml --project-name arlas up -d ${BUILD_OPTS}
 
-docker logs -f arlas-server &
+#docker logs -f arlas-server &
 
 echo "===> wait for arlas-server up and running"
 docker run --net arlas_default --rm busybox sh -c 'i=1; until nc -w 2 arlas-server 9999; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
