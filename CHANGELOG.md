@@ -1,6 +1,154 @@
 # Change Log
 
-## [v24.1.1](https://github.com/gisaia/ARLAS-server/tree/v24.1.1) (2024-02-05)
+## [v24.1.3](https://github.com/gisaia/ARLAS-server/tree/v24.1.3) (2025-08-28)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.9...v24.1.3)
+
+## [v26.0.9](https://github.com/gisaia/ARLAS-server/tree/v26.0.9) (2025-07-04)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.1.0...v26.0.9)
+
+## [v27.1.0](https://github.com/gisaia/ARLAS-server/tree/v27.1.0) (2025-06-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.0.1...v27.1.0)
+
+**Fixed bugs:**
+
+- In Invalid filter parameter Exception hide the partition and column filter [\#992](https://github.com/gisaia/ARLAS-server/issues/992)
+- Collection reference pointing non-existing index creates an exception [\#908](https://github.com/gisaia/ARLAS-server/issues/908)
+
+**Miscellaneous:**
+
+- Unnecessary warnings while filtering collections against organisation [\#1001](https://github.com/gisaia/ARLAS-server/issues/1001)
+- Ignore dateformat parameter if a date is not provided [\#965](https://github.com/gisaia/ARLAS-server/issues/965)
+
+## [v27.0.1](https://github.com/gisaia/ARLAS-server/tree/v27.0.1) (2025-02-24)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.8...v27.0.1)
+
+## [v26.0.8](https://github.com/gisaia/ARLAS-server/tree/v26.0.8) (2025-02-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.0.0...v26.0.8)
+
+## [v27.0.0](https://github.com/gisaia/ARLAS-server/tree/v27.0.0) (2025-01-31)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.7...v27.0.0)
+
+## [v26.0.7](https://github.com/gisaia/ARLAS-server/tree/v26.0.7) (2025-01-08)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.6...v26.0.7)
+
+**New stuff:**
+
+- Allow Geotile/Gohash/Geohex aggregation on geo-shape fields [\#969](https://github.com/gisaia/ARLAS-server/issues/969) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+## [v26.0.6](https://github.com/gisaia/ARLAS-server/tree/v26.0.6) (2024-11-25)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.4...v26.0.6)
+
+## [v26.0.4](https://github.com/gisaia/ARLAS-server/tree/v26.0.4) (2024-11-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.3...v26.0.4)
+
+## [v26.0.3](https://github.com/gisaia/ARLAS-server/tree/v26.0.3) (2024-10-24)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.1...v26.0.3)
+
+**New stuff:**
+
+- IAM: index\_path of a collection should be prefixed by the organisation name of the user at creation/edition [\#985](https://github.com/gisaia/ARLAS-server/issues/985)
+- add delete verb for aproc/jobs in datasets and downloader roles [\#981](https://github.com/gisaia/ARLAS-server/issues/981)
+- Add a new endpoint to patch the display\_name of a given collection [\#978](https://github.com/gisaia/ARLAS-server/issues/978) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+- Remove the node "organisations" in PATCH organisation endpoint [\#977](https://github.com/gisaia/ARLAS-server/issues/977) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+## [v26.0.1](https://github.com/gisaia/ARLAS-server/tree/v26.0.1) (2024-08-30)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.1-rc.1...v26.0.1)
+
+## [v26.0.1-rc.1](https://github.com/gisaia/ARLAS-server/tree/v26.0.1-rc.1) (2024-08-23)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.0...v26.0.1-rc.1)
+
+## [v26.0.0](https://github.com/gisaia/ARLAS-server/tree/v26.0.0) (2024-08-21)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.1.0...v26.0.0)
+
+## [v25.1.0](https://github.com/gisaia/ARLAS-server/tree/v25.1.0) (2024-07-04)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0...v25.1.0)
+
+**New stuff:**
+
+- Extend applying geobbox and geocentroid metrics to geo-shape fields [\#967](https://github.com/gisaia/ARLAS-server/issues/967) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+**Fixed bugs:**
+
+- Apply an OR operation between different Partition filters. [\#964](https://github.com/gisaia/ARLAS-server/issues/964)
+- BBOX with e-notation is misinterpreted as a WKT [\#915](https://github.com/gisaia/ARLAS-server/issues/915)
+
+**Miscellaneous:**
+
+- Update documentation of partition-filters [\#966](https://github.com/gisaia/ARLAS-server/issues/966) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
+## [v25.0.0](https://github.com/gisaia/ARLAS-server/tree/v25.0.0) (2024-05-15)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-rc.2...v25.0.0)
+
+## [v25.0.0-rc.2](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-rc.2) (2024-05-05)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-rc.1...v25.0.0-rc.2)
+
+## [v25.0.0-rc.1](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-rc.1) (2024-05-04)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-beta.6...v25.0.0-rc.1)
+
+**Miscellaneous:**
+
+- Upgrade Dropwizard to version 4.x [\#884](https://github.com/gisaia/ARLAS-server/issues/884)
+
+## [v25.0.0-beta.6](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-beta.6) (2024-03-29)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-beta.5...v25.0.0-beta.6)
+
+## [v25.0.0-beta.5](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-beta.5) (2024-03-29)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-beta.4...v25.0.0-beta.5)
+
+**Fixed bugs:**
+
+- Released versions of ARLAS have their swagger file pointing 23.0.1 always [\#904](https://github.com/gisaia/ARLAS-server/issues/904)
+- swagger2markdown documentation is generated in every sub-module of ARLAS-server [\#894](https://github.com/gisaia/ARLAS-server/issues/894) [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
+**Miscellaneous:**
+
+- Use an alternative to convertSwagger2markup for openapi spec \(v3\) [\#953](https://github.com/gisaia/ARLAS-server/issues/953)
+
+## [v25.0.0-beta.4](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-beta.4) (2024-03-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-beta.3...v25.0.0-beta.4)
+
+## [v25.0.0-beta.3](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-beta.3) (2024-03-20)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v25.0.0-beta.2...v25.0.0-beta.3)
+
+**Miscellaneous:**
+
+- Dependencies version updates [\#950](https://github.com/gisaia/ARLAS-server/issues/950)
+- Upgrade JWT dependency version [\#830](https://github.com/gisaia/ARLAS-server/issues/830)
+
+## [v25.0.0-beta.2](https://github.com/gisaia/ARLAS-server/tree/v25.0.0-beta.2) (2024-03-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.1.2...v25.0.0-beta.2)
+
+## [v24.1.2](https://github.com/gisaia/ARLAS-server/tree/v24.1.2) (2024-03-06)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.1.1...v24.1.2)
+
+**Miscellaneous:**
+
+- API: Add a mean to update collection visibility to organisations and public visibility [\#937](https://github.com/gisaia/ARLAS-server/issues/937) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
+
+## [v24.1.1](https://github.com/gisaia/ARLAS-server/tree/v24.1.1) (2024-02-14)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.1.0...v24.1.1)
 
