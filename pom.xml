@@ -59,6 +59,7 @@
     <jaxb.version>2.3.7</jaxb.version>
     <jersey-media-jaxb.version>2.37</jersey-media-jaxb.version>
     <activation.version>2.1.0</activation.version>
+    <snakeyaml.version>2.0</snakeyaml.version>
 
     <!-- CACHE-->
     <hazelcast.version>5.2.5</hazelcast.version>
