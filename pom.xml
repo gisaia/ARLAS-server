@@ -55,7 +55,7 @@
     <!-- REST AND DROPWIZARD-->
     <dropwizard.version>2.1.12</dropwizard.version>
     <dropwizard.swagger.version>2.0.12-1</dropwizard.swagger.version>
-    <swaggerv3.version>2.2.8</swaggerv3.version>
+    <swaggerv3.version>2.2.36</swaggerv3.version>
     <jaxb.version>2.3.7</jaxb.version>
     <jersey-media-jaxb.version>2.37</jersey-media-jaxb.version>
     <activation.version>2.1.0</activation.version>
@@ -67,7 +67,7 @@
     <elastic.version>7.17.29</elastic.version>
 
     <!-- GEO-->
-    <geotools.version>28.6</geotools.version>
+    <geotools.version>27.3</geotools.version>
     <protobuf.version>3.25.5</protobuf.version>
     <geojson.jackson.version>1.14</geojson.jackson.version>
     <spatial4j.version>0.8</spatial4j.version>
