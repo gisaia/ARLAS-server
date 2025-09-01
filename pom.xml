@@ -50,7 +50,7 @@
     <!-- TESTS -->
     <junit.version>4.13.2</junit.version>
     <org.hamcrest.version>2.2</org.hamcrest.version>
-    <io.rest-assured.version>5.3.0</io.rest-assured.version>
+    <io.rest-assured.version>5.2.0</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
     <dropwizard.version>2.1.12</dropwizard.version>
@@ -64,7 +64,7 @@
     <hazelcast.version>5.2.5</hazelcast.version>
 
     <!-- ELASTICSEARCH-->
-    <elastic.version>7.17.29</elastic.version>
+    <elastic.version>7.17.6</elastic.version>
 
     <!-- GEO-->
     <geotools.version>27.3</geotools.version>
