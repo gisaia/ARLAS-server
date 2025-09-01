@@ -18,7 +18,7 @@ function clean_exit {
 	rm -rf target/tmp || echo "target/tmp already removed"
 	clean_docker
 	if [ "$SIMULATE" == "NO" ]; then
-        git checkout -- .
+        git checkout support/27.0.x
         mvn clean
     else
         echo "=> Skip discard changes";
@@ -127,12 +127,6 @@ API_DEV_VERSION=${API_MAJOR_VERSION}"."${API_MINOR_VERSION}"."${ARLAS_DEV}
 echo "Release : ${ARLAS_VERSION}"
 echo "API     : ${FULL_API_VERSION}"
 echo "Dev     : ${ARLAS_DEV_VERSION}"
-
-echo "=> Get develop branch"
-if [ "$SIMULATE" == "NO" ]; then
-    git checkout develop
-    git pull origin develop
-else echo "=> Skip develop checkout"; fi
 
 echo "=> Update project version"
 mvn clean
@@ -244,11 +238,8 @@ fi
 cd ${BASEDIR}
 
 if [ "$SIMULATE" == "NO" ]; then
-    echo "=> Tag arlas-server docker image"
-    docker tag gisaia/arlas-server:${ARLAS_VERSION} gisaia/arlas-server:latest
     echo "=> Push arlas-server docker image"
     docker push gisaia/arlas-server:${ARLAS_VERSION}
-    docker push gisaia/arlas-server:latest
 else echo "=> Skip docker push image"; fi
 
 
@@ -299,18 +290,7 @@ if [ "$SIMULATE" == "NO" ]; then
     git commit -a -m "release version ${ARLAS_VERSION}"
     git tag v${ARLAS_VERSION}
     git push origin v${ARLAS_VERSION}
-    git push origin develop
-
-    echo "=> Merge develop into master"
-    git checkout master
-    git pull origin master
-    git merge origin/develop
-    git push origin master
-
-    echo "=> Rebase develop"
-    git checkout develop
-    git pull origin develop
-    git rebase origin/master
+    git push origin support/27.0.x
 else echo "=> Skip git push master"; fi
 
 echo "=> Update project version for develop"
@@ -325,5 +305,5 @@ if [ "$SIMULATE" == "NO" ]; then
     git add openapi/openapi.json
     git add openapi/openapi.yaml
     git commit -a -m "development version ${ARLAS_DEV_VERSION}-SNAPSHOT"
-    git push origin develop
+    git push origin support/27.0.x
 else echo "=> Skip git push develop"; fi
