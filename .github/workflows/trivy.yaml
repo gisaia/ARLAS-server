@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Build an image from Dockerfile
       run: |
@@ -16,11 +16,15 @@ jobs:
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
+      env:
+        TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
+        TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db:1
       with:
         image-ref: 'docker.io/gisaia/arlas-server:${{ github.sha }}'
         format: 'table'
         exit-code: '1'
-        ignore-unfixed: true
+        timeout: '10m'
+        ignore-unfixed: false
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
         trivyignores: .github/workflows/.trivyignore

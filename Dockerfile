@@ -5,7 +5,7 @@ FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /opt/build
 
 # selectively add the POM file
-ADD pom.xml /opt/build/
+COPY pom.xml /opt/build/
 # get all the downloads out of the way
 RUN mvn verify clean --fail-never
 
@@ -17,7 +17,7 @@ RUN mvn install \
 ###################
 # PACKAGING STAGE #
 ###################
-FROM gisaia/arlas-openjdk:17-distroless
+FROM gisaia/arlas-openjdk-17-distroless:20250830104345
 
 # application placed into /opt/app
 WORKDIR /opt/app

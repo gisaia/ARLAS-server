@@ -8,7 +8,7 @@ if  [ -z "$npmlogin"  ] ; then echo "your are not logged on npm"; exit -1; else 
 
 function clean_docker {
     echo "===> stop arlas-server stack"
-    docker-compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v
+    docker compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v
 }
 
 function clean_exit {
@@ -18,7 +18,7 @@ function clean_exit {
 	rm -rf target/tmp || echo "target/tmp already removed"
 	clean_docker
 	if [ "$SIMULATE" == "NO" ]; then
-        git checkout -- .
+        git checkout support/23.0.8-security
         mvn clean
     else
         echo "=> Skip discard changes";
@@ -128,12 +128,6 @@ echo "Release : ${ARLAS_VERSION}"
 echo "API     : ${FULL_API_VERSION}"
 echo "Dev     : ${ARLAS_DEV_VERSION}"
 
-echo "=> Get develop branch"
-if [ "$SIMULATE" == "NO" ]; then
-    git checkout develop
-    git pull origin develop
-else echo "=> Skip develop checkout"; fi
-
 echo "=> Update project version"
 mvn clean
 mvn versions:set -DnewVersion=${ARLAS_VERSION}
@@ -159,11 +153,11 @@ fi
 echo "=> Start arlas-server stack"
 export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
 export ELASTIC_DATADIR="/tmp"
-docker-compose -f docker-compose-elasticsearch.yml --project-name arlas up -d
+docker compose -f docker-compose-elasticsearch.yml --project-name arlas up -d
 echo "Waiting for ES readiness"
 docker run --net arlas_default --rm busybox sh -c 'i=1; until nc -w 2 elasticsearch 9200; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
 echo "ES is ready"
-docker-compose -f docker-compose.yml --project-name arlas up -d --build
+docker compose -f docker-compose.yml --project-name arlas up -d --build
 DOCKER_IP=$(docker-machine ip || echo "localhost")
 
 echo "=> Wait for arlas-server up and running"
@@ -182,7 +176,7 @@ echo "=> Generate API documentation"
 mvn "-Dswagger.output=docs/api" swagger2markup:convertSwagger2markup
 
 echo "=> Stop arlas-server stack"
-docker-compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v
+docker compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v
 
 itests() {
 	echo "=> Run integration tests with several elasticsearch versions (${ELASTIC_VERSIONS[*]})"
@@ -272,11 +266,8 @@ fi
 cd ${BASEDIR}
 
 if [ "$SIMULATE" == "NO" ]; then
-    echo "=> Tag arlas-server docker image"
-    docker tag gisaia/arlas-server:${ARLAS_VERSION} gisaia/arlas-server:latest
     echo "=> Push arlas-server docker image"
     docker push gisaia/arlas-server:${ARLAS_VERSION}
-    docker push gisaia/arlas-server:latest
 else echo "=> Skip docker push image"; fi
 
 
@@ -327,18 +318,7 @@ if [ "$SIMULATE" == "NO" ]; then
     git commit -a -m "release version ${ARLAS_VERSION}"
     git tag v${ARLAS_VERSION}
     git push origin v${ARLAS_VERSION}
-    git push origin develop
-
-    echo "=> Merge develop into master"
-    git checkout master
-    git pull origin master
-    git merge origin/develop
-    git push origin master
-
-    echo "=> Rebase develop"
-    git checkout develop
-    git pull origin develop
-    git rebase origin/master
+    git push origin support/23.0.8-security
 else echo "=> Skip git push master"; fi
 
 echo "=> Update project version for develop"
@@ -353,5 +333,5 @@ if [ "$SIMULATE" == "NO" ]; then
     git add openapi/swagger.json
     git add openapi/swagger.yaml
     git commit -a -m "development version ${ARLAS_DEV_VERSION}-SNAPSHOT"
-    git push origin develop
+    git push origin support/23.0.8-security
 else echo "=> Skip git push develop"; fi
