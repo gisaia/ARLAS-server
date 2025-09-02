@@ -152,12 +152,12 @@ fi
 
 echo "=> Start arlas-server stack"
 export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
-export ELASTIC_DATADIR="/tmp"
+export ELASTIC_DATADIR="~/tmp"
 docker compose -f docker-compose-elasticsearch.yml --project-name arlas up -d
 echo "Waiting for ES readiness"
 docker run --net arlas_default --rm busybox sh -c 'i=1; until nc -w 2 elasticsearch 9200; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
 echo "ES is ready"
-docker compose -f docker-compose.yml --project-name arlas up -d --build
+docker compose -f docker-compose.yml --project-name arlas up -d
 DOCKER_IP=$(docker-machine ip || echo "localhost")
 
 echo "=> Wait for arlas-server up and running"
@@ -173,7 +173,7 @@ cp target/tmp/swagger.yaml openapi
 cp target/tmp/swagger.json openapi
 
 echo "=> Generate API documentation"
-mvn "-Dswagger.output=docs/api" swagger2markup:convertSwagger2markup
+# mvn "-Dswagger.output=docs/api" swagger2markup:convertSwagger2markup
 
 echo "=> Stop arlas-server stack"
 docker compose -f docker-compose.yml -f docker-compose-elasticsearch.yml --project-name arlas down -v
@@ -195,6 +195,7 @@ else
     docker run --rm \
         -e GROUP_ID="$(id -g)" \
         -e USER_ID="$(id -u)" \
+        --ulimit nofile=8096:8096 \
         --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
         --mount dst=/input/config.json,src="$PWD/conf/swagger/java-config.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/java-api",type=bind \
@@ -205,6 +206,7 @@ else
     docker run --rm \
         -e GROUP_ID="$(id -g)" \
         -e USER_ID="$(id -u)" \
+        --ulimit nofile=8096:8096 \
         --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
         gisaia/swagger-codegen-2.4.14 \

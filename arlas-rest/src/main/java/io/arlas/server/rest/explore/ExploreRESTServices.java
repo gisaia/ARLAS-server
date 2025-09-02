@@ -75,7 +75,7 @@ import io.swagger.annotations.SwaggerDefinition;
                 title = "ARLAS Exploration API",
                 description = "Explore the content of ARLAS collections",
                 license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
-                version = "24.1.3"),
+                version = "24.1.4"),
         schemes = { SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS })
 
 public abstract class ExploreRESTServices {
