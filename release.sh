@@ -152,12 +152,12 @@ fi
 
 echo "=> Start arlas-server stack"
 export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
-export ELASTIC_DATADIR="/tmp"
+export ELASTIC_DATADIR="~/tmp"
 docker compose -f docker-compose-elasticsearch.yml --project-name arlas up -d
 echo "Waiting for ES readiness"
 docker run --net arlas_default --rm busybox sh -c 'i=1; until nc -w 2 elasticsearch 9200; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
 echo "ES is ready"
-docker compose -f docker-compose.yml --project-name arlas up -d --build
+docker compose -f docker-compose.yml --project-name arlas up -d
 DOCKER_IP=$(docker-machine ip || echo "localhost")
 
 echo "=> Wait for arlas-server up and running"
@@ -175,7 +175,7 @@ cp target/tmp/swagger.json openapi
 echo "=> Generate API documentation"
 mkdir -p docs/api
 docker run --rm \
-    --mount dst=/input/api.json,src="$PWD/openapi/openapi.json",type=bind,ro \
+    --mount dst=/input/api.json,src="$PWD/openapi/swagger.json",type=bind,ro \
     --mount dst=/input/env.json,src="$PWD/conf/doc/widdershins.json",type=bind,ro \
     --mount dst=/output,src="$PWD/docs/api",type=bind \
 	gisaia/widdershins:4.0.1
@@ -200,6 +200,7 @@ else
     docker run --rm \
         -e GROUP_ID="$(id -g)" \
         -e USER_ID="$(id -u)" \
+        --ulimit nofile=8096:8096 \
         --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
         --mount dst=/input/config.json,src="$PWD/conf/swagger/java-config.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/java-api",type=bind \
@@ -210,20 +211,13 @@ else
     docker run --rm \
         -e GROUP_ID="$(id -g)" \
         -e USER_ID="$(id -u)" \
+        --ulimit nofile=8096:8096 \
         --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
         --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
         gisaia/swagger-codegen-2.4.14 \
             -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
 
-    mkdir -p target/tmp/python-api
-    docker run --rm \
-        -e GROUP_ID="$(id -g)" \
-        -e USER_ID="$(id -u)" \
-        --mount dst=/input/api.json,src="$PWD/target/tmp/swagger.json",type=bind,ro \
-        --mount dst=/input/config.json,src="$PROJECT_ROOT_DIRECTORY/conf/swagger/python-config.json",type=bind,ro \
-        --mount dst=/output,src="$PWD/target/tmp/python-api",type=bind \
-        gisaia/swagger-codegen-2.4.14 \
-            -l python --type-mappings GeoJsonObject=object
+
 
     echo "=> Build Typescript API "${FULL_API_VERSION}
     cd ${BASEDIR}/target/tmp/typescript-fetch/
@@ -243,29 +237,6 @@ else
     if [ "$SIMULATE" == "NO" ]; then
         npm publish || echo "Publishing on npm failed ... continue ..."
     else echo "=> Skip npm api publish"; fi
-
-    echo "=> Build Python API "${FULL_API_VERSION}
-    cd ${BASEDIR}/target/tmp/python-api/
-    cp ${BASEDIR}/conf/python/setup.py setup.py
-    sed -i.bak 's/\"api_version\"/\"'${FULL_API_VERSION}'\"/' setup.py
-
-    docker run \
-          -e GROUP_ID="$(id -g)" \
-          -e USER_ID="$(id -u)" \
-          --mount dst=/opt/python,src="$PWD",type=bind \
-          --rm \
-          gisaia/python-3-alpine \
-                setup.py sdist bdist_wheel
-
-    echo "=> Publish Python API "
-    if [ "$SIMULATE" == "NO" ]; then
-        docker run --rm \
-            -w /opt/python \
-            -v $PWD:/opt/python \
-            python:3 \
-            /bin/bash -c  "pip install twine ; twine upload dist/* -u ${PIP_LOGIN} -p ${PIP_PASSWORD}"
-         ### At this stage username and password of Pypi repository should be set
-    else echo "=> Skip python api publish"; fi
 fi
 
 cd ${BASEDIR}

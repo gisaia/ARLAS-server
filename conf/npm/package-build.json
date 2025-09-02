@@ -13,5 +13,10 @@
   },
   "devDependencies": {
     "typescript": "~2.3.3"
+  },
+  "overrides": {
+    "portable-fetch": {
+      "node-fetch": "3.3.0"
+    }
   }
 }
