@@ -1,6 +1,6 @@
 <!-- Generator: Widdershins v4.0.1 -->
 
-<h1 id="arlas-server-apis">ARLAS Server APIs vAPI_VERSION</h1>
+<h1 id="arlas-server-apis">ARLAS Server APIs v26.0.11</h1>
 
 > Scroll down for example requests and responses.
 
