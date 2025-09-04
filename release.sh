@@ -18,7 +18,7 @@ function clean_exit {
 	rm -rf target/tmp || echo "target/tmp already removed"
 	clean_docker
 	if [ "$SIMULATE" == "NO" ]; then
-        git checkout feat/26.0.x
+        git checkout support/26.0.x
         mvn clean
     else
         echo "=> Skip discard changes";
@@ -291,7 +291,7 @@ if [ "$SIMULATE" == "NO" ]; then
     git commit -a -m "release version ${ARLAS_VERSION}"
     git tag v${ARLAS_VERSION}
     git push origin v${ARLAS_VERSION}
-    git push origin feat/26.0.x
+    git push origin support/26.0.x
 
 else echo "=> Skip git push master"; fi
 
@@ -307,5 +307,5 @@ if [ "$SIMULATE" == "NO" ]; then
     git add openapi/openapi.json
     git add openapi/openapi.yaml
     git commit -a -m "development version ${ARLAS_DEV_VERSION}-SNAPSHOT"
-    git push origin feat/26.0.x
+    git push origin support/26.0.x
 else echo "=> Skip git push develop"; fi
