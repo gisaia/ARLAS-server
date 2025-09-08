@@ -42,11 +42,6 @@ CVE-2025-4802
 # Description : Potential Mitigations from https://avd.aquasec.com/nvd/2024/cve-2024-13009/ : [...] languages such as Java, Ruby, and Lisp perform automatic garbage collection that releases memory for objects that have been deallocated
 CVE-2024-13009
 
-# Status: ?
-# Reaaon: 
-# Description: https://avd.aquasec.com/nvd/2023/cve-2023-6841/
-CVE-2023-6841
-
 # Status: Can be ignored
 # Reason: ARLAS-server parse only local config file
 # Description: Weakness from https://avd.aquasec.com/nvd/2023/cve-2023-6378/ : [...] allows an attacker to mount a Denial-Of-Service attack by sending poisoned data
