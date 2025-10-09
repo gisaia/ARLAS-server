@@ -1,4 +1,4 @@
-# Status: Can be ignored
+# Status: Ignored for now - action to be done: upgrade keycloak
 # Reason: need keycloak dependecy update to 26.0.6 
 # Description: Potential Mitigations Requires access to the deployment's local network to exploit
 CVE-2024-10039
