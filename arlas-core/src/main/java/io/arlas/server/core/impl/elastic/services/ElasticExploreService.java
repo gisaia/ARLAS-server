@@ -286,7 +286,8 @@ public class ElasticExploreService extends ExploreService {
         long totalnb = searchHits.total().value();
         Search searchRequest = (Search) request.basicRequest;
         FeatureCollection fc = new FeatureCollection();
-        List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> results = searchHits.hits();
+        // results should be a modifiable list in order to apply the Collections.reverse.
+        List<co.elastic.clients.elasticsearch.core.search.Hit<Map>> results = new ArrayList<>(searchHits.hits());//NOSONAR
         if (context != null) {
             context.putAll(getLinks(searchRequest, collectionReference, results.size(), results, uriInfo, method));
             context.put("matched", totalnb);
