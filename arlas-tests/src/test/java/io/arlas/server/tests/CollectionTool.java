@@ -73,7 +73,6 @@ public class CollectionTool extends AbstractTestContext {
     }
 
     public  void load(long sleepAfter, boolean exclude) throws ArlasException {
-
         try {
             DataSetTool.loadDataSet();
         } catch (UnknownHostException e) {
