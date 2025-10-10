@@ -1,5 +1,13 @@
 # Change Log
 
+## [v26.0.12](https://github.com/gisaia/ARLAS-server/tree/v26.0.12) (2025-10-10)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.11...v26.0.12)
+
+**Miscellaneous:**
+
+- Programm a recurrent trivy run to check if there are any new vulnerabilities [\#995](https://github.com/gisaia/ARLAS-server/issues/995)
+
 ## [v26.0.11](https://github.com/gisaia/ARLAS-server/tree/v26.0.11) (2025-09-04)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.10...v26.0.11)
