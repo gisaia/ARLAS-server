@@ -1,6 +1,6 @@
 <!-- Generator: Widdershins v4.0.1 -->
 
-<h1 id="arlas-exploration-api">ARLAS Exploration API v23.0.8-security.1</h1>
+<h1 id="arlas-exploration-api">ARLAS Exploration API v23.0.8-security.2</h1>
 
 > Scroll down for example requests and responses.
 

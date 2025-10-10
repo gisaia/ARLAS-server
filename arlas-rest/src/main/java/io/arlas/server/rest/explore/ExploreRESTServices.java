@@ -19,11 +19,24 @@
 
 package io.arlas.server.rest.explore;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.arlas.commons.exceptions.ArlasException;
-import io.arlas.server.core.services.ExploreService;
-import io.arlas.server.core.utils.IOUtils;
-import io.swagger.annotations.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.ZipOutputStream;
+
+import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.io.FileUtils;
 import org.geojson.FeatureCollection;
 import org.geotools.data.collection.ListFeatureCollection;
@@ -44,17 +57,16 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.zip.ZipOutputStream;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.server.core.services.ExploreService;
+import io.arlas.server.core.utils.IOUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Contact;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.License;
+import io.swagger.annotations.SwaggerDefinition;
 
 @Path("/explore")
 @Api(value = "/explore")
@@ -63,7 +75,7 @@ import java.util.zip.ZipOutputStream;
                 title = "ARLAS Exploration API",
                 description = "Explore the content of ARLAS collections",
                 license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html"),
-                version = "23.0.8-security.1"),
+                version = "23.0.8-security.2"),
         schemes = { SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS })
 
 public abstract class ExploreRESTServices {
