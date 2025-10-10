@@ -1,12 +1,12 @@
 # Status: Ignored for now - action to be done: upgrade keycloak
-# Reason: need keycloak dependecy update to 26.0.6
-# Description: Potential Mitigations Requires access to the deployment's local network to exploit
-CVE-2024-1009
-
-# Status: Ignored for now - action to be done: upgrade keycloak
 # Reason: need keycloak dependecy update to 26.0.6 
 # Description: Potential Mitigations Requires access to the deployment's local network to exploit
 CVE-2024-10039
+
+# Status: Ignored for now - action to be done: upgrade keycloak
+# Reason: need keycloak dependecy update to 26.0.6
+# Description: https://avd.aquasec.com/nvd/2023/cve-2023-6841/
+CVE-2023-6841
 
 # Status: Can be ignored
 # Reason: ARLAS-server parse only local config file  
@@ -22,25 +22,6 @@ CVE-2023-45853
 # Reason: ARLAS-server process has a RAM limitation
 # Description: Potential Mitigations from https://avd.aquasec.com/nvd/2023/cve-2023-25193/ : Use resource-limiting settings provided by the operating system or environment
 CVE-2023-25193
-
-# Status: Can be ignored
-# Reason: ARLAS-server parse only local config file
-# Description: Potential Mitigations from https://avd.aquasec.com/nvd/2024/cve-2024-8176/ : [...] libexpat can be forced to recurse indefinitely, exhausting the stack
-#  space and causing a crash [...]
-CVE-2024-8176
-
-# Status: Can be ignored
-# Reason: ARLAS-server has a RAM limitation and should not parse large token
-# Description: Potential Mitigations from https://avd.aquasec.com/nvd/2023/cve-2023-52425/ : [...] because many full reparsings are required in the case of a large token [...]
-CVE-2023-52425
-
-# Status: Can be ignored
-# Reason: ARLAS-server doesn't invoke any external executables /  Java doesn’t rely on the OS’s PATH to locate internal resources /
-#  Java class/resource loading is managed through the classpath, not the system search path
-#  ARLAS-server is based on Dropwizard it run from a JAR, not by calling system binaries
-# Description: Untrusted LD_LIBRARY_PATH environment variable vulnerability in the GNU C Library version 2.27 to 2.38 allows attacker controlled loading of dynamically 1
-#  shared library in statically compiled setuid binaries that call dlopen
-CVE-2025-4802
 
 # Status: Can be ignored
 # Reason:  ARLAS-server uses Java which performs its own memory management
@@ -62,8 +43,4 @@ CVE-2022-1471
 # Description: Weakness from https://avd.aquasec.com/nvd/2024/cve-2024-47554/ : The org.apache.commons.io.input.XmlStreamReader class may excessively consume CPU resources when processing maliciously crafted input
 CVE-2024-47554
 
-# Status: Can be ignored
-# Reason: ARLAS-server uses Java which performs its own memory management
-# Description: Potential Mitigations from https://avd.aquasec.com/nvd/2023/cve-2023-7272/ : [...] many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows
-CVE-2023-7272
 
