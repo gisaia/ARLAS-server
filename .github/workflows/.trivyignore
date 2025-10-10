@@ -19,7 +19,7 @@ CVE-2023-45853
 CVE-2023-25193
 
 # Status: Can be ignored
-# Reason: ARLAS-server parse only local config file  
+# Reason: ARLAS-server parse only local config file
 # Description: Potential Mitigations from https://avd.aquasec.com/nvd/2024/cve-2024-8176/ : [...] libexpat can be forced to recurse indefinitely, exhausting the stack
 #  space and causing a crash [...]
 CVE-2024-8176
@@ -56,3 +56,9 @@ CVE-2022-1471
 # Reason: ARLAS-server parse only local config file
 # Description: Weakness from https://avd.aquasec.com/nvd/2024/cve-2024-47554/ : The org.apache.commons.io.input.XmlStreamReader class may excessively consume CPU resources when processing maliciously crafted input
 CVE-2024-47554
+
+# Status: Can be ignored
+# Reason: ARLAS-server uses Java which performs its own memory management
+# Description: Potential Mitigations from https://avd.aquasec.com/nvd/2023/cve-2023-7272/ : [...] many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows
+CVE-2023-7272
+
