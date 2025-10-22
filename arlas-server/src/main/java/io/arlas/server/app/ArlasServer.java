@@ -72,7 +72,6 @@ import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
-import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.jaxrs2.Reader;
@@ -107,7 +106,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         bootstrap.getObjectMapper().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         bootstrap.setConfigurationSourceProvider(new SubstitutingSourceProvider(
                 bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
-        bootstrap.addBundle(new SwaggerBundle<>() {
+        bootstrap.addBundle(new ArlasSwaggerBundle<>() {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ArlasServerConfiguration configuration) {
                 return configuration.swaggerBundleConfiguration;
@@ -120,7 +119,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
     public void run(ArlasServerConfiguration configuration, Environment environment) throws Exception {
         
         configuration.check();
-        LOGGER.info("Checked configuration: " + environment.getObjectMapper().writer().writeValueAsString(configuration));
+        LOGGER.info("Checked configuration: {}", environment.getObjectMapper().writer().writeValueAsString(configuration));
         ModelConverters.getInstance().addConverter(new MapAwareConverter());
         CacheFactory cacheFactory = (CacheFactory) Class
                 .forName(configuration.arlasCacheFactoryClass)
@@ -170,7 +169,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
                 .setAuthConf(configuration.arlasAuthConfiguration)
                 .setCacheTimeout(configuration.arlasCacheTimeout)
                 .setCacheManager(cacheFactory.getCacheManager());
-        LOGGER.info("PolicyEnforcer: " + policyEnforcer.getClass().getCanonicalName());
+        LOGGER.info("PolicyEnforcer: {}", policyEnforcer.getClass().getCanonicalName());
         environment.jersey().register(policyEnforcer);
 
         if (configuration.arlasServiceCollectionsEnabled) {

@@ -22,6 +22,8 @@ package io.arlas.server.core.app;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.commons.exceptions.ArlasConfigurationException;
 import io.arlas.commons.utils.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,6 +31,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class ArlasServerConfiguration extends ArlasBaseConfiguration {
+    Logger logger = LoggerFactory.getLogger(ArlasServerConfiguration.class);
 
     @JsonProperty("arlas-wfs")
     public WFSConfiguration wfsConfiguration;
@@ -141,6 +144,16 @@ public class ArlasServerConfiguration extends ArlasBaseConfiguration {
         if (collectionAutoDiscoverConfiguration == null) {
             collectionAutoDiscoverConfiguration = new CollectionAutoDiscoverConfiguration();
             collectionAutoDiscoverConfiguration.schedule = 0;
+        }
+
+        if (arlasServiceSTACEnabled == null) {
+            arlasServiceSTACEnabled = false;
+        }
+        if(!arlasServiceSTACEnabled && swaggerBundleConfiguration.getResourcePackage().contains("io.arlas.server.stac")){
+            logger.warn("STAC service is disabled but STAC resources are present in Swagger configuration.");
+        }
+        if(arlasServiceSTACEnabled && !swaggerBundleConfiguration.getResourcePackage().contains("io.arlas.server.stac")){
+            logger.warn("STAC service is enabled but STAC resources are missing in Swagger configuration.");
         }
     }
 }
