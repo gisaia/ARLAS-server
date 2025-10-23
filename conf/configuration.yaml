@@ -4,12 +4,6 @@
 #
 swagger: # Configuration of SWAGGER for generating documentation and APIs
   resourcePackage: ${ARLAS_SWAGGER_RESOURCE_PKG:-io.arlas.server.rest,io.arlas.server.stac}
-  # not supported in 3.0.0-1 but PR existing and merged
-  servers:
-    - url: ${ARLAS_PREFIX:-/arlas}
-      description: "Backend server from client browser"
-    - url: http://arlas-server${ARLAS_PREFIX:-/arlas}
-      description: "Backend server from docker network"
 
 ########################################################
 ############ ENABLED SERVICES            ###############
@@ -40,7 +34,7 @@ server:
         archivedLogFilenamePattern: ${ACCESS_LOG_FILE_ARCHIVE:-arlas-access-%d.log.gz}
   registerDefaultExceptionMappers: false
   type: simple
-  rootPath: ${ARLAS_PREFIX:-/arlas}
+  rootPath: ${ARLAS_PREFIX:-/arlas/server}
   applicationContextPath: ${ARLAS_APP_PATH:-/}
   adminContextPath: ${ARLAS_ADMIN_PATH:-/admin}
   connector:
@@ -54,7 +48,7 @@ server:
 ########################################################
 ############ URL Masking                 ###############
 ########################################################
-arlas-base-uri: ${ARLAS_BASE_URI:-''}
+arlas-base-uri: ${ARLAS_BASE_URI:-'http://localhost:9999/arlas/server'}
 
 ########################################################
 ############ LOGGING                     ###############

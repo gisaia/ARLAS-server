@@ -24,7 +24,6 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
-import io.swagger.v3.oas.annotations.servers.Server;
 
 @OpenAPIDefinition(
         info = @Info(
@@ -35,10 +34,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 version = "API_VERSION"),
         externalDocs = @ExternalDocumentation(
                 description = "API documentation",
-                url="https://docs.arlas.io/arlas-api/"),
-        servers = {
-                @Server(url = "/arlas", description = "default server")
-        }
+                url="https://docs.arlas.io/external_docs/ARLAS-server/arlas-api/")
 )
 public abstract class ArlasRESTServices {
 }
