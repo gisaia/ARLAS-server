@@ -22,6 +22,7 @@ package io.arlas.server.ogc.csw;
 import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.app.InspireConfiguration;
 import io.arlas.server.core.app.OGCConfiguration;
+import io.arlas.server.core.model.CollectionOrganisations;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.CollectionReference;
@@ -71,6 +72,8 @@ public class CSWService extends CSWRESTService {
         collectionReferenceParameters.inspireConfigurationParameters.setConformityParameter();
         collectionReferenceParameters.inspireConfigurationParameters.publicAccessLimitations = inspireConfiguration.publicAccessLimitations;
         collectionReferenceParameters.inspireConfigurationParameters.accessAndUseConditions = inspireConfiguration.accessAndUseConditions;
+        collectionReferenceParameters.collectionOrganisations = new CollectionOrganisations();
+        collectionReferenceParameters.collectionOrganisations.isPublic = true;
         collectionReference.params = collectionReferenceParameters;
         return collectionReference;
     }
