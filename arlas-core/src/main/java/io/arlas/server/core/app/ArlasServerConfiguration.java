@@ -155,5 +155,9 @@ public class ArlasServerConfiguration extends ArlasBaseConfiguration {
         if(arlasServiceSTACEnabled && !swaggerBundleConfiguration.getResourcePackage().contains("io.arlas.server.stac")){
             logger.warn("STAC service is enabled but STAC resources are missing in Swagger configuration.");
         }
+
+        if(arlasServiceCSWEnabled && this.arlasAuthPolicyClass.equals("io.arlas.filter.impl.HTTPPolicyEnforcer")){
+            throw new ArlasConfigurationException("CSW service cannot be enabled with HTTPPolicyEnforcer. Please choose another policy enforcer or deactivate CSW service.");
+        }
     }
 }
