@@ -242,8 +242,8 @@
   </dependencies>
   <properties>
     <swagger-core-version>2.2.20</swagger-core-version>
-    <jersey-version>3.0.12</jersey-version>
-    <jackson-version>2.16.1</jackson-version>
+    <jersey-version>3.0.17</jersey-version>
+    <jackson-version>2.18.2</jackson-version>
     <junit-version>4.13.2</junit-version>
   </properties>
     <distributionManagement>

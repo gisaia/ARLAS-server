@@ -53,13 +53,13 @@
     <io.rest-assured.version>5.4.0</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
-    <dropwizard.version>4.0.7</dropwizard.version>
+    <dropwizard.version>4.0.12</dropwizard.version>
     <!-- jackson version is also defined in conf/maven/pom.xml for the java server client -->
-    <jackson-version>2.16.1</jackson-version>
+    <jackson-version>2.18.2</jackson-version>
     <dropwizard.swagger.version>4.0.5-1</dropwizard.swagger.version>
     <jaxb.version>4.0.4</jaxb.version>
     <!-- don't go to jersey 3.1.x before DW5 (jakarta EE 10) -->
-    <jersey-media-jaxb.version>3.0.12</jersey-media-jaxb.version>
+    <jersey-media-jaxb.version>3.0.17</jersey-media-jaxb.version>
 
     <!-- CACHE-->
     <hazelcast.version>5.4.0</hazelcast.version>
