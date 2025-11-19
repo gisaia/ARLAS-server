@@ -53,7 +53,7 @@
     <io.rest-assured.version>5.4.0</io.rest-assured.version>
 
     <!-- REST AND DROPWIZARD-->
-    <dropwizard.version>4.0.7</dropwizard.version>
+    <dropwizard.version>4.0.12</dropwizard.version>
     <!-- jackson version is also defined in conf/maven/pom.xml for the java server client -->
     <jackson-version>2.16.1</jackson-version>
     <dropwizard.swagger.version>4.0.5-1</dropwizard.swagger.version>
