@@ -97,7 +97,11 @@ public class ElasticWFSToolService implements WFSToolService {
         buildWFSQuery(null, id, bbox, constraint, resourceid, null, partitionFilter, collectionReference, columnFilter);
         List<Map<String, Object>> featureList = new ArrayList<>();
         String[] includes = columnFilterToIncludes(collectionReference, columnFilter);
-        SourceFilter.Builder sourceFilterBuilder = new SourceFilter.Builder().excludes(Arrays.asList(excludes));
+        List<String> excludesAsList = Optional
+                .ofNullable(excludes)
+                .map(Arrays::asList)
+                .orElse(Collections.emptyList());
+        SourceFilter.Builder sourceFilterBuilder = new SourceFilter.Builder().excludes(excludesAsList);
         if(includes != null){
             sourceFilterBuilder=sourceFilterBuilder.includes(Arrays.asList(includes));
         }
