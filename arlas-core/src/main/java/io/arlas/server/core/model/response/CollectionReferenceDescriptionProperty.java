@@ -19,13 +19,13 @@
 
 package io.arlas.server.core.model.response;
 
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import io.dropwizard.jackson.JsonSnakeCase;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.util.Map;
 
-@JsonSnakeCase
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CollectionReferenceDescriptionProperty {
 
     public FieldType type;

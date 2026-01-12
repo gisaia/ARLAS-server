@@ -28,14 +28,16 @@ import io.arlas.server.core.model.CollectionReference;
 import io.arlas.server.core.utils.MapExplorer;
 import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.utils.TimestampTypeMapper;
-import io.dropwizard.jackson.JsonSnakeCase;
 import org.geojson.GeoJsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-@JsonSnakeCase
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ArlasHit {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArlasHit.class);
 

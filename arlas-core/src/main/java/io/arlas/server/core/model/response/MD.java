@@ -19,12 +19,14 @@
 
 package io.arlas.server.core.model.response;
 
-import io.dropwizard.jackson.JsonSnakeCase;
 import org.geojson.GeoJsonObject;
 
 import java.util.List;
 
-@JsonSnakeCase
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class MD {
     public String id;
 

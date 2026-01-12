@@ -88,11 +88,13 @@ Another way is to import the default configuration file given with this module (
     - `role/arlas/downloader` (rules to download data with [AIAS])
     - `role/arlas/datasets` (rules to manage data (ingest, update and enrich) in ARLAS)
     - `group/config.json/XXXXX`: add as many groups as needed where `XXXXX` will be the name of groups available to share dashboards in ARLAS hub and that can be associated to data filters.
-7. *(Clients/Arlas-backend/Authorization/Policies)* Add role policies for each new group you have added.
-   Don't select a Realm Role but choose the `arlas` Client and choose a Client Role. Keep the logic to Positive.
+7. *(Clients/Arlas-backend/Authorization/Policies)* Add role policies for each new role you have added.
+   Choose a policy type `Role`. Keep the logic to Positive. Choose the relevant role in the `arlas-backend` roles list.
 8. *(Clients/Arlas-backend/Authorization/Resources)* Add any resource `header:name:value` (as name) you need (optionally setting
    a `type` if you need to map more than one in a `group/config.json/...` *role*) and create permission (select relevant role policy).
-   A basic example: you might need to authorize a user to see all the fields of all the collections. This is a resource   named `h:column-filter:*:*`. Create a permission for this resource and apply `role/arlas/user` to it.
+   A basic example: you might need to authorize a user to see all the fields of all the collections. This is a resource   named `h:column-filter:*:*`. 
+   Create a role and policy named `role/data/all`.
+   Then create a resource named `h:column-filter:*:*` and create a permission for this resource and apply `role/data/all` to it.
 9. *(Groups)* Add groups with some `arlas-backend` *client roles* according to the way you want to assign permissions to users.
 10. *(Users)* Add users:
     - Username= choose name

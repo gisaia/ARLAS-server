@@ -20,10 +20,12 @@
 package io.arlas.server.core.model.response;
 
 
-import io.dropwizard.jackson.JsonSnakeCase;
 import org.geojson.FeatureCollection;
 
-@JsonSnakeCase
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class TimedFeatureCollection extends FeatureCollection {
     public Long queryTime = null;
     public Long arlasTime = null;

@@ -46,7 +46,6 @@ module arlas.commons {
     requires com.fasterxml.jackson.jakarta.rs.base;
     requires com.hazelcast.core;
     requires io.dropwizard.core;
-    requires io.dropwizard.jackson;
     requires io.swagger.v3.core;
     requires io.swagger.v3.oas.models;
     requires dropwizard.swagger;
