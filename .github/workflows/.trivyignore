@@ -17,8 +17,3 @@ CVE-2025-52999
 # Reason: ARLAS-server process has a RAM limitation
 # Description: Potential Mitigations from https://avd.aquasec.com/nvd/2023/cve-2023-25193/ : Use resource-limiting settings provided by the operating system or environment
 CVE-2023-25193
-
-# Status: Can be ignored
-# Reason: TODO
-# Description: TODO
-CVE-2023-45853
