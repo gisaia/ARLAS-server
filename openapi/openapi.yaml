@@ -9,13 +9,12 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 27.1.0
+  version: 27.2.0
 externalDocs:
   description: API documentation
-  url: https://docs.arlas.io/arlas-api/
+  url: https://docs.arlas.io/external_docs/ARLAS-server/arlas-api/
 servers:
-- url: /arlas
-  description: default server
+- url: http://arlas-server:9999/arlas/
 tags:
 - name: collections
   description: Collections API
@@ -48,19 +47,19 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/CollectionReference'
+                $ref: "#/components/schemas/CollectionReference"
         "404":
           description: Collection not found.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     put:
       tags:
       - collections
@@ -90,7 +89,7 @@ paths:
         content:
           application/json;charset=utf-8:
             schema:
-              $ref: '#/components/schemas/CollectionReferenceParameters'
+              $ref: "#/components/schemas/CollectionReferenceParameters"
         required: true
       responses:
         "200":
@@ -98,25 +97,25 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/CollectionReference'
+                $ref: "#/components/schemas/CollectionReference"
         "400":
           description: JSON parameter malformed.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "404":
           description: Not Found Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     delete:
       tags:
       - collections
@@ -142,19 +141,19 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Success'
+                $ref: "#/components/schemas/Success"
         "404":
           description: Collection not found.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /collections/_export:
     get:
       tags:
@@ -170,13 +169,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CollectionReference'
+                  $ref: "#/components/schemas/CollectionReference"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /collections:
     get:
       tags:
@@ -199,13 +198,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CollectionReference'
+                  $ref: "#/components/schemas/CollectionReference"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /collections/_import:
     post:
       tags:
@@ -220,7 +219,7 @@ paths:
               type: object
               properties:
                 file:
-                  $ref: '#/components/schemas/FormDataContentDisposition'
+                  $ref: "#/components/schemas/FormDataContentDisposition"
       responses:
         "200":
           description: Successful operation
@@ -233,7 +232,7 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /collections/{collection}/organisations:
     patch:
       tags:
@@ -259,7 +258,7 @@ paths:
         content:
           application/json;charset=utf-8:
             schema:
-              $ref: '#/components/schemas/CollectionReferenceUpdateOrg'
+              $ref: "#/components/schemas/CollectionReferenceUpdateOrg"
         required: true
       responses:
         "200":
@@ -267,25 +266,25 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/CollectionReference'
+                $ref: "#/components/schemas/CollectionReference"
         "400":
           description: JSON parameter malformed.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "404":
           description: Collection not found.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /collections/{collection}/display_names/collection:
     patch:
       tags:
@@ -319,25 +318,25 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/CollectionReference'
+                $ref: "#/components/schemas/CollectionReference"
         "400":
           description: JSON parameter malformed.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "404":
           description: Collection not found.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /collections/{collection}/display_names/fields:
     patch:
       tags:
@@ -373,25 +372,25 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/CollectionReference'
+                $ref: "#/components/schemas/CollectionReference"
         "400":
           description: JSON parameter malformed.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "404":
           description: Collection not found.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /collections/{collection}/display_names/shape_columns:
     patch:
       tags:
@@ -427,25 +426,25 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/CollectionReference'
+                $ref: "#/components/schemas/CollectionReference"
         "400":
           description: JSON parameter malformed.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "404":
           description: Collection not found.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/_aggregate:
     get:
       tags:
@@ -635,19 +634,19 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/AggregationResponse'
+                $ref: "#/components/schemas/AggregationResponse"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     post:
       tags:
       - explore
@@ -678,26 +677,26 @@ paths:
         content:
           application/json;charset=utf-8:
             schema:
-              $ref: '#/components/schemas/AggregationsRequest'
+              $ref: "#/components/schemas/AggregationsRequest"
       responses:
         "200":
           description: Successful operation
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/AggregationResponse'
+                $ref: "#/components/schemas/AggregationResponse"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/_geoaggregate:
     get:
       tags:
@@ -894,25 +893,25 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/FeatureCollection'
+                $ref: "#/components/schemas/FeatureCollection"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "501":
           description: Not implemented functionality.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     post:
       tags:
       - explore
@@ -943,32 +942,32 @@ paths:
         content:
           application/json;charset=utf-8:
             schema:
-              $ref: '#/components/schemas/AggregationsRequest'
+              $ref: "#/components/schemas/AggregationsRequest"
       responses:
         "200":
           description: Successful operation
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/FeatureCollection'
+                $ref: "#/components/schemas/FeatureCollection"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "501":
           description: Not implemented functionality.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/_geoaggregate/{geohash}:
     get:
       tags:
@@ -1170,25 +1169,25 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/FeatureCollection'
+                $ref: "#/components/schemas/FeatureCollection"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "501":
           description: Not implemented functionality.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/_geoaggregate/{z}/{x}/{y}:
     get:
       tags:
@@ -1405,25 +1404,25 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/FeatureCollection'
+                $ref: "#/components/schemas/FeatureCollection"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "501":
           description: Not implemented functionality.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/_shapeaggregate:
     get:
       tags:
@@ -1616,19 +1615,19 @@ paths:
           content:
             application/zip:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/zip:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "501":
           description: Not implemented functionality.
           content:
             application/zip:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     post:
       tags:
       - explore
@@ -1659,7 +1658,7 @@ paths:
         content:
           application/json;charset=utf-8:
             schema:
-              $ref: '#/components/schemas/AggregationsRequest'
+              $ref: "#/components/schemas/AggregationsRequest"
       responses:
         "200":
           description: Successful operation
@@ -1668,19 +1667,19 @@ paths:
           content:
             application/zip:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/zip:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "501":
           description: Not implemented functionality.
           content:
             application/zip:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/_compute:
     get:
       tags:
@@ -1792,19 +1791,19 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/ComputationResponse'
+                $ref: "#/components/schemas/ComputationResponse"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     post:
       tags:
       - explore
@@ -1835,26 +1834,26 @@ paths:
         content:
           application/json;charset=utf-8:
             schema:
-              $ref: '#/components/schemas/ComputationRequest'
+              $ref: "#/components/schemas/ComputationRequest"
       responses:
         "200":
           description: Successful operation
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/ComputationResponse'
+                $ref: "#/components/schemas/ComputationResponse"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/_count:
     get:
       tags:
@@ -1953,19 +1952,19 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Hits'
+                $ref: "#/components/schemas/Hits"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     post:
       tags:
       - explore
@@ -1990,26 +1989,26 @@ paths:
         content:
           application/json;charset=utf-8:
             schema:
-              $ref: '#/components/schemas/Count'
+              $ref: "#/components/schemas/Count"
       responses:
         "200":
           description: Successful operation
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Hits'
+                $ref: "#/components/schemas/Hits"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/_describe:
     get:
       tags:
@@ -2042,25 +2041,25 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/CollectionReferenceDescription'
+                $ref: "#/components/schemas/CollectionReferenceDescription"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "403":
           description: Collection not authorized.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/_list:
     get:
       tags:
@@ -2089,25 +2088,25 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CollectionReferenceDescription'
+                  $ref: "#/components/schemas/CollectionReferenceDescription"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "403":
           description: Collection not authorized.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/{identifier}:
     get:
       tags:
@@ -2152,25 +2151,25 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/ArlasHit'
+                $ref: "#/components/schemas/ArlasHit"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "404":
           description: Not Found Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/_geosearch:
     get:
       tags:
@@ -2356,19 +2355,19 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/FeatureCollection'
+                $ref: "#/components/schemas/FeatureCollection"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     post:
       tags:
       - explore
@@ -2399,26 +2398,26 @@ paths:
         content:
           application/json;charset=utf-8:
             schema:
-              $ref: '#/components/schemas/Search'
+              $ref: "#/components/schemas/Search"
       responses:
         "200":
           description: Successful operation
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/FeatureCollection'
+                $ref: "#/components/schemas/FeatureCollection"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/_shapesearch:
     get:
       tags:
@@ -2600,13 +2599,13 @@ paths:
           content:
             application/zip:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/zip:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     post:
       tags:
       - explore
@@ -2637,7 +2636,7 @@ paths:
         content:
           application/json;charset=utf-8:
             schema:
-              $ref: '#/components/schemas/Search'
+              $ref: "#/components/schemas/Search"
       responses:
         "200":
           description: Successful operation
@@ -2646,13 +2645,13 @@ paths:
           content:
             application/zip:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/zip:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/_geosearch/{z}/{x}/{y}:
     get:
       tags:
@@ -2859,19 +2858,19 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/FeatureCollection'
+                $ref: "#/components/schemas/FeatureCollection"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collection}/_search:
     get:
       tags:
@@ -3054,28 +3053,28 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Hits'
+                $ref: "#/components/schemas/Hits"
             application/atom+xml:
               schema:
-                $ref: '#/components/schemas/Hits'
+                $ref: "#/components/schemas/Hits"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
             application/atom+xml:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
             application/atom+xml:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
     post:
       tags:
       - explore
@@ -3106,26 +3105,26 @@ paths:
         content:
           application/json;charset=utf-8:
             schema:
-              $ref: '#/components/schemas/Search'
+              $ref: "#/components/schemas/Search"
       responses:
         "200":
           description: Successful operation
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Hits'
+                $ref: "#/components/schemas/Hits"
         "500":
           description: Arlas Server Error.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             application/json;charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
   /explore/{collections}/_suggest:
     get:
       tags:
@@ -3396,13 +3395,13 @@ paths:
           content:
             image/png:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
         "400":
           description: Bad request.
           content:
             image/png:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     Success:
@@ -3476,7 +3475,7 @@ components:
         collection_name:
           type: string
         params:
-          $ref: '#/components/schemas/CollectionReferenceParameters'
+          $ref: "#/components/schemas/CollectionReferenceParameters"
     CollectionReferenceParameters:
       required:
       - centroid_path
@@ -3510,19 +3509,19 @@ components:
           additionalProperties:
             type: string
         display_names:
-          $ref: '#/components/schemas/CollectionDisplayNames'
+          $ref: "#/components/schemas/CollectionDisplayNames"
         organisations:
-          $ref: '#/components/schemas/CollectionOrganisations'
+          $ref: "#/components/schemas/CollectionOrganisations"
         atom_feed:
-          $ref: '#/components/schemas/Feed'
+          $ref: "#/components/schemas/Feed"
         open_search:
-          $ref: '#/components/schemas/OpenSearch'
+          $ref: "#/components/schemas/OpenSearch"
         inspire:
-          $ref: '#/components/schemas/Inspire'
+          $ref: "#/components/schemas/Inspire"
         dublin_core_element_name:
-          $ref: '#/components/schemas/DublinCoreElementName'
+          $ref: "#/components/schemas/DublinCoreElementName"
         raster_tile_url:
-          $ref: '#/components/schemas/RasterTileURL'
+          $ref: "#/components/schemas/RasterTileURL"
         raster_tile_width:
           type: integer
           format: int32
@@ -3530,7 +3529,7 @@ components:
           type: integer
           format: int32
         filter:
-          $ref: '#/components/schemas/Filter'
+          $ref: "#/components/schemas/Filter"
         license_name:
           type: string
         license_urls:
@@ -3565,7 +3564,7 @@ components:
         language:
           type: string
         bbox:
-          $ref: '#/components/schemas/Bbox'
+          $ref: "#/components/schemas/Bbox"
         date:
           type: string
         coverage:
@@ -3598,9 +3597,9 @@ components:
       type: object
       properties:
         author:
-          $ref: '#/components/schemas/Person'
+          $ref: "#/components/schemas/Person"
         contributor:
-          $ref: '#/components/schemas/Person'
+          $ref: "#/components/schemas/Person"
         icon:
           type: string
         logo:
@@ -3610,7 +3609,7 @@ components:
         subtitle:
           type: string
         generator:
-          $ref: '#/components/schemas/Generator'
+          $ref: "#/components/schemas/Generator"
     Filter:
       type: object
       properties:
@@ -3622,7 +3621,7 @@ components:
               empty:
                 type: boolean
             items:
-              $ref: '#/components/schemas/Expression'
+              $ref: "#/components/schemas/Expression"
         q:
           type: array
           items:
@@ -3651,7 +3650,7 @@ components:
         keywords:
           type: array
           items:
-            $ref: '#/components/schemas/Keyword'
+            $ref: "#/components/schemas/Keyword"
         topic_categories:
           type: array
           items:
@@ -3663,11 +3662,11 @@ components:
           items:
             type: string
         spatial_resolution:
-          $ref: '#/components/schemas/InspireSpatialResolution'
+          $ref: "#/components/schemas/InspireSpatialResolution"
         inspire_uri:
-          $ref: '#/components/schemas/InspireURI'
+          $ref: "#/components/schemas/InspireURI"
         inspire_limitation_access:
-          $ref: '#/components/schemas/InspireLimitationAccess'
+          $ref: "#/components/schemas/InspireLimitationAccess"
         inspire_use_conditions:
           type: string
     InspireLimitationAccess:
@@ -3710,7 +3709,7 @@ components:
         empty:
           type: boolean
       items:
-        $ref: '#/components/schemas/Expression'
+        $ref: "#/components/schemas/Expression"
     MultiValueFilterString:
       type: array
       properties:
@@ -3850,11 +3849,11 @@ components:
         elements:
           type: array
           items:
-            $ref: '#/components/schemas/AggregationResponse'
+            $ref: "#/components/schemas/AggregationResponse"
         metrics:
           type: array
           items:
-            $ref: '#/components/schemas/AggregationMetric'
+            $ref: "#/components/schemas/AggregationMetric"
         hits:
           type: array
           items:
@@ -3862,7 +3861,7 @@ components:
         geometries:
           type: array
           items:
-            $ref: '#/components/schemas/ReturnedGeometry'
+            $ref: "#/components/schemas/ReturnedGeometry"
         flattened_elements:
           type: object
           additionalProperties:
@@ -3882,7 +3881,7 @@ components:
     Feature:
       type: object
       allOf:
-      - $ref: '#/components/schemas/GeoJsonObject'
+      - $ref: "#/components/schemas/GeoJsonObject"
       - type: object
         properties:
           properties:
@@ -3890,26 +3889,26 @@ components:
             additionalProperties:
               type: object
           geometry:
-            $ref: '#/components/schemas/GeoJsonObject'
+            $ref: "#/components/schemas/GeoJsonObject"
           id:
             type: string
     FeatureCollection:
       type: object
       allOf:
-      - $ref: '#/components/schemas/GeoJsonObject'
+      - $ref: "#/components/schemas/GeoJsonObject"
       - type: object
         properties:
           features:
             type: array
             items:
-              $ref: '#/components/schemas/Feature'
+              $ref: "#/components/schemas/Feature"
     GeoJsonObject:
       required:
       - type
       type: object
       properties:
         crs:
-          $ref: '#/components/schemas/Crs'
+          $ref: "#/components/schemas/Crs"
         bbox:
           type: array
           items:
@@ -3922,23 +3921,23 @@ components:
     GeometryCollection:
       type: object
       allOf:
-      - $ref: '#/components/schemas/GeoJsonObject'
+      - $ref: "#/components/schemas/GeoJsonObject"
       - type: object
         properties:
           geometries:
             type: array
             items:
-              $ref: '#/components/schemas/GeoJsonObject'
+              $ref: "#/components/schemas/GeoJsonObject"
     LineString:
       type: object
       allOf:
-      - $ref: '#/components/schemas/GeoJsonObject'
+      - $ref: "#/components/schemas/GeoJsonObject"
       - type: object
         properties:
           coordinates:
             type: array
             items:
-              $ref: '#/components/schemas/LngLatAlt'
+              $ref: "#/components/schemas/LngLatAlt"
     LngLatAlt:
       type: object
       properties:
@@ -3959,7 +3958,7 @@ components:
     MultiLineString:
       type: object
       allOf:
-      - $ref: '#/components/schemas/GeoJsonObject'
+      - $ref: "#/components/schemas/GeoJsonObject"
       - type: object
         properties:
           coordinates:
@@ -3967,21 +3966,21 @@ components:
             items:
               type: array
               items:
-                $ref: '#/components/schemas/LngLatAlt'
+                $ref: "#/components/schemas/LngLatAlt"
     MultiPoint:
       type: object
       allOf:
-      - $ref: '#/components/schemas/GeoJsonObject'
+      - $ref: "#/components/schemas/GeoJsonObject"
       - type: object
         properties:
           coordinates:
             type: array
             items:
-              $ref: '#/components/schemas/LngLatAlt'
+              $ref: "#/components/schemas/LngLatAlt"
     MultiPolygon:
       type: object
       allOf:
-      - $ref: '#/components/schemas/GeoJsonObject'
+      - $ref: "#/components/schemas/GeoJsonObject"
       - type: object
         properties:
           coordinates:
@@ -3991,19 +3990,19 @@ components:
               items:
                 type: array
                 items:
-                  $ref: '#/components/schemas/LngLatAlt'
+                  $ref: "#/components/schemas/LngLatAlt"
     Point:
       type: object
       allOf:
-      - $ref: '#/components/schemas/GeoJsonObject'
+      - $ref: "#/components/schemas/GeoJsonObject"
       - type: object
         properties:
           coordinates:
-            $ref: '#/components/schemas/LngLatAlt'
+            $ref: "#/components/schemas/LngLatAlt"
     Polygon:
       type: object
       allOf:
-      - $ref: '#/components/schemas/GeoJsonObject'
+      - $ref: "#/components/schemas/GeoJsonObject"
       - type: object
         properties:
           coordinates:
@@ -4011,14 +4010,14 @@ components:
             items:
               type: array
               items:
-                $ref: '#/components/schemas/LngLatAlt'
+                $ref: "#/components/schemas/LngLatAlt"
     ReturnedGeometry:
       type: object
       properties:
         reference:
           type: string
         geometry:
-          $ref: '#/components/schemas/GeoJsonObject'
+          $ref: "#/components/schemas/GeoJsonObject"
         sort:
           type: string
         is_raw:
@@ -4038,13 +4037,13 @@ components:
         field:
           type: string
         interval:
-          $ref: '#/components/schemas/Interval'
+          $ref: "#/components/schemas/Interval"
         format:
           type: string
         metrics:
           type: array
           items:
-            $ref: '#/components/schemas/Metric'
+            $ref: "#/components/schemas/Metric"
         order:
           type: string
           enum:
@@ -4063,7 +4062,7 @@ components:
         raw_geometries:
           type: array
           items:
-            $ref: '#/components/schemas/RawGeometry'
+            $ref: "#/components/schemas/RawGeometry"
         aggregated_geometries:
           type: array
           items:
@@ -4076,22 +4075,22 @@ components:
             - GEOHASH
             - GEOHASH_CENTER
         fetch_hits:
-          $ref: '#/components/schemas/HitsFetcher'
+          $ref: "#/components/schemas/HitsFetcher"
     AggregationsRequest:
       type: object
       properties:
         partitionFilter:
           type: array
           items:
-            $ref: '#/components/schemas/Filter'
+            $ref: "#/components/schemas/Filter"
         filter:
-          $ref: '#/components/schemas/Filter'
+          $ref: "#/components/schemas/Filter"
         form:
-          $ref: '#/components/schemas/Form'
+          $ref: "#/components/schemas/Form"
         aggregations:
           type: array
           items:
-            $ref: '#/components/schemas/Aggregation'
+            $ref: "#/components/schemas/Aggregation"
     Form:
       type: object
       properties:
@@ -4182,18 +4181,18 @@ components:
           type: number
           format: double
         geometry:
-          $ref: '#/components/schemas/GeoJsonObject'
+          $ref: "#/components/schemas/GeoJsonObject"
     ComputationRequest:
       type: object
       properties:
         partitionFilter:
           type: array
           items:
-            $ref: '#/components/schemas/Filter'
+            $ref: "#/components/schemas/Filter"
         filter:
-          $ref: '#/components/schemas/Filter'
+          $ref: "#/components/schemas/Filter"
         form:
-          $ref: '#/components/schemas/Form'
+          $ref: "#/components/schemas/Form"
         field:
           type: string
         metric:
@@ -4211,7 +4210,7 @@ components:
       type: object
       properties:
         md:
-          $ref: '#/components/schemas/MD'
+          $ref: "#/components/schemas/MD"
         data:
           type: object
     Geo:
@@ -4220,7 +4219,7 @@ components:
         path:
           type: string
         geometry:
-          $ref: '#/components/schemas/GeoJsonObject'
+          $ref: "#/components/schemas/GeoJsonObject"
     Hits:
       type: object
       properties:
@@ -4229,7 +4228,7 @@ components:
         hits:
           type: array
           items:
-            $ref: '#/components/schemas/ArlasHit'
+            $ref: "#/components/schemas/ArlasHit"
         nbhits:
           type: integer
           format: int64
@@ -4239,7 +4238,7 @@ components:
         links:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/Link'
+            $ref: "#/components/schemas/Link"
     Link:
       required:
       - href
@@ -4261,24 +4260,24 @@ components:
           type: integer
           format: int64
         geometry:
-          $ref: '#/components/schemas/GeoJsonObject'
+          $ref: "#/components/schemas/GeoJsonObject"
         centroid:
-          $ref: '#/components/schemas/GeoJsonObject'
+          $ref: "#/components/schemas/GeoJsonObject"
         returned_geometries:
           type: array
           items:
-            $ref: '#/components/schemas/Geo'
+            $ref: "#/components/schemas/Geo"
     Count:
       type: object
       properties:
         partitionFilter:
           type: array
           items:
-            $ref: '#/components/schemas/Filter'
+            $ref: "#/components/schemas/Filter"
         filter:
-          $ref: '#/components/schemas/Filter'
+          $ref: "#/components/schemas/Filter"
         form:
-          $ref: '#/components/schemas/Form'
+          $ref: "#/components/schemas/Form"
     CollectionReferenceDescription:
       required:
       - collection_name
@@ -4288,11 +4287,11 @@ components:
         properties:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/CollectionReferenceDescriptionProperty'
+            $ref: "#/components/schemas/CollectionReferenceDescriptionProperty"
         collection_name:
           type: string
         params:
-          $ref: '#/components/schemas/CollectionReferenceParameters'
+          $ref: "#/components/schemas/CollectionReferenceParameters"
     CollectionReferenceDescriptionProperty:
       type: object
       properties:
@@ -4356,7 +4355,7 @@ components:
         properties:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/CollectionReferenceDescriptionProperty'
+            $ref: "#/components/schemas/CollectionReferenceDescriptionProperty"
         taggable:
           type: boolean
         indexed:
@@ -4389,14 +4388,14 @@ components:
         partitionFilter:
           type: array
           items:
-            $ref: '#/components/schemas/Filter'
+            $ref: "#/components/schemas/Filter"
         filter:
-          $ref: '#/components/schemas/Filter'
+          $ref: "#/components/schemas/Filter"
         form:
-          $ref: '#/components/schemas/Form'
+          $ref: "#/components/schemas/Form"
         page:
-          $ref: '#/components/schemas/Page'
+          $ref: "#/components/schemas/Page"
         projection:
-          $ref: '#/components/schemas/Projection'
+          $ref: "#/components/schemas/Projection"
         returned_geometries:
           type: string

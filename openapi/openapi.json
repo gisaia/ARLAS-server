@@ -12,15 +12,14 @@
       "name" : "Apache 2.0",
       "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version" : "27.1.1-SNAPSHOT"
+    "version" : "27.2.0"
   },
   "externalDocs" : {
     "description" : "API documentation",
-    "url" : "https://docs.arlas.io/arlas-api/"
+    "url" : "https://docs.arlas.io/external_docs/ARLAS-server/arlas-api/"
   },
   "servers" : [ {
-    "url" : "/arlas",
-    "description" : "default server"
+    "url" : "http://arlas-server:9999/arlas/"
   } ],
   "tags" : [ {
     "name" : "collections",
