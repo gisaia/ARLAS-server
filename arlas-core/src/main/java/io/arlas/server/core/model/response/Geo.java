@@ -19,10 +19,11 @@
 
 package io.arlas.server.core.model.response;
 
-import io.dropwizard.jackson.JsonSnakeCase;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import org.geojson.GeoJsonObject;
 
-@JsonSnakeCase
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Geo {
     public String path;
     public GeoJsonObject geometry;

@@ -22,7 +22,8 @@ package io.arlas.server.tests.rest.explore;
 import io.arlas.server.core.model.enumerations.*;
 import io.arlas.server.core.model.request.*;
 import io.arlas.server.tests.DataSetTool;
-import io.dropwizard.jackson.JsonSnakeCase;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.junit.Before;
@@ -1410,7 +1411,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
                 .then();
     }
 
-    @JsonSnakeCase
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public class InvalidMetric {
         public String collectField;
         public String collecFct;
@@ -1421,7 +1422,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
         }
     }
 
-    @JsonSnakeCase
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public class InvalidAggregation {
         public String type;
         public String field;

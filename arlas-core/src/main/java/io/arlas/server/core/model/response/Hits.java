@@ -20,12 +20,13 @@
 package io.arlas.server.core.model.response;
 
 import io.arlas.server.core.model.Link;
-import io.dropwizard.jackson.JsonSnakeCase;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.util.HashMap;
 import java.util.List;
 
-@JsonSnakeCase
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Hits {
     public String collection;
     public List<ArlasHit> hits;
