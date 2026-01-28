@@ -19,9 +19,10 @@
 
 package io.arlas.commons.rest.response;
 
-import io.dropwizard.jackson.JsonSnakeCase;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-@JsonSnakeCase
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Error {
     public int status;
     public String message;

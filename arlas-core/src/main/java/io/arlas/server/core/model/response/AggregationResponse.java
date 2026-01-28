@@ -19,12 +19,13 @@
 
 package io.arlas.server.core.model.response;
 
-import io.dropwizard.jackson.JsonSnakeCase;
-
 import java.util.List;
 import java.util.Map;
 
-@JsonSnakeCase
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AggregationResponse extends OperationInfo {
     public String name;
     public Long count;

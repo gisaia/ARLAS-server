@@ -19,9 +19,10 @@
 
 package io.arlas.server.core.model.response;
 
-import io.dropwizard.jackson.JsonSnakeCase;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-@JsonSnakeCase
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class OperationInfo {
     public Long queryTime = null;
     public Long totalTime = null;

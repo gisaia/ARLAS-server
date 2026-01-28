@@ -20,11 +20,12 @@
 package io.arlas.server.core.model.response;
 
 import io.arlas.server.core.model.CollectionReference;
-import io.dropwizard.jackson.JsonSnakeCase;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.util.Map;
 
-@JsonSnakeCase
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CollectionReferenceDescription extends CollectionReference {
     public Map<String, CollectionReferenceDescriptionProperty> properties;
 
