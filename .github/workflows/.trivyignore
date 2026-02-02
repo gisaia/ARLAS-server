@@ -9,11 +9,6 @@ CVE-2024-10039
 CVE-2023-45853
 
 # Status: Can be ignored
-# Reason: ARLAS-server parse only local config file  
-# Description: Potential Mitigations from https://avd.aquasec.com/nvd/2025/cve-2025-52999/ : As a workaround, users should avoid parsing input files from untrusted sources
-CVE-2025-52999
-
-# Status: Can be ignored
 # Reason: ARLAS-server process has a RAM limitation
 # Description: Potential Mitigations from https://avd.aquasec.com/nvd/2023/cve-2023-25193/ : Use resource-limiting settings provided by the operating system or environment
 CVE-2023-25193
@@ -27,3 +22,19 @@ CVE-2023-7272
 # Reason:  ARLAS-server uses Java which performs its own memory management
 # Description : Potential Mitigations fromhttps://avd.aquasec.com/nvd/2024/cve-2024-13009/ : [...] languages such as Java, Ruby, and Lisp perform automatic garbage collection that releases memory for objects that have been deallocated
 CVE-2024-13009
+
+# Status: Can be ignored
+# Reason: ARLAS-server uses Java which performs automatic bounds checking
+# Description: Potential Mitigations from https://avd.aquasec.com/nvd/2026/cve-2026-0861/ : Choose a language or compiler that performs automatic bounds checking
+CVE-2026-0861
+
+# Status: Can be ignored
+# Reason: ARLAS-server does NOT process or manipulate PNG images
+# Description: https://avd.aquasec.com/nvd/2026/cve-2026-22695/ and https://avd.aquasec.com/nvd/2026/cve-2026-22801/
+CVE-2026-22695
+CVE-2026-22801
+
+# Status: Can be ignored
+# Reason: ??
+# Description : https://avd.aquasec.com/nvd/2026/cve-2026-24515/
+CVE-2026-24515
