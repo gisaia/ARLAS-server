@@ -6,6 +6,9 @@
     "build-release": "tsc -p tsconfig-build.json",
     "postbuild": "rm -rf dist && mkdir dist && mv *.js.map *.js *.d.ts ./dist/"
   },
+  "publishConfig": {
+    "tag": "24.1.x"
+  },
   "private": true,
   "dependencies": {
     "portable-fetch": "3.0.0",

@@ -1,12 +1,32 @@
 # Change Log
 
-## [v26.0.12](https://github.com/gisaia/ARLAS-server/tree/v26.0.12) (2025-10-10)
+## [v24.1.7](https://github.com/gisaia/ARLAS-server/tree/v24.1.7) (2026-02-02)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.1.6...v26.0.12)
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.13...v24.1.7)
+
+## [v26.0.13](https://github.com/gisaia/ARLAS-server/tree/v26.0.13) (2026-01-28)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.2.0...v26.0.13)
+
+## [v27.2.0](https://github.com/gisaia/ARLAS-server/tree/v27.2.0) (2026-01-14)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.8-security.2...v27.2.0)
+
+## [v23.0.8-security.2](https://github.com/gisaia/ARLAS-server/tree/v23.0.8-security.2) (2025-10-10)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.0.3...v23.0.8-security.2)
+
+## [v27.0.3](https://github.com/gisaia/ARLAS-server/tree/v27.0.3) (2025-10-10)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.1.6...v27.0.3)
 
 ## [v24.1.6](https://github.com/gisaia/ARLAS-server/tree/v24.1.6) (2025-10-10)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.11...v24.1.6)
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.12...v24.1.6)
+
+## [v26.0.12](https://github.com/gisaia/ARLAS-server/tree/v26.0.12) (2025-10-10)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.11...v26.0.12)
 
 **Miscellaneous:**
 
