@@ -197,3 +197,7 @@ arlas_auth:
     resource: ${ARLAS_AUTH_KEYCLOAK_RESOURCE:-arlas}
     credentials:
       secret: ${ARLAS_AUTH_KEYCLOAK_SECRET:-2ec98d5c-7a6d-4f7f-9214-99d0a4ba3907}
+  init:
+    resourcesPath: ${ARLAS_AUTH_INIT_RESOURCES_PATH:-}
+    rolesPath: ${ARLAS_AUTH_INIT_ROLES_PATH:-}
+

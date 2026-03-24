@@ -19,11 +19,13 @@
 
 package io.arlas.filter.config;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -42,32 +44,54 @@ public class TechnicalRoles {
     public static final String VAR_ORG = "org";
     private static final Logger LOGGER = LoggerFactory.getLogger(TechnicalRoles.class);
     private static final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    private static Map<String, Map<String, List<String>>> technicalRolesPermissions;
+    private Map<String, Map<String, List<String>>> technicalRolesPermissions;
 
-    static {
+    public TechnicalRoles() {
+        loadFromClasspath("roles.yaml");
+    }
+
+    public TechnicalRoles(String yamlPath) {
+        loadFromFile(yamlPath);
+    }
+
+    private void loadFromClasspath(String rolesPath) {
         try {
-            technicalRolesPermissions = (Map<String, Map<String, List<String>>>) mapper.readValue(
-                            TechnicalRoles.class.getClassLoader().getResourceAsStream("roles.yaml"), Map.class)
-                    .get("technicalRoles");
-        } catch (IOException e) {
+            Map<String, Map<String, Map<String, List<String>>>> yamlContent =
+                    mapper.readValue(
+                            ResourceDefinitions.class.getClassLoader().getResourceAsStream(rolesPath),
+                            new TypeReference<>() {}
+                    );
+            technicalRolesPermissions = yamlContent.getOrDefault("technicalRoles", new HashMap<>());
+        } catch (IOException | NullPointerException e) {
+            LOGGER.error("Could not roles from classpath: {}", rolesPath, e);
             technicalRolesPermissions = new HashMap<>();
-            LOGGER.error("!-----! Technical roles file could not be read !-----!");
         }
     }
 
-    public static Map<String, Map<String, List<String>>> getTechnicalRolesPermissions() {
+    private void loadFromFile(String yamlPath) {
+        try {
+            Map<String, Map<String, Map<String, List<String>>>> yamlContent =
+                    mapper.readValue(new File(yamlPath), new TypeReference<>() {});
+            technicalRolesPermissions = yamlContent.getOrDefault("technicalRoles", new HashMap<>());
+        } catch (IOException e) {
+            LOGGER.error("Could not load resources from file: {}", yamlPath, e);
+            technicalRolesPermissions = new HashMap<>();
+        }
+    }
+
+    public Map<String, Map<String, List<String>>> getTechnicalRolesPermissions() {
         return technicalRolesPermissions;
     }
 
-    public static Set<String> getTechnicalRolesList() {
+    public Set<String> getTechnicalRolesList() {
         return technicalRolesPermissions.keySet();
     }
 
-    public static String getDefaultGroup(String org) {
+    public String getDefaultGroup(String org) {
         return String.format("group/config.json/%s", org);
     }
 
-    public static String getNewDashboardGroupRole(String org, String group) {
+    public String getNewDashboardGroupRole(String org, String group) {
         return String.format("group/config.json/%s/%s", org, group);
     }
 }

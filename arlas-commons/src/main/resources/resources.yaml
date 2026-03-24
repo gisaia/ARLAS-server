@@ -1,0 +1,12 @@
+#resources:
+ #resourceName1:
+    #description:
+    #- "resourceName1 description"
+    #values:
+    #- h:partition-filter:{*:*}
+  #resourceName2:
+    #description:
+    #- "resourceName2 description"
+    #values:
+      #- h:partition-filter:{*:*}
+

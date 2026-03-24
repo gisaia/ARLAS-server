@@ -20,6 +20,7 @@
 package io.arlas.filter.impl;
 
 import io.arlas.commons.config.ArlasAuthConfiguration;
+import io.arlas.filter.config.ResourceDefinitions;
 import io.arlas.filter.core.PolicyEnforcer;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.Priorities;
@@ -34,10 +35,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Provider
 @Priority(Priorities.AUTHORIZATION)
 public class KeycloakPolicyEnforcer extends AbstractPolicyEnforcer {
+
+    private ResourceDefinitions resourceDefinitions;
+
+    public void setResourceDefinitions(ResourceDefinitions resourceDefinitions) {
+        this.resourceDefinitions = resourceDefinitions;
+    }
+
     private final Logger LOGGER = LoggerFactory.getLogger(KeycloakPolicyEnforcer.class);
     private AuthzClient authzClient;
 
@@ -82,8 +92,23 @@ public class KeycloakPolicyEnforcer extends AbstractPolicyEnforcer {
     }
 
     @Override
-    protected Set<String> getPermissionsClaim(Object token){
-        return new HashSet<>(((AccessToken) token).getAuthorization().getPermissions().stream()
-                .map(Permission::getResourceName).toList());
+    protected Set<String> getPermissionsClaim(Object token) {
+        return ((AccessToken) token).getAuthorization().getPermissions().stream()
+                .map(Permission::getResourceName)
+                .flatMap(name -> {
+                    Map<String, Map<String, List<String>>> resources = this.resourceDefinitions.getResources();
+                    if (!resources.containsKey(name)) {
+                        // Classic Keycloak resource name with permission in name
+                        return Stream.of(name);
+                    }
+                    // Try to retrieve permissions from business roles config
+                    List<String> perms = resources.get(name).get("values");
+                    if (perms != null) {
+                        return perms.stream();
+                    } else {
+                        return Stream.empty();
+                    }
+                })
+                .collect(Collectors.toSet());
     }
 }
