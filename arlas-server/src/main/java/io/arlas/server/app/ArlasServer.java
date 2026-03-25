@@ -177,15 +177,15 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
                 ? new TechnicalRoles(rolesPath)
                 : new TechnicalRoles();
 
-        if(policyEnforcer != null){
+        if (policyEnforcer != null) {
             policyEnforcer.setTechnicalRoles(technicalRoles);
-        }
-        if (policyEnforcer.getClass().getCanonicalName().equals("io.arlas.filter.impl.KeycloakPolicyEnforcer")) {
-            String resourcesPath = configuration.arlasAuthConfiguration.initConfiguration.resourcesPath;
-            ResourceDefinitions resourceDefinitions = resourcesPath != null && !resourcesPath.isEmpty()
-                    ? new ResourceDefinitions(resourcesPath)
-                    : new ResourceDefinitions();
-            ((KeycloakPolicyEnforcer) policyEnforcer).setResourceDefinitions(resourceDefinitions);
+            if (policyEnforcer instanceof KeycloakPolicyEnforcer keycloakEnforcer) {
+                String resourcesPath = configuration.arlasAuthConfiguration.initConfiguration.resourcesPath;
+                ResourceDefinitions resourceDefinitions = resourcesPath != null && !resourcesPath.isEmpty()
+                        ? new ResourceDefinitions(resourcesPath)
+                        : new ResourceDefinitions();
+                keycloakEnforcer.setResourceDefinitions(resourceDefinitions);
+            }
         }
 
         LOGGER.info("PolicyEnforcer: {}", policyEnforcer.getClass().getCanonicalName());

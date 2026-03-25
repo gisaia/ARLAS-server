@@ -58,13 +58,13 @@ public class TechnicalRoles {
         try {
             Map<String, Map<String, Map<String, List<String>>>> yamlContent =
                     mapper.readValue(
-                            ResourceDefinitions.class.getClassLoader().getResourceAsStream(rolesPath),
+                            TechnicalRoles.class.getClassLoader().getResourceAsStream(rolesPath),
                             new TypeReference<>() {}
                     );
             technicalRolesPermissions = yamlContent.getOrDefault("technicalRoles", new HashMap<>());
         } catch (IOException | NullPointerException e) {
-            LOGGER.error("Could not roles from classpath: {}", rolesPath, e);
-            technicalRolesPermissions = new HashMap<>();
+            LOGGER.error("Could not load roles from classpath: {}", rolesPath, e);
+            throw new IllegalStateException("Could not load roles from classpath: " + rolesPath, e);
         }
     }
 
@@ -74,8 +74,8 @@ public class TechnicalRoles {
                     mapper.readValue(new File(yamlPath), new TypeReference<>() {});
             technicalRolesPermissions = yamlContent.getOrDefault("technicalRoles", new HashMap<>());
         } catch (IOException e) {
-            LOGGER.error("Could not load resources from file: {}", yamlPath, e);
-            technicalRolesPermissions = new HashMap<>();
+            LOGGER.error("Could not load roles from file: {}", yamlPath, e);
+            throw new IllegalStateException("Could not load roles from file: " + yamlPath, e);
         }
     }
 

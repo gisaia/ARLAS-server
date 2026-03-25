@@ -14,7 +14,7 @@ ARLAS with Keycloak is composed of 3 main components:
 1. an implementation of the ARLAS PolicyEnforcer (interface available in the ARLAS-server/arlas-commons module: `io.arlas.filter.core.PolicyEnforcer`)
     - Keycloak implementation (`io.arlas.filter.impl.KeycloakPolicyEnforcer`)
 2. a Keycloak instance.
-3. An optional resources.yaml file to define the resources Keycloak (see [Keycloak v23.0 Configuration](#keycloak-v230-configuration) section)
+3. An optional resources.yaml file to define the Keycloak resources (see [Keycloak v23.0 Configuration](#keycloak-v230-configuration) section)
 
 ## Policy Enforcers configuration
 The policy enforcers are in the `arlas-commons` module.  
@@ -98,8 +98,8 @@ Another way is to import the default configuration file given with this module (
    Choose a policy type `Role`. Keep the logic to Positive. Choose the relevant role in the `arlas-backend` roles list.
 7. *(Clients/Arlas-backend/Authorization/Resources)* Add any resource `header:name:value` (as name) you need (optionally setting
    a `type` if you need to map more than one in a `group/config.json/...` *role*) and create permission (select relevant role policy).  
-   If the resource  length is too long for the Keycloak resource name, you must use the resources.yaml configuration file to define the resources.  
-   In that case, the resource name in Keycloak must be the one defined in the resources of resources.yaml and the resource value will be define in the values part under the name in the yaml.
+   If the resource length is too long for the Keycloak resource name, you must use the resources.yaml configuration file to define the resources.  
+   In that case, the resource name in Keycloak must be the one defined in the resources of resources.yaml and the resource value will be define in the values part under the name in the yaml.  
    Example of resources.yaml file:
    ```yaml
     resources:

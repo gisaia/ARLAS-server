@@ -76,7 +76,7 @@ These roles are:
 - `role/iam/admin` (rules to manage organisations and users in [ARLAS-IAM](arlas-iam.md) server)
 
 The associated rules configured for these roles can be found in the file `arlas-commons/src/main/resources/roles.yaml`.  
-You can use the environment variable `ARLAS_AUTH_ROLES_FILE` to specify another file containing the roles and their associated rules and headers.(not recommended)
+You can use the environment variable `ARLAS_AUTH_INIT_ROLES_PATH` to specify another file containing the roles and their associated rules and headers.(not recommended)
 
 ## Protection flow
 

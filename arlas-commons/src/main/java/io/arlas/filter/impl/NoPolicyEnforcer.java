@@ -39,9 +39,7 @@ public class NoPolicyEnforcer implements PolicyEnforcer {
     public boolean isEnabled() { return false; }
 
     @Override
-    public void setTechnicalRoles(TechnicalRoles technicalRoles) {
-
-    }
+    public void setTechnicalRoles(TechnicalRoles technicalRoles) { /* No technical role for no policy enforcer */ }
 
     @Override
     public PolicyEnforcer setAuthConf(ArlasAuthConfiguration conf) throws Exception {
