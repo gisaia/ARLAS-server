@@ -1,7 +1,12 @@
 {
   "name": "arlas-api",
   "version": "0.0.0",
-  "license": "Apache 2.0",
+  "author": "gisaia",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gisaia/ARLAS-server.git"
+  },
   "scripts": {
     "build-release": "tsc -p tsconfig-build.json",
     "postbuild": "rm -rf dist && mkdir dist && mv *.js.map *.js *.d.ts ./dist/"
