@@ -9,11 +9,12 @@ The stack can be started with or without Keycloak.
 
 ![Keycloak diagram](keycloak.png)
 
-ARLAS with Keycloak is composed of 2 main components:
+ARLAS with Keycloak is composed of 3 main components:
 
 1. an implementation of the ARLAS PolicyEnforcer (interface available in the ARLAS-server/arlas-commons module: `io.arlas.filter.core.PolicyEnforcer`)
     - Keycloak implementation (`io.arlas.filter.impl.KeycloakPolicyEnforcer`)
 2. a Keycloak instance.
+3. An optional resources.yaml file to define the Keycloak resources (see [Keycloak v23.0 Configuration](#keycloak-v230-configuration) section)
 
 ## Policy Enforcers configuration
 The policy enforcers are in the `arlas-commons` module.  
@@ -32,6 +33,13 @@ Further configuration is required:
 | ARLAS_AUTH_KEYCLOAK_URL      | arlas_auth.keycloak.auth-server-url    | http://keycloak:8080/auth                                 | Keycloak        |
 | ARLAS_AUTH_KEYCLOAK_RESOURCE | arlas_auth.keycloak.resource           | arlas                                                     | Keycloak        |
 | ARLAS_AUTH_KEYCLOAK_SECRET   | arlas_auth.keycloak.credentials.secret | none                                                      | Keycloak        |
+
+Optional configuration:
+
+| Environment variable    | configuration variable                | Default |
+|-------------------------|---------------------------------------|---------|
+| ARLAS_AUTH_INIT_RESOURCES_PATH | arlas_auth.init.resourcesPath         |         |
+
 
 ## Keycloak v23.0 Configuration
 
@@ -60,15 +68,13 @@ Keycloak is configured through multiple items. ARLAS uses only a subset of them,
 In order to configure Keycloak from scratch, follow this tutorial, as a minimum set of settings to make it work with ARLAS.  
 Another way is to import the default configuration file given with this module (see next section).
 
-1. In order to remove limitations in permissions size (default is 256 characters), one must alter the database:  
-   `ALTER TABLE public.resource_server_resource ALTER COLUMN name TYPE TEXT`
-2. Create a realm. Its name must be configured in `ARLAS_AUTH_KEYCLOAK_REALM`. Switch to the realm administration console.
+1. Create a realm. Its name must be configured in `ARLAS_AUTH_KEYCLOAK_REALM`. Switch to the realm administration console.
    The following lines refer to the appropriate menu items from the console with a prefix text in parentheses (left menu/right tabs/...), e.g. (Clients/Lookup)
-3. *(Clients/Lookup/Create)* Create a new client with:
+2. *(Clients/Lookup/Create)* Create a new client with:
     - Client ID=`arlas-backend` (must be configured in `ARLAS_AUTH_KEYCLOAK_RESOURCE`)
     - Client Protocol=`openid-connect`
     - Next
-4. *(Clients/Arlas-backend/Capability Config)* Change the following configuration items:
+3. *(Clients/Arlas-backend/Capability Config)* Change the following configuration items:
     - Client authentication=`ON`
     - Authorization=`ON`
     - Standard Flow=`ON`
@@ -78,8 +84,8 @@ Another way is to import the default configuration file given with this module (
     - Valid post logout redirect URIs=`*`
     - Web Origins=`+`
     - Save
-5. *(Clients/Arlas-backend/Login settings)* Select Client Authenticator "Client Id and Secret" and copy the Secret value to `ARLAS_AUTH_KEYCLOAK_SECRET`
-6. *(Clients/Arlas-backend/Roles)* Add the following roles:
+4. *(Clients/Arlas-backend/Login settings)* Select Client Authenticator "Client Id and Secret" and copy the Secret value to `ARLAS_AUTH_KEYCLOAK_SECRET`
+5. *(Clients/Arlas-backend/Roles)* Add the following roles:
     - `group/public` (required to allow dashboards to be shared to anonymous users)
     - `role/arlas/builder` (rules to create/edit/delete ARLAS WUI dashboards)
     - `role/m2m/importer` (rule to import collections via the dedicated ARLAS server endpoint, mainly used by M2M processes)
@@ -88,38 +94,50 @@ Another way is to import the default configuration file given with this module (
     - `role/arlas/downloader` (rules to download data with [AIAS])
     - `role/arlas/datasets` (rules to manage data (ingest, update and enrich) in ARLAS)
     - `group/config.json/XXXXX`: add as many groups as needed where `XXXXX` will be the name of groups available to share dashboards in ARLAS hub and that can be associated to data filters.
-7. *(Clients/Arlas-backend/Authorization/Policies)* Add role policies for each new role you have added.
+6. *(Clients/Arlas-backend/Authorization/Policies)* Add role policies for each new role you have added.
    Choose a policy type `Role`. Keep the logic to Positive. Choose the relevant role in the `arlas-backend` roles list.
-8. *(Clients/Arlas-backend/Authorization/Resources)* Add any resource `header:name:value` (as name) you need (optionally setting
-   a `type` if you need to map more than one in a `group/config.json/...` *role*) and create permission (select relevant role policy).
-   A basic example: you might need to authorize a user to see all the fields of all the collections. This is a resource   named `h:column-filter:*:*`. 
+7. *(Clients/Arlas-backend/Authorization/Resources)* Add any resource `header:name:value` (as name) you need (optionally setting
+   a `type` if you need to map more than one in a `group/config.json/...` *role*) and create permission (select relevant role policy).  
+   If the resource length is too long for the Keycloak resource name, you must use the resources.yaml configuration file to define the resources.  
+   In that case, the resource name in Keycloak must be the one defined in the resources of resources.yaml and the resource value will be define in the values part under the name in the yaml.  
+   Example of resources.yaml file:
+   ```yaml
+    resources:
+     resourceTooLongForKeycloakName:
+      description:
+       - "resourceTooLongForKeycloakName description"
+      values:
+       - h:partition-filter:{*:*}
+   ```
+   You can use the environment variable `ARLAS_AUTH_INIT_RESOURCES_PATH` to set the path of the resources.yaml file.  
+   A basic example: you might need to authorize a user to see all the fields of all the collections. This is a resource   named `h:column-filter:*:*`.
    Create a role and policy named `role/data/all`.
    Then create a resource named `h:column-filter:*:*` and create a permission for this resource and apply `role/data/all` to it.
-9. *(Groups)* Add groups with some `arlas-backend` *client roles* according to the way you want to assign permissions to users.
-10. *(Users)* Add users:
-    - Username= choose name
-    - Groups= choose groups
-    - Role mappings: assign relevant individual roles from `arlas-backend` *client roles* if not assigned through groups
-    - Save
-11. *(Users/\<user\>/Credentials)* Set password
-12. *(Clients/Lookup/Create)* Create a new client with:
+8. *(Groups)* Add groups with some `arlas-backend` *client roles* according to the way you want to assign permissions to users.
+9. *(Users)* Add users:
+   - Username= choose name
+   - Groups= choose groups
+   - Role mappings: assign relevant individual roles from `arlas-backend` *client roles* if not assigned through groups
+   - Save
+10. *(Users/\<user\>/Credentials)* Set password
+11. *(Clients/Lookup/Create)* Create a new client with:
     - Client ID=arlasm2m
     - Client Protocol=openid-connect
     - Next
-13. *(Clients/Arlasm2m/Capability config)* Change the following configuration items:
+12. *(Clients/Arlasm2m/Capability config)* Change the following configuration items:
     - Access Type=confidential
     - Switch off Standard Flow Enabled
     - Switch on Service Accounts Enabled
     - Save
-14. *(Clients/Arlasm2m/Service Account Roles)* Select `arlas-backend` in the Client Roles drop down list and add selected roles:
+13. *(Clients/Arlasm2m/Service Account Roles)* Select `arlas-backend` in the Client Roles drop down list and add selected roles:
     - role/arlas/user
     - role/m2m/importer
     - group/public (to create public dashboard)
-15. *(Clients/Lookup/Create)* Create a new client with:
+14. *(Clients/Lookup/Create)* Create a new client with:
     - Client ID=`arlas-front` (must be configured in arlas frontend app configurations)
     - Client Protocol=`openid-connect`
     - Save
-16. *(Clients/Arlas-backend/Capability config)* Change the following configuration items:
+15. *(Clients/Arlas-backend/Capability config)* Change the following configuration items:
     - Client authentication=`OFF`
     - Authorization=`OFF`
     - Standard Flow=`ON`
@@ -135,23 +153,21 @@ Another way is to import the default configuration file given with this module (
 !!! warning
     To import configuration remove all the JS type resource (Default resource).
 
-1. In order to remove limitations in permissions size (default is 256 characters), one must alter the database:  
-   `ALTER TABLE public.resource_server_resource ALTER COLUMN name TYPE TEXT`
-2. In the realm selection drop down list, select "Create realm".
-3. Select the file to import and click `Create` (template is in `arlas-commons/src/main/resources/realm-export.json`)
-4. *(Clients/Arlas-backend/Credentials)* Select Client Authenticator "Client Id and Secret", regenerate the secret,
+1. In the realm selection drop down list, select "Create realm".
+2. Select the file to import and click `Create` (template is in `arlas-commons/src/main/resources/realm-export.json`)
+3. *(Clients/Arlas-backend/Credentials)* Select Client Authenticator "Client Id and Secret", regenerate the secret,
    and copy the Secret value to `ARLAS_AUTH_KEYCLOAK_SECRET`
-5. *(Clients/Arlasm2m/Credentials)* Select Client Authenticator "Client Id and Secret", regenerate the secret (and copy if needed)
-6. *(Clients/Arlas/Roles)* Add the following roles:
+4. *(Clients/Arlasm2m/Credentials)* Select Client Authenticator "Client Id and Secret", regenerate the secret (and copy if needed)
+5. *(Clients/Arlas/Roles)* Add the following roles:
     - `group/config.json/XXXXX`: add as many groups as needed where `XXXXX` will be the name of groups available to share
      dashboards in ARLAS hub and that can be associated to data filters.
-7. *(Clients/Arlas/Authorization/Policies)* Add role policies for each new group you have added
-8. *(Clients/Arlas/Authorization/Resources)* Add any `header:name:value` you need (optionally setting a `type` if you need
+6. *(Clients/Arlas/Authorization/Policies)* Add role policies for each new group you have added
+7. *(Clients/Arlas/Authorization/Resources)* Add any `header:name:value` you need (optionally setting a `type` if you need
    to map more than one in a `group/config.json/...` *role*) and create permission (select relevant role policy)
-9. *(Groups)* Add groups with some `arlas-backend` *client roles* according to the way you want to assign permissions to users.
-10. *(Users)* Add users:
-    - Username= choose name
-    - Groups= choose groups
-    - Role mappings: assign relevant individual roles from `arlas-backend` *client roles* if not assigned through groups
-    - Save
-11. *(Users/\<user\>/Credentials)* Set password
+8. *(Groups)* Add groups with some `arlas-backend` *client roles* according to the way you want to assign permissions to users.
+9. *(Users)* Add users:
+   - Username= choose name
+   - Groups= choose groups
+   - Role mappings: assign relevant individual roles from `arlas-backend` *client roles* if not assigned through groups
+   - Save
+10. *(Users/\<user\>/Credentials)* Set password

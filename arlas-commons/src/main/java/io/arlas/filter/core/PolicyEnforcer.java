@@ -21,6 +21,7 @@ package io.arlas.filter.core;
 
 import io.arlas.commons.cache.BaseCacheManager;
 import io.arlas.commons.config.ArlasAuthConfiguration;
+import io.arlas.filter.config.TechnicalRoles;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 
 import java.util.ServiceLoader;
@@ -32,7 +33,7 @@ public interface PolicyEnforcer extends ContainerRequestFilter {
     PolicyEnforcer setCacheTimeout(long timeout) throws Exception;
 
     PolicyEnforcer setCacheManager(BaseCacheManager cacheManager);
-
+    
     default boolean isEnabled() { return true; }
 
     static PolicyEnforcer newInstance(String defaultClass) {
@@ -42,4 +43,6 @@ public interface PolicyEnforcer extends ContainerRequestFilter {
                 .filter(f -> defaultClass != null && f.get().getClass().getCanonicalName().equals(defaultClass))
                 .toList().get(0).get();
     }
+
+    void setTechnicalRoles(TechnicalRoles technicalRoles);
 }

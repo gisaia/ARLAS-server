@@ -20,6 +20,7 @@ package io.arlas.filter.impl;
 
 import io.arlas.commons.cache.BaseCacheManager;
 import io.arlas.commons.config.ArlasAuthConfiguration;
+import io.arlas.filter.config.TechnicalRoles;
 import io.arlas.filter.core.PolicyEnforcer;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.Priorities;
@@ -36,6 +37,9 @@ public class NoPolicyEnforcer implements PolicyEnforcer {
 
     @Override
     public boolean isEnabled() { return false; }
+
+    @Override
+    public void setTechnicalRoles(TechnicalRoles technicalRoles) { /* No technical role for no policy enforcer */ }
 
     @Override
     public PolicyEnforcer setAuthConf(ArlasAuthConfiguration conf) throws Exception {

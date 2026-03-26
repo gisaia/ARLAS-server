@@ -17,3 +17,18 @@ CVE-2025-52999
 # Reason: ARLAS-server process has a RAM limitation
 # Description: Potential Mitigations from https://avd.aquasec.com/nvd/2023/cve-2023-25193/ : Use resource-limiting settings provided by the operating system or environment
 CVE-2023-25193
+
+# Status: Ignored for now - action to be done: upgrade Hazelcast : https://github.com/hazelcast/hazelcast/issues/26578
+# Reason: need jackson-core dependecy update to 2.21.1
+# Description: jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition
+GHSA-72hv-8253-57qq
+
+# Status: Ignored for now - action to be done: upgrade docker image gcr.io/distroless/java17-debian12
+# Reason: This is not exploitable in our runtime context (no attacker-controlled inputs reach glibc allocation APIs
+# Description: glibc: Integer overflow in memalign leads to heap corruption  https://avd.aquasec.com/nvd/cve-2026-0861
+CVE-2026-0861
+
+# Status: Ignored for now - action to be done: upgrade docker image gcr.io/distroless/java17-debian12
+# Reason: ARLAS-server does not expose any XML parsing functionality to untrusted sources.
+# Description: In libexpat before 2.7.4, the doContent function does not properly determine the buffer size bufSize because there is no integer overflow check for tag buffer reallocation.  https://avd.aquasec.com/nvd/2026/cve-2026-25210/
+CVE-2026-25210

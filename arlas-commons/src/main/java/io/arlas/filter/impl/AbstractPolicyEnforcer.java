@@ -26,6 +26,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import io.arlas.commons.cache.BaseCacheManager;
 import io.arlas.commons.config.ArlasAuthConfiguration;
 import io.arlas.commons.utils.StringUtil;
+import io.arlas.filter.config.ResourceDefinitions;
 import io.arlas.filter.config.TechnicalRoles;
 import io.arlas.filter.core.ArlasClaims;
 import io.arlas.filter.core.PolicyEnforcer;
@@ -109,6 +110,12 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
         return this;
     }
 
+    private TechnicalRoles technicalRoles;
+
+    public void setTechnicalRoles(TechnicalRoles technicalRoles) {
+        this.technicalRoles = technicalRoles;
+    }
+
     protected abstract Object getObjectToken(String accessToken, String orgFilter) throws Exception;
 
     protected String getSubject(Object token) {
@@ -142,7 +149,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
         if (injectPermissions) {
             LOGGER.debug("Adding permissions of org/roles " + roles.toString() + " in existing permissions "
                     + permissions);
-            roles.forEach((key, value) -> TechnicalRoles.getTechnicalRolesPermissions().entrySet().stream()
+            roles.forEach((key, value) -> this.technicalRoles.getTechnicalRolesPermissions().entrySet().stream()
                     .filter(rolesPerm -> ((List<String>) value).contains(rolesPerm.getKey()))
                     .filter(rolesPerm -> !rolesPerm.getValue().get("permissions").isEmpty())
                     .forEach(rolesPerm -> permissions.addAll(rolesPerm.getValue().get("permissions").stream()
