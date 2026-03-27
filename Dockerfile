@@ -17,7 +17,7 @@ RUN mvn install \
 ###################
 # PACKAGING STAGE #
 ###################
-FROM gisaia/arlas-openjdk-17-distroless:20260128085401
+FROM gisaia/arlas-openjdk-17-distroless:20260325153316
 
 # application placed into /opt/app
 WORKDIR /opt/app
