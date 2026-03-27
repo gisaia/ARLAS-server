@@ -28,13 +28,12 @@ CVE-2024-13009
 # Description: Potential Mitigations from https://avd.aquasec.com/nvd/2026/cve-2026-0861/ : Choose a language or compiler that performs automatic bounds checking
 CVE-2026-0861
 
-# Status: Can be ignored
-# Reason: ARLAS-server does NOT process or manipulate PNG images
-# Description: https://avd.aquasec.com/nvd/2026/cve-2026-22695/ and https://avd.aquasec.com/nvd/2026/cve-2026-22801/
-CVE-2026-22695
-CVE-2026-22801
+# Status: Ignored for now - action to be done: upgrade docker image gcr.io/distroless/java17-debian12
+# Reason: ARLAS-server does not expose any XML parsing functionality to untrusted sources.
+# Description: In libexpat before 2.7.4, the doContent function does not properly determine the buffer size bufSize because there is no integer overflow check for tag buffer reallocation.  https://avd.aquasec.com/nvd/2026/cve-2026-25210/
+CVE-2026-25210
 
-# Status: Can be ignored
-# Reason: ??
-# Description : https://avd.aquasec.com/nvd/2026/cve-2026-24515/
-CVE-2026-24515
+# Status: Ignored for now - action to be done: upgrade Hazelcast : https://github.com/hazelcast/hazelcast/issues/26578
+# Reason: need jackson-core dependecy update to 2.21.1
+# Description: jackson-core: Number Length Constraint Bypass in Async Parser Leads to Potential DoS Condition
+GHSA-72hv-8253-57qq
