@@ -44,7 +44,7 @@
               <value>conf/log4j.properties</value>
             </property>
           </systemProperties>
-          <argLine>-Xms512m -Xmx1500m</argLine>
+          <argLine>-Xms512m -Xmx1500m -Dlog4j2.disable.jmx=true -Djava.lang.management.cgroup.enabled=false</argLine>
           <parallel>methods</parallel>
           <forkMode>pertest</forkMode>
         </configuration>
