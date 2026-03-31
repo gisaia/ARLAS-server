@@ -2,7 +2,8 @@ version: '3'
 
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-7.17.6}
+    #Update elasstic from 7.17.6 to 7.17.13 to fix elastict start on github actions runner in CI
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-7.17.13}
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
