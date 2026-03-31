@@ -9,12 +9,15 @@
     "arlas"
 ],
   "dependencies": {
-    "isomorphic-fetch": "3.0.0",
+    "portable-fetch": "3.0.0",
     "url": "0.11.0"
   },
   "overrides": {
-    "isomorphic-fetch": {
+    "portable-fetch": {
       "node-fetch": "3.3.0"
     }
+  },
+  "publishConfig": {
+    "tag": "27.0.x"
   }
 }
