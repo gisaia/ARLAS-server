@@ -16,5 +16,8 @@
     "portable-fetch": {
       "node-fetch": "3.3.0"
     }
+  },
+  "publishConfig": {
+    "tag": "24.1.x"
   }
 }
