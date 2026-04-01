@@ -47,3 +47,8 @@ CVE-2026-33416
 # Reason: ARLAS-server does not take PNG input.
 # Description: https://access.redhat.com/security/cve/cve-2026-33636
 CVE-2026-33636
+
+# Status: Ignored for now - action to be done: upgrade docker image gcr.io/distroless/java17-debian12
+# Reason: ARLAS-server does not take files input.
+# Description: https://access.redhat.com/security/cve/cve-2026-4046
+CVE-2026-4046
