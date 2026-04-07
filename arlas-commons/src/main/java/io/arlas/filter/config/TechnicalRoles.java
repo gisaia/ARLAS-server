@@ -27,10 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TechnicalRoles {
     // permissions of these roles are defined in arlas-commons/src/main/resources/roles.yaml
@@ -61,7 +58,9 @@ public class TechnicalRoles {
                             TechnicalRoles.class.getClassLoader().getResourceAsStream(rolesPath),
                             new TypeReference<>() {}
                     );
-            technicalRolesPermissions = yamlContent.getOrDefault("technicalRoles", new HashMap<>());
+            technicalRolesPermissions = Optional.ofNullable(yamlContent)
+                    .map(m -> m.getOrDefault("technicalRoles", new HashMap<>()))
+                    .orElse(new HashMap<>());
         } catch (IOException | NullPointerException e) {
             LOGGER.error("Could not load roles from classpath: {}", rolesPath, e);
             throw new IllegalStateException("Could not load roles from classpath: " + rolesPath, e);
