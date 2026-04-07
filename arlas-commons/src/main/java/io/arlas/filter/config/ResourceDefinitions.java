@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ResourceDefinitions {
 
@@ -53,7 +54,9 @@ public class ResourceDefinitions {
                             ResourceDefinitions.class.getClassLoader().getResourceAsStream(resourcePath),
                             new TypeReference<>() {}
                     );
-            resources = yamlContent.getOrDefault("resources", new HashMap<>());
+            resources = Optional.ofNullable(yamlContent)
+                    .map(m -> m.getOrDefault("resources", new HashMap<>()))
+                    .orElse(new HashMap<>());
         } catch (IOException | NullPointerException e) {
             LOGGER.error("Could not load resources from classpath: {}", resourcePath, e);
             throw new IllegalStateException("Could not load resources from classpath: " + resourcePath, e);
