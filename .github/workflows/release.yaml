@@ -1,0 +1,346 @@
+name: Release ARLAS Server
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_major_version:
+        description: "API Major version"
+        required: true
+      api_minor_version:
+        description: "API Minor version"
+        required: true
+      api_patch_version:
+        description: "API Patch version"
+        required: true
+      arlas_dev:
+        description: "Next dev patch version (e.g. 1 for X.Y.1-SNAPSHOT)"
+        required: true
+      skip_tests:
+        description: "Skip integration tests"
+        type: boolean
+        default: true
+      elasticsearch_versions:
+        description: "Elasticsearch versions to test (comma-separated, e.g. 7.17.6,7.16.0)"
+        required: false
+        default: "8.13.3"
+      skip_api:
+        description: "Skip API client generation"
+        type: boolean
+        default: false
+
+env:
+  FULL_API_VERSION: "${{ inputs.api_major_version }}.${{ inputs.api_minor_version }}.${{ inputs.api_patch_version }}"
+  API_DEV_VERSION: "${{ inputs.api_major_version }}.${{ inputs.api_minor_version }}.${{ inputs.arlas_dev }}"
+  IS_DEVELOP: ${{ github.ref_name == 'develop' }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ----------------------------------------
+      # Checkout & Git setup
+      # ----------------------------------------
+      - name: Checkout current branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+          token: ${{ secrets.GH_RELEASE_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Log release context
+        run: |
+          echo "Releasing from branch    : ${{ github.ref_name }}"
+          echo "Version                  : ${{ env.FULL_API_VERSION }}"
+          echo "Next dev version         : ${{ env.API_DEV_VERSION }}-SNAPSHOT"
+          echo "Merge to master          : ${{ env.IS_DEVELOP }}"
+          echo "Generate CHANGELOG       : ${{ env.IS_DEVELOP }}"
+          echo "Skip tests               : ${{ inputs.skip_tests }}"
+          echo "Elasticsearch versions   : ${{ inputs.elasticsearch_versions }}"
+
+      # ----------------------------------------
+      # Java / Maven setup
+      # ----------------------------------------
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+          cache-dependency-path: |
+            **/pom.xml
+
+      # ----------------------------------------
+      # Node / npm setup
+      # ----------------------------------------
+      - name: Set up Node.js
+        if: ${{ !inputs.skip_api }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org"
+
+      # ----------------------------------------
+      # Set release version
+      # ----------------------------------------
+      - name: Set Maven project version
+        run: |
+          mvn versions:set -DnewVersion=${{ env.FULL_API_VERSION }} --no-transfer-progress
+          sed -i 's/"API_VERSION"/"${{ env.FULL_API_VERSION }}"/' \
+            arlas-core/src/main/java/io/arlas/server/core/services/ArlasRESTServices.java
+          sed -i 's/^appVersion: .*$/appVersion: ${{ env.FULL_API_VERSION }}/' \
+            packaging/helm/arlas-server/Chart.yaml
+          sed -i 's/^version: .*$/version: ${{ env.FULL_API_VERSION }}/' \
+            packaging/helm/arlas-server/Chart.yaml
+
+      # ----------------------------------------
+      # Build
+      # ----------------------------------------
+      - name: Build with Maven
+        run: mvn clean install -DskipTests --no-transfer-progress --no-snapshot-updates
+
+      # ----------------------------------------
+      # Start Elasticsearch stack
+      # ----------------------------------------
+      - name: Start Elasticsearch stack
+        run: |
+          export ELASTIC_DATADIR="/tmp"
+          docker compose -f docker-compose-elasticsearch.yml --project-name arlas up -d
+          echo "Waiting for Elasticsearch readiness..."
+          docker run --net arlas_default --rm busybox sh -c \
+            'i=1; until nc -w 2 elasticsearch 9200; do if [ $i -lt 30 ]; then sleep 1; else break; fi; i=$(($i + 1)); done'
+          echo "Elasticsearch is ready"
+
+      # ----------------------------------------
+      # Start ARLAS server & fetch OpenAPI spec
+      # ----------------------------------------
+      - name: Start arlas-server stack
+        run: |
+          export ARLAS_SERVICE_RASTER_TILES_ENABLE=true
+          export ELASTIC_DATADIR="/tmp"
+          docker compose -f docker-compose.yml --project-name arlas up -d --build
+
+      - name: Wait for arlas-server to be ready
+        run: |
+          for i in $(seq 1 30); do
+            nc -w 2 localhost 19999 && echo "Server is up" && break
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+
+      - name: Fetch OpenAPI spec
+        run: |
+          mkdir -p target/tmp openapi
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:19999/arlas/openapi.json \
+              -o target/tmp/openapi.json && break
+            sleep 2
+          done
+          curl -sf http://localhost:19999/arlas/openapi.yaml \
+            -o target/tmp/openapi.yaml
+          cp target/tmp/openapi.yaml openapi/openapi.yaml
+          cp target/tmp/openapi.json openapi/openapi.json
+
+      - name: Stop arlas-server stack
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose-elasticsearch.yml \
+            --project-name arlas down -v
+
+      # ----------------------------------------
+      # Integration tests (multi ES versions)
+      # ----------------------------------------
+      - name: Run integration tests
+        if: ${{ !inputs.skip_tests }}
+        run: |
+          IFS=',' read -ra ES_VERSIONS <<< "${{ inputs.elasticsearch_versions }}"
+          for es_version in "${ES_VERSIONS[@]}"; do
+            es_version=$(echo "$es_version" | tr -d ' ')
+            echo "=> Testing with Elasticsearch $es_version"
+            ./scripts/tests-integration.sh --es=$es_version
+          done
+
+      # ----------------------------------------
+      # Generate API clients
+      # ----------------------------------------
+      - name: Generate Java API client
+        if: ${{ !inputs.skip_api }}
+        run: |
+          mkdir -p target/tmp/java-api
+          docker run --rm \
+            --mount dst=/input/api.json,src="$PWD/target/tmp/openapi.json",type=bind,ro \
+            --mount dst=/input/config.json,src="$PWD/conf/swagger/java-config.json",type=bind,ro \
+            --mount dst=/output,src="$PWD/target/tmp/java-api",type=bind \
+            gisaia/swagger-codegen-3.0.54 \
+              -l java --type-mappings GeoJsonObject=Object
+
+      - name: Generate TypeScript API client
+        if: ${{ !inputs.skip_api }}
+        run: |
+          mkdir -p target/tmp/typescript-fetch
+          docker run --rm \
+            --mount dst=/input/api.json,src="$PWD/target/tmp/openapi.json",type=bind,ro \
+            --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
+            gisaia/swagger-codegen-3.0.42 \
+              -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
+
+      - name: Build TypeScript API client
+        if: ${{ !inputs.skip_api }}
+        working-directory: target/tmp/typescript-fetch
+        run: |
+          cp ${{ github.workspace }}/conf/npm/package-build.json package.json
+          cp ${{ github.workspace }}/conf/npm/tsconfig-build.json .
+          npm version --no-git-tag-version ${{ env.FULL_API_VERSION }}
+          npm install
+          npm run build-release
+          npm run postbuild
+
+      - name: Publish TypeScript API client to npm
+        if: ${{ !inputs.skip_api }}
+        working-directory: target/tmp/typescript-fetch/dist
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+        run: |
+          cp ${{ github.workspace }}/conf/npm/package-publish.json package.json
+          npm version --no-git-tag-version ${{ env.FULL_API_VERSION }}
+          npm publish || echo "npm publish failed, continuing..."
+
+      # ----------------------------------------
+      # Docker image — tag & push
+      # ----------------------------------------
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: Tag & push Docker image
+        run: |
+          docker tag gisaia/arlas-server:latest gisaia/arlas-server:${{ env.FULL_API_VERSION }} 
+          docker push gisaia/arlas-server:${{ env.FULL_API_VERSION }}
+          docker push gisaia/arlas-server:latest
+
+      # ----------------------------------------
+      # Publish Maven jars to Cloudsmith
+      # ----------------------------------------
+      - name: Configure Maven settings for Cloudsmith
+        uses: whelk-io/maven-settings-xml-action@v22
+        with:
+          servers: |
+            [{"id": "cloudsmith", "username": "${{ secrets.CLOUDSMITH_USER }}",
+              "password": "${{ secrets.CLOUDSMITH_API_KEY }}"}]
+
+      - name: Publish parent jar to Cloudsmith
+        run: mvn -N -s conf/maven/settings.xml deploy --no-transfer-progress
+
+      - name: Publish arlas-commons jar to Cloudsmith
+        run: mvn -s conf/maven/settings.xml deploy --no-transfer-progress
+        working-directory: arlas-commons
+
+      - name: Publish arlas-core jar to Cloudsmith
+        run: mvn -s conf/maven/settings.xml deploy --no-transfer-progress
+        working-directory: arlas-core
+
+      - name: Publish arlas-admin jar to Cloudsmith
+        run: mvn -s conf/maven/settings.xml deploy --no-transfer-progress
+        working-directory: arlas-admin
+
+      - name: Publish arlas-server-client jar to Cloudsmith
+        if: ${{ !inputs.skip_api }}
+        working-directory: target/tmp/java-api
+        run: |
+          cp ${{ github.workspace }}/conf/maven/pom.xml pom.xml
+          mvn versions:set -DnewVersion=${{ env.FULL_API_VERSION }} --no-transfer-progress
+          mvn -s ${{ github.workspace }}/conf/maven/settings.xml deploy --no-transfer-progress
+
+      # ----------------------------------------
+      # CHANGELOG — develop only
+      # ----------------------------------------
+      - name: Create temporary tag for changelog
+        if: ${{ env.IS_DEVELOP == 'true' }}
+        run: |
+          git tag v${{ env.FULL_API_VERSION }}
+          git push origin v${{ env.FULL_API_VERSION }}
+
+      - name: Generate CHANGELOG.md
+        if: ${{ env.IS_DEVELOP == 'true' }}
+        run: |
+          docker run --rm -v "$(pwd)":/usr/local/src/your-app \
+            gisaia/github-changelog-generator:latest github_changelog_generator \
+            -u gisaia -p ARLAS-server \
+            --token ${{ secrets.GH_CHANGELOG_TOKEN }} \
+            --no-pr-wo-labels --no-issues-wo-labels --no-unreleased \
+            --issue-line-labels API,OGC,conf,security,documentation \
+            --exclude-labels type:duplicate,type:question,type:wontfix,type:invalid \
+            --bug-labels type:bug \
+            --enhancement-labels type:enhancement \
+            --breaking-labels type:breaking \
+            --enhancement-label "**New stuff:**" \
+            --issues-label "**Miscellaneous:**" \
+            --since-tag v2.5.3
+
+      - name: Delete temporary tag
+        if: ${{ env.IS_DEVELOP == 'true' }}
+        run: |
+          git tag -d v${{ env.FULL_API_VERSION }}
+          git push origin :v${{ env.FULL_API_VERSION }}
+
+      # ----------------------------------------
+      # Commit release & tag (all branches)
+      # ----------------------------------------
+      - name: Commit release artifacts
+        run: |
+          git add openapi/openapi.json openapi/openapi.yaml
+          git commit -a -m "release version ${{ env.FULL_API_VERSION }}"
+          git tag v${{ env.FULL_API_VERSION }}
+          git push origin v${{ env.FULL_API_VERSION }}
+          git push origin ${{ github.ref_name }}
+
+      # ----------------------------------------
+      # Merge vers master — develop uniquement
+      # ----------------------------------------
+      - name: Merge develop into master
+        if: ${{ env.IS_DEVELOP == 'true' }}
+        run: |
+          git checkout master
+          git pull origin master
+          git merge origin/develop
+          git push origin master
+
+      - name: Rebase develop on master
+        if: ${{ env.IS_DEVELOP == 'true' }}
+        run: |
+          git checkout develop
+          git pull origin develop
+          git rebase origin/master
+
+      # ----------------------------------------
+      # Bump to next SNAPSHOT version
+      # ----------------------------------------
+      - name: Set next development version
+        run: |
+          git checkout ${{ github.ref_name }}
+          mvn versions:set -DnewVersion=${{ env.API_DEV_VERSION }}-SNAPSHOT --no-transfer-progress
+          sed -i 's/"${{ env.FULL_API_VERSION }}"/"API_VERSION"/' \
+            arlas-core/src/main/java/io/arlas/server/core/services/ArlasRESTServices.java
+          sed -i 's/"${{ env.FULL_API_VERSION }}"/"${{ env.API_DEV_VERSION }}-SNAPSHOT"/' \
+            openapi/openapi.yaml openapi/openapi.json
+          git add openapi/openapi.json openapi/openapi.yaml
+          git commit -a -m "development version ${{ env.API_DEV_VERSION }}-SNAPSHOT"
+          git push origin ${{ github.ref_name }}
+
+      # ----------------------------------------
+      # Notify Google Chat
+      # ----------------------------------------
+      - name: Send Google Chat notification
+        if: ${{ env.GOOGLE_CHAT_RELEASE_CHANEL != '' }}
+        env:
+          GOOGLE_CHAT_RELEASE_CHANEL: ${{ secrets.GOOGLE_CHAT_RELEASE_CHANEL }}
+        run: |
+          curl -X POST --header "Content-Type:application/json" \
+            "$GOOGLE_CHAT_RELEASE_CHANEL" \
+            -d "{\"text\":\"Release of ARLAS-server, version ${{ env.FULL_API_VERSION }} (from branch ${{ github.ref_name }})\"}"
