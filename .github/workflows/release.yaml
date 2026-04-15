@@ -227,30 +227,38 @@ jobs:
       # ----------------------------------------
       # Publish Maven jars to Cloudsmith
       # ----------------------------------------
-      - name: Configure Maven settings for Cloudsmith
-        uses: whelk-io/maven-settings-xml-action@v22
-        with:
-          servers: |
-            [{"id": "cloudsmith", "username": "${{ secrets.CLOUDSMITH_USER }}",
-              "password": "${{ secrets.CLOUDSMITH_API_KEY }}"}]
-
       - name: Publish parent jar to Cloudsmith
+        env:
+          CLOUDSMITH_LOGIN: ${{ secrets.CLOUDSMITH_USER }}
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
         run: mvn -N -s conf/maven/settings.xml deploy --no-transfer-progress
 
       - name: Publish arlas-commons jar to Cloudsmith
-        run: mvn -s conf/maven/settings.xml deploy --no-transfer-progress
+        env:
+          CLOUDSMITH_LOGIN: ${{ secrets.CLOUDSMITH_USER }}
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
         working-directory: arlas-commons
+        run: mvn -s ${{ github.workspace }}/conf/maven/settings.xml deploy --no-transfer-progress
 
       - name: Publish arlas-core jar to Cloudsmith
-        run: mvn -s conf/maven/settings.xml deploy --no-transfer-progress
+        env:
+          CLOUDSMITH_LOGIN: ${{ secrets.CLOUDSMITH_USER }}
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
         working-directory: arlas-core
+        run: mvn -s ${{ github.workspace }}/conf/maven/settings.xml deploy --no-transfer-progress
 
       - name: Publish arlas-admin jar to Cloudsmith
-        run: mvn -s conf/maven/settings.xml deploy --no-transfer-progress
+        env:
+          CLOUDSMITH_LOGIN: ${{ secrets.CLOUDSMITH_USER }}
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
         working-directory: arlas-admin
+        run: mvn -s ${{ github.workspace }}/conf/maven/settings.xml deploy --no-transfer-progress
 
       - name: Publish arlas-server-client jar to Cloudsmith
         if: ${{ !inputs.skip_api }}
+        env:
+          CLOUDSMITH_LOGIN: ${{ secrets.CLOUDSMITH_USER }}
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
         working-directory: target/tmp/java-api
         run: |
           cp ${{ github.workspace }}/conf/maven/pom.xml pom.xml
