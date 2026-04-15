@@ -172,6 +172,7 @@ jobs:
         run: |
           mkdir -p target/tmp/java-api
           docker run --rm \
+            -u $(id -u):$(id -g) \
             --mount dst=/input/api.json,src="$PWD/target/tmp/openapi.json",type=bind,ro \
             --mount dst=/input/config.json,src="$PWD/conf/swagger/java-config.json",type=bind,ro \
             --mount dst=/output,src="$PWD/target/tmp/java-api",type=bind \
