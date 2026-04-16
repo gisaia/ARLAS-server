@@ -1,5 +1,17 @@
 # Change Log
 
+## [v28.0.0-rc.1](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc.1) (2026-04-16)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.3.9...v28.0.0-rc.1)
+
+**New stuff:**
+
+- Add send message on chat when release [\#994](https://github.com/gisaia/ARLAS-server/issues/994)
+
+**Miscellaneous:**
+
+- implement the release script in github actions [\#980](https://github.com/gisaia/ARLAS-server/issues/980)
+
 ## [v27.3.9](https://github.com/gisaia/ARLAS-server/tree/v27.3.9) (2026-04-15)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.3.4...v27.3.9)
