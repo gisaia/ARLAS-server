@@ -20,5 +20,9 @@
   },
   "files": [
     "index.ts"
-  ]
+  ],
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false
+  }
 }
