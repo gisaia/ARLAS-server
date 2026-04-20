@@ -2,36 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.arlas</groupId>
+    <parent>
+        <groupId>io.arlas</groupId>
+        <artifactId>arlas-server-parent</artifactId>
+        <version>28.0.1-SNAPSHOT</version>
+    </parent>
     <artifactId>arlas-core</artifactId>
     <version>28.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>ARLAS server core</name>
-
-    <parent>
-      <groupId>io.arlas</groupId>
-      <artifactId>arlas-server-parent</artifactId>
-      <version>28.0.1-SNAPSHOT</version>
-    </parent>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>io.arlas.server.core</id>
-            <url>https://maven.cloudsmith.io/gisaia/public/</url>
-        </snapshotRepository>
-        <repository>
-            <id>io.arlas.server.core</id>
-            <url>https://maven.cloudsmith.io/gisaia/public/</url>
-        </repository>
-    </distributionManagement>
-
     <dependencies>
         <dependency>
             <groupId>io.arlas</groupId>
             <artifactId>arlas-commons</artifactId>
-            <version>28.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
-
         <!-- ____________________________________________________ -->
         <!-- DEV -->
         <!-- ____________________________________________________ -->
@@ -43,7 +28,7 @@
         <dependency>
             <artifactId>joda-time</artifactId>
             <groupId>joda-time</groupId>
-            <version>2.12.5</version>
+            <version>${joda-time.version}</version>
         </dependency>
         <!-- ____________________________________________________ -->
         <!-- Tests -->
@@ -54,20 +39,9 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- ____________________________________________________ -->
-        <!-- LOGS -->
-        <!-- ____________________________________________________ -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-
         <!-- ____________________________________________________ -->
         <!-- ELASTICSEARCH -->
         <!-- ____________________________________________________ -->
-
        <dependency>
             <groupId>co.elastic.clients</groupId>
             <artifactId>elasticsearch-java</artifactId>
@@ -111,19 +85,16 @@
             <artifactId>gt-shapefile</artifactId>
             <version>${geotools.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.geotools.xsd</groupId>
             <artifactId>gt-xsd-fes</artifactId>
             <version>${geotools.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
         </dependency>
-
         <dependency>
             <groupId>de.grundid.opendatalab</groupId>
             <artifactId>geojson-jackson</artifactId>
@@ -158,13 +129,11 @@
             <artifactId>jts-io-common</artifactId>
             <version>${jts.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.uber</groupId>
             <artifactId>h3</artifactId>
             <version>${h3.version}</version>
         </dependency>
-
         <!-- ____________________________________________________ -->
         <!-- LANGUAGE -->
         <!-- ____________________________________________________ -->
@@ -173,26 +142,10 @@
             <artifactId>nv-i18n</artifactId>
             <version>${nv-i18n.version}</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-jaxb -->
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-jaxb</artifactId>
             <version>${jersey-media-jaxb.version}</version>
         </dependency>
-
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

@@ -21,7 +21,7 @@ package io.arlas.server.rest.collections;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InvalidParameterException;
 import io.arlas.commons.rest.response.Error;
@@ -191,7 +191,7 @@ public class CollectionService extends CollectionRESTServices {
     // convert InputStream to List<CollectionReference>
     private static List<CollectionReference> getCollectionsFromInputStream(InputStream is) throws InvalidParameterException {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         try {
             return Arrays.asList(mapper.readValue(is, CollectionReference[].class));
         } catch (IOException e) {

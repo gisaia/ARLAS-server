@@ -1,200 +1,189 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <groupId>io.arlas</groupId>
-  <artifactId>arlas-server-parent</artifactId>
-  <version>28.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>ARLAS server parent</name>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>io.arlas.server.parent</id>
-      <url>https://maven.cloudsmith.io/gisaia/public/</url>
-    </snapshotRepository>
-    <repository>
-      <id>io.arlas.server.parent</id>
-      <url>https://maven.cloudsmith.io/gisaia/public/</url>
-    </repository>
-  </distributionManagement>
-
-  <modules>
-    <module>arlas-core</module>
-    <module>arlas-admin</module>
-    <module>arlas-rest</module>
-    <module>arlas-opensearch</module>
-    <module>ogc-common</module>
-    <module>ogc-csw</module>
-    <module>ogc-wfs</module>
-    <module>arlas-server</module>
-    <module>arlas-tests</module>
-    <module>stac-api</module>
-    <module>arlas-commons</module>
-  </modules>
-
-  <properties>
-    <!-- PROJECT-->
-    <log4j.version>2.23.0</log4j.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <skipTests>true</skipTests>
-    <maven.surefire.version>2.22.2</maven.surefire.version>
-    <maven.failsafe.version>2.22.2</maven.failsafe.version>
-    <maven.compiler.version>3.10.1</maven.compiler.version>
-    <maven.shade.version>3.2.4</maven.shade.version>
-
-    <!-- DEV TOOLS -->
-    <cyclops.version>10.4.1</cyclops.version>
-
-    <!-- TESTS -->
-    <junit.version>4.13.2</junit.version>
-    <org.hamcrest.version>2.2</org.hamcrest.version>
-    <io.rest-assured.version>5.4.0</io.rest-assured.version>
-
-    <!-- REST AND DROPWIZARD-->
-    <dropwizard.version>4.0.12</dropwizard.version>
-    <!-- jackson version is also defined in conf/maven/pom.xml for the java server client -->
-    <jackson-version>2.18.2</jackson-version>
-    <dropwizard.swagger.version>4.0.5-1</dropwizard.swagger.version>
-    <jaxb.version>4.0.4</jaxb.version>
-    <!-- don't go to jersey 3.1.x before DW5 (jakarta EE 10) -->
-    <jersey-media-jaxb.version>3.0.17</jersey-media-jaxb.version>
-
-    <!-- CACHE-->
-    <hazelcast.version>5.4.0</hazelcast.version>
-
-    <!-- ELASTICSEARCH-->
-    <elastic.version>8.13.3</elastic.version>
-
-    <!-- GEO-->
-    <geotools.version>30.4</geotools.version>
-    <protobuf.version>3.25.3</protobuf.version>
-    <geojson.jackson.version>1.14</geojson.jackson.version>
-    <spatial4j.version>0.8</spatial4j.version>
-    <jts.version>1.19.0</jts.version>
-    <h3.version>4.1.1</h3.version>
-
-    <!-- AUTH -->
-    <jwt.version>4.4.0</jwt.version>
-    <elastic-apm.version>1.48.1</elastic-apm.version>
-    <keycloak.version>24.0.3</keycloak.version>
-
-    <nv-i18n.version>1.29</nv-i18n.version>
-    <itu.version>1.7.3</itu.version>
-  </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven.compiler.version}</version>
-        <configuration>
-          <release>17</release>
-          <source>17</source>
-          <target>17</target>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${maven.failsafe.version}</version>
-        <configuration>
-          <argLine>-Xmx2048m</argLine>
-          <skipITs>${skipTests}</skipITs>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- SUREFIRE LOCK DOWN -->
-      <plugin>
-        <!-- lock down surefire version -->
-        <!-- avoid having to "download all the internet" on each docker build of arlas-server docker image -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven.surefire.version}</version>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <version>4.0.0-M4</version>
-      </plugin>
-
-      <plugin>
-        <groupId>com.github.spotbugs</groupId>
-        <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>4.7.3.0</version>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.2.0</version>
-      </plugin>
-
-    </plugins>
-  </build>
-  <repositories>
-    <repository>
-      <id>osgeo</id>
-      <name>OSGeo Release Repository</name>
-      <url>https://repo.osgeo.org/repository/release/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-  </repositories>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>com.github.spotbugs</groupId>
-        <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>4.7.3.0</version>
-        <configuration>
-          <!-- Optional directory to put spotbugs xml report -->
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.19.0</version>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.2.0</version>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <report>checkstyle</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-    </plugins>
-  </reporting>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.arlas</groupId>
+    <artifactId>arlas-server-parent</artifactId>
+    <version>28.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>ARLAS server parent</name>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>io.arlas.server.parent</id>
+            <url>https://maven.cloudsmith.io/gisaia/public/</url>
+        </snapshotRepository>
+        <repository>
+            <id>io.arlas.server.parent</id>
+            <url>https://maven.cloudsmith.io/gisaia/public/</url>
+        </repository>
+    </distributionManagement>
+    <modules>
+        <module>arlas-core</module>
+        <module>arlas-admin</module>
+        <module>arlas-rest</module>
+        <module>arlas-opensearch</module>
+        <module>ogc-common</module>
+        <module>ogc-csw</module>
+        <module>ogc-wfs</module>
+        <module>arlas-server</module>
+        <module>arlas-tests</module>
+        <module>stac-api</module>
+        <module>arlas-commons</module>
+    </modules>
+    <properties>
+        <skipTests>true</skipTests>
+        <!-- PROJECT-->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.surefire.version>3.2.5</maven.surefire.version>
+        <maven.failsafe.version>3.2.5</maven.failsafe.version>
+        <maven.compiler.version>3.11.0</maven.compiler.version>
+        <maven.shade.version>3.5.0</maven.shade.version>
+        <!-- DEV TOOLS -->
+        <cyclops.version>10.4.1</cyclops.version>
+        <!-- TESTS -->
+        <junit.version>4.13.2</junit.version>
+        <org.hamcrest.version>2.2</org.hamcrest.version>
+        <io.rest-assured.version>5.4.0</io.rest-assured.version>
+        <!-- REST AND DROPWIZARD-->
+        <dropwizard.version>5.0.1</dropwizard.version>
+        <dropwizard.swagger.version>4.0.5-1</dropwizard.swagger.version>
+        <!-- CACHE-->
+        <hazelcast.version>5.4.0</hazelcast.version>
+        <!-- ELASTICSEARCH-->
+        <elastic.version>8.13.3</elastic.version>
+        <!-- GEO-->
+        <geotools.version>30.4</geotools.version>
+        <protobuf.version>3.25.3</protobuf.version>
+        <geojson.jackson.version>1.14</geojson.jackson.version>
+        <spatial4j.version>0.8</spatial4j.version>
+        <jts.version>1.19.0</jts.version>
+        <h3.version>4.1.1</h3.version>
+        <!-- AUTH -->
+        <jwt.version>4.4.0</jwt.version>
+        <elastic-apm.version>1.48.1</elastic-apm.version>
+        <keycloak.version>24.0.3</keycloak.version>
+        <nv-i18n.version>1.29</nv-i18n.version>
+        <itu.version>1.7.3</itu.version>
+        <!-- TIME -->
+        <joda-time.version>2.12.5</joda-time.version>
+        <!-- METRICS -->
+        <metrics.version>4.2.38</metrics.version>
+        <!-- MULTIPART -->
+        <jersey-multipart.version>3.1.11</jersey-multipart.version>
+        <!-- MEDIA JAXB -->
+        <jersey-media-jaxb.version>3.1.11</jersey-media-jaxb.version>
+        <!-- JETTY SERVER  -->
+        <jetty-server.version>12.1.8</jetty-server.version>
+        <!-- JAKARTA XML BIND -->
+        <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
+        <!-- JAXB RUNTIME -->
+        <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty-server.version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven.surefire.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven.failsafe.version}</version>
+                    <configuration>
+                        <argLine>-Xmx2048m</argLine>
+                        <skipITs>${skipTests}</skipITs>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>4.0.0-M4</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>4.7.3.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.version}</version>
+                <configuration>
+                    <release>17</release>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <repositories>
+        <repository>
+            <id>osgeo</id>
+            <name>OSGeo Release Repository</name>
+            <url>https://repo.osgeo.org/repository/release/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>4.7.3.0</version>
+                <configuration>
+                    <!-- Optional directory to put spotbugs xml report -->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.19.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.2.0</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>checkstyle</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

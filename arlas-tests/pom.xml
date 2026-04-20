@@ -1,77 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>io.arlas</groupId>
-  <artifactId>arlas-tests</artifactId>
-  <version>28.0.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
-  <name>ARLAS server tests</name>
-
-  <parent>
-    <groupId>io.arlas</groupId>
-    <artifactId>arlas-server-parent</artifactId>
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.arlas</groupId>
+        <artifactId>arlas-server-parent</artifactId>
+        <version>28.0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>arlas-tests</artifactId>
     <version>28.0.1-SNAPSHOT</version>
-  </parent>
-
-  <dependencies>
-    <dependency>
-      <groupId>io.arlas</groupId>
-      <artifactId>arlas-server</artifactId>
-      <version>28.0.1-SNAPSHOT</version>
-    </dependency>
-
-    <!-- ____________________________________________________ -->
-    <!-- Tests -->
-    <!-- ____________________________________________________ -->
-    <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured</artifactId>
-      <version>${io.rest-assured.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>httpcore</artifactId>
-          <groupId>org.apache.httpcomponents</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>commons-lang3</artifactId>
-          <groupId>org.apache.commons</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jakarta.xml.bind-api</artifactId>
-          <groupId>jakarta.xml.bind</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jaxb-impl</artifactId>
-          <groupId>com.sun.xml.bind</groupId>
-        </exclusion>
-      </exclusions>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-core</artifactId>
-      <version>${org.hamcrest.version}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.22.2</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>17</source>
-          <target>17</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
+    <packaging>jar</packaging>
+    <name>ARLAS server tests</name>
+    <dependencies>
+        <dependency>
+            <groupId>io.arlas</groupId>
+            <artifactId>arlas-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- ____________________________________________________ -->
+        <!-- Tests -->
+        <!-- ____________________________________________________ -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${io.rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
