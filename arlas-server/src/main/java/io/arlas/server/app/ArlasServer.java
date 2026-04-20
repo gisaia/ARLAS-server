@@ -81,20 +81,21 @@ import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.FilterRegistration;
-import jakarta.ws.rs.core.HttpHeaders;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
+import jakarta.ws.rs.container.ContainerResponseFilter;
+import org.eclipse.jetty.http.HttpHeader;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
 
 public class ArlasServer extends Application<ArlasServerConfiguration> {
     Logger LOGGER = LoggerFactory.getLogger(ArlasServer.class);
@@ -276,32 +277,25 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         dbToolFactory.getHealthChecks().forEach((name, check) -> environment.healthChecks().register(name, check));
 
         //cors
+        //cors
         if (configuration.arlasCorsConfiguration.enabled) {
             configureCors(environment,configuration.arlasCorsConfiguration);
         } else {
-            CrossOriginFilter filter = new CrossOriginFilter();
-            final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CrossOriginFilter", filter);
-            // Expose always HttpHeaders.WWW_AUTHENTICATE to authentify on client side a non public uri call
-            cors.setInitParameter(CrossOriginFilter.EXPOSED_HEADERS_PARAM, HttpHeaders.WWW_AUTHENTICATE);
+            environment.jersey().register((ContainerResponseFilter) (req, res) ->
+                    res.getHeaders().add("Access-Control-Expose-Headers", "WWW-Authenticate")
+            );
         }
     }
 
     private void configureCors(Environment environment, ArlasCorsConfiguration configuration) {
-        CrossOriginFilter filter = new CrossOriginFilter();
-        final FilterRegistration.Dynamic cors = environment.servlets().addFilter("CrossOriginFilter", filter);
-        // Configure CORS parameters
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, configuration.allowedOrigins);
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, configuration.allowedHeaders);
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, configuration.allowedMethods);
-        cors.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, String.valueOf(configuration.allowedCredentials));
-        String exposedHeader = configuration.exposedHeaders;
-        // Expose always HttpHeaders.WWW_AUTHENTICATE to authentify on client side a non public uri call
-        if (!configuration.exposedHeaders.contains(HttpHeaders.WWW_AUTHENTICATE)) {
-             exposedHeader = configuration.exposedHeaders.concat(",").concat(HttpHeaders.WWW_AUTHENTICATE);
-        }
-        cors.setInitParameter(CrossOriginFilter.EXPOSED_HEADERS_PARAM, exposedHeader);
-
-        // Add URL mapping
-        cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+        CrossOriginHandler corsHandler = new CrossOriginHandler();
+        corsHandler.setAllowedOriginPatterns(Set.of(configuration.allowedOrigins.split(",")));
+        corsHandler.setAllowedHeaders(Set.of(configuration.allowedHeaders.split(",")));
+        corsHandler.setAllowedMethods(Set.of(configuration.allowedMethods.split(",")));
+        corsHandler.setAllowCredentials(configuration.allowedCredentials);
+        Set<String> exposedHeaders = new HashSet<>(Arrays.asList(configuration.exposedHeaders.split(",")));
+        exposedHeaders.add(HttpHeader.WWW_AUTHENTICATE.asString());
+        corsHandler.setExposedHeaders(exposedHeaders);
+        environment.getApplicationContext().insertHandler(corsHandler);
     }
 }

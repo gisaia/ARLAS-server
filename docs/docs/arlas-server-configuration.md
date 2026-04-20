@@ -146,7 +146,6 @@ Refer to [ARLAS IAM configuration](arlas-iam.md) for a comprehensive configurati
 | ARLAS_PORT                | server.connector.port                                  | 9999                   |                                                                                     |
 | ARLAS_MAX_THREADS         | server.maxThreads                                      | 1024                   |                                                                                     |
 | ARLAS_MIN_THREADS         | server.minThreads                                      | 8                      |                                                                                     |
-| ARLAS_MAX_QUEUED_REQUESTS | server.maxQueuedRequests                               | 1024                   |                                                                                     |
 
 ### URL Masking
 
