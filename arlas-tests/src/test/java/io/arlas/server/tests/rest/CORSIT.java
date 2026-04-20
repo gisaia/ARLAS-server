@@ -20,26 +20,36 @@
 package io.arlas.server.tests.rest;
 
 import io.arlas.server.tests.AbstractTestContext;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 
 public class CORSIT extends AbstractTestContext {
+    public static final String ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
+    public static final String ACCESS_CONTROL_EXPOSE_HEADERS_HEADER = "Access-Control-Expose-Headers";
+    public static final String ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER = "Access-Control-Allow-Credentials";
 
     @Test
     public void testCORS() throws Exception {
 
         // CHECK CORS
-        given()
+        String exposeHeaders = given()
                 .header("Origin", "http://example.com")
                 .header("Access-Control-Request-Method", "GET")
                 .header("Access-Control-Request-Headers", "X-Requested-With")
                 .when().get(arlasPath + "collections/")
                 .then()
-                .header(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "http://example.com")
-                .header(CrossOriginFilter.ACCESS_CONTROL_EXPOSE_HEADERS_HEADER, "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,Location,WWW-Authenticate")
-                .header(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true");
+                .header(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "http://example.com")
+                .header(ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true")
+                .extract().header(ACCESS_CONTROL_EXPOSE_HEADERS_HEADER);
+
+        assertThat(Arrays.asList(exposeHeaders.split(",")),
+                containsInAnyOrder("Content-Type", "Authorization", "X-Requested-With",
+                        "Content-Length", "Accept", "Origin", "Location", "WWW-Authenticate"));
     }
 
     @Override

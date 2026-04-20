@@ -1,106 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>io.arlas</groupId>
-  <artifactId>ogc-common</artifactId>
-  <version>28.0.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
-  <name>ARLAS ogc common</name>
-
-  <parent>
-    <groupId>io.arlas</groupId>
-    <artifactId>arlas-server-parent</artifactId>
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.arlas</groupId>
+        <artifactId>arlas-server-parent</artifactId>
+        <version>28.0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>ogc-common</artifactId>
     <version>28.0.1-SNAPSHOT</version>
-  </parent>
-
-  <dependencies>
-    <dependency>
-      <groupId>io.arlas</groupId>
-      <artifactId>arlas-core</artifactId>
-      <version>28.0.1-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.glassfish.jaxb</groupId>
-      <artifactId>jaxb-runtime</artifactId>
-      <version>${jaxb.version}</version>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jaxb2-maven-plugin</artifactId>
-        <version>3.1.0</version>
-
-        <executions>
-          <execution>
-            <id>xjc</id>
-            <goals>
-              <goal>xjc</goal>
-            </goals>
-          </execution>
-        </executions>
-
-        <configuration>
-          <xjbSources>
-            <xjbSource>src/main/resources/global.xjb</xjbSource>
-          </xjbSources>
-          <sources>
-            <source>src/main/resources/wfs-2.0.xsd</source>
-            <source>src/main/resources/csw/cswAll.xsd</source>
-            <source>src/main/resources/csw/atom/atom.xsd</source>
-            <source>src/main/resources/csw/atom/opensearch.xsd</source>
-          </sources>
-          <arguments>
-            <argument>-Xannotate</argument>
-          </arguments>
-        </configuration>
-
-        <dependencies>
-          <dependency>
-            <groupId>org.jvnet.jaxb</groupId>
-            <artifactId>jaxb-basics-annotate</artifactId>
-            <version>2.0.9</version>
-          </dependency>
-          <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.5.0</version>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>target/generated-sources/jaxb</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>17</source>
-          <target>17</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
+    <packaging>jar</packaging>
+    <name>ARLAS ogc common</name>
+    <dependencies>
+        <dependency>
+            <groupId>io.arlas</groupId>
+            <artifactId>arlas-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>${jaxb-runtime.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>${jakarta.xml.bind-api.version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <!-- JAXB code generation -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>xjc</id>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sources>
+                        <source>src/main/resources/wfs-2.0.xsd</source>
+                        <source>src/main/resources/csw/cswAll.xsd</source>
+                        <source>src/main/resources/csw/atom/atom.xsd</source>
+                        <source>src/main/resources/csw/atom/opensearch.xsd</source>
+                    </sources>
+                    <xjbSources>
+                        <xjbSource>src/main/resources/global.xjb</xjbSource>
+                    </xjbSources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>target/generated-sources/jaxb</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Java -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <release>17</release>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
