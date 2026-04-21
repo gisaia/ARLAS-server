@@ -24,11 +24,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.arlas.commons.cache.CacheFactory;
 import io.arlas.commons.config.ArlasConfiguration;
-import io.arlas.commons.config.ArlasCorsConfiguration;
 import io.arlas.commons.exceptions.ArlasExceptionMapper;
 import io.arlas.commons.exceptions.ConstraintViolationExceptionMapper;
 import io.arlas.commons.exceptions.IllegalArgumentExceptionMapper;
 import io.arlas.commons.exceptions.JsonProcessingExceptionMapper;
+import io.arlas.commons.rest.utils.CORSUtil;
 import io.arlas.commons.rest.utils.PrettyPrintFilter;
 import io.arlas.commons.utils.MapAwareConverter;
 import io.arlas.filter.config.ResourceDefinitions;
@@ -81,21 +81,16 @@ import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
-import jakarta.ws.rs.container.ContainerResponseFilter;
-import org.eclipse.jetty.http.HttpHeader;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.eclipse.jetty.server.handler.CrossOriginHandler;
 
 public class ArlasServer extends Application<ArlasServerConfiguration> {
     Logger LOGGER = LoggerFactory.getLogger(ArlasServer.class);
@@ -277,25 +272,6 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
         dbToolFactory.getHealthChecks().forEach((name, check) -> environment.healthChecks().register(name, check));
 
         //cors
-        //cors
-        if (configuration.arlasCorsConfiguration.enabled) {
-            configureCors(environment,configuration.arlasCorsConfiguration);
-        } else {
-            environment.jersey().register((ContainerResponseFilter) (req, res) ->
-                    res.getHeaders().add("Access-Control-Expose-Headers", "WWW-Authenticate")
-            );
-        }
-    }
-
-    private void configureCors(Environment environment, ArlasCorsConfiguration configuration) {
-        CrossOriginHandler corsHandler = new CrossOriginHandler();
-        corsHandler.setAllowedOriginPatterns(Set.of(configuration.allowedOrigins.split(",")));
-        corsHandler.setAllowedHeaders(Set.of(configuration.allowedHeaders.split(",")));
-        corsHandler.setAllowedMethods(Set.of(configuration.allowedMethods.split(",")));
-        corsHandler.setAllowCredentials(configuration.allowedCredentials);
-        Set<String> exposedHeaders = new HashSet<>(Arrays.asList(configuration.exposedHeaders.split(",")));
-        exposedHeaders.add(HttpHeader.WWW_AUTHENTICATE.asString());
-        corsHandler.setExposedHeaders(exposedHeaders);
-        environment.getApplicationContext().insertHandler(corsHandler);
+        CORSUtil.configureCors(environment, configuration.arlasCorsConfiguration);
     }
 }
