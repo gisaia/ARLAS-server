@@ -54,6 +54,6 @@ module arlas.commons {
     requires jakarta.ws.rs;
     requires jakarta.validation;
     requires keycloak.authz.client;
-    requires keycloak.core;
     requires org.slf4j;
+    requires keycloak.client.common.synced;
 }
