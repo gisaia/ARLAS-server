@@ -49,6 +49,7 @@ module arlas.commons {
     requires io.swagger.v3.core;
     requires io.swagger.v3.oas.models;
     requires dropwizard.swagger;
+    requires io.dropwizard.jersey;
     requires jakarta.annotation;
     requires jakarta.servlet;
     requires jakarta.ws.rs;
@@ -56,4 +57,7 @@ module arlas.commons {
     requires keycloak.authz.client;
     requires org.slf4j;
     requires keycloak.client.common.synced;
+    requires org.eclipse.jetty.http;
+    requires org.eclipse.jetty.server;
+    requires org.eclipse.jetty.ee10.servlet;
 }
