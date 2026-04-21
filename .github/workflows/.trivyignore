@@ -1,8 +1,3 @@
-# Status: Ignored for now - action to be done: upgrade keycloak
-# Reason: need keycloak dependecy update to 26.0.6 
-# Description: Potential Mitigations Requires access to the deployment's local network to exploit
-CVE-2024-10039
-
 # Status: Ignored for now - action to be done: upgrade docker image gcr.io/distroless/java17-debian13
 # Reason: ARLAS-server does not expose any XML parsing functionality to untrusted sources.
 # Description: In libexpat before 2.7.4, the doContent function does not properly determine the buffer size bufSize because there is no integer overflow check for tag buffer reallocation.  https://avd.aquasec.com/nvd/2026/cve-2026-25210/

@@ -47,20 +47,20 @@
         <dropwizard.version>5.0.1</dropwizard.version>
         <dropwizard.swagger.version>4.0.5-1</dropwizard.swagger.version>
         <!-- CACHE-->
-        <hazelcast.version>5.4.0</hazelcast.version>
+        <hazelcast.version>5.6.0</hazelcast.version>
         <!-- ELASTICSEARCH-->
         <elastic.version>8.13.3</elastic.version>
         <!-- GEO-->
-        <geotools.version>30.4</geotools.version>
-        <protobuf.version>3.25.3</protobuf.version>
+        <geotools.version>34.0</geotools.version>
+        <protobuf.version>4.34.1</protobuf.version>
         <geojson.jackson.version>1.14</geojson.jackson.version>
         <spatial4j.version>0.8</spatial4j.version>
-        <jts.version>1.19.0</jts.version>
+        <jts.version>1.20.0</jts.version>
         <h3.version>4.1.1</h3.version>
         <!-- AUTH -->
         <jwt.version>4.4.0</jwt.version>
-        <elastic-apm.version>1.48.1</elastic-apm.version>
-        <keycloak.version>24.0.3</keycloak.version>
+        <elastic-apm.version>1.54.0</elastic-apm.version>
+        <keycloak.version>26.0.9</keycloak.version>
         <nv-i18n.version>1.29</nv-i18n.version>
         <itu.version>1.7.3</itu.version>
         <!-- TIME -->
