@@ -84,23 +84,11 @@ case $i in
 esac
 done
 
-ELASTIC_VERSIONS_7=(
-  7.2.1
-  7.3.2
-  7.4.2
-  7.5.2
-  7.6.2
-  7.7.1
-  7.8.1
-  7.9.2
-  7.12.1
-  7.14.2
-  7.15.2
-  7.16.0
-  7.17.6
+ELASTIC_VERSIONS_8=(
+  8.13.3
 )
 
-ELASTIC_VERSIONS=( "${ELASTIC_VERSIONS_7[@]}" )
+ELASTIC_VERSIONS=( "${ELASTIC_VERSIONS_8[@]}" )
 
 if [ -z ${ELASTIC_VERSIONS+x} ]; then usage;   else echo "Elasticsearch versions support : ${ELASTIC_VERSIONS[*]}"; fi
 if [ -z ${API_MAJOR_VERSION+x} ]; then usage;  else    echo "API MAJOR version           : ${API_MAJOR_VERSION}"; fi
