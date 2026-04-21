@@ -59,12 +59,12 @@
         <h3.version>4.1.1</h3.version>
         <!-- AUTH -->
         <jwt.version>4.4.0</jwt.version>
-        <elastic-apm.version>1.54.0</elastic-apm.version>
+        <elastic-apm.version>1.55.6</elastic-apm.version>
         <keycloak.version>26.0.9</keycloak.version>
         <nv-i18n.version>1.29</nv-i18n.version>
-        <itu.version>1.7.3</itu.version>
+        <itu.version>1.14.0</itu.version>
         <!-- TIME -->
-        <joda-time.version>2.12.5</joda-time.version>
+        <joda-time.version>2.14.1</joda-time.version>
         <!-- METRICS -->
         <metrics.version>4.2.38</metrics.version>
         <!-- MULTIPART -->
@@ -74,9 +74,9 @@
         <!-- JETTY SERVER  -->
         <jetty-server.version>12.1.8</jetty-server.version>
         <!-- JAKARTA XML BIND -->
-        <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
+        <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
         <!-- JAXB RUNTIME -->
-        <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
+        <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
     </properties>
     <dependencies>
         <dependency>
