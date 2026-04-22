@@ -77,6 +77,8 @@
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
         <!-- JAXB RUNTIME -->
         <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
+        <!-- JACKSON CORE -->
+        <jackson.core.version>2.21.1</jackson.core.version>
     </properties>
     <dependencies>
         <dependency>
@@ -85,12 +87,23 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty-server.version}</version>
-        </dependency>
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <!-- TO FIX CVE GHSA-72hv-8253-57qq -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.core.version}</version>
+            </dependency>
+            <!-- TO FIX CVE-2026-2332  -->
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty-server.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
         <pluginManagement>
             <plugins>
