@@ -32,8 +32,11 @@ import java.util.Set;
 
 public class CORSUtil {
 
+    private CORSUtil() {
+        // private constructor to prevent instantiation
+    }
     public static void configureCors(Environment environment, ArlasCorsConfiguration configuration) {
-        if (configuration.enabled) {
+        if (Boolean.TRUE.equals(configuration.enabled)) {
             setCors(environment,configuration);
         } else {
             environment.jersey().register((ContainerResponseFilter) (req, res) ->
@@ -51,6 +54,7 @@ public class CORSUtil {
         Set<String> exposedHeaders = new HashSet<>(Arrays.asList(configuration.exposedHeaders.split(",")));
         exposedHeaders.add(HttpHeader.WWW_AUTHENTICATE.asString());
         corsHandler.setExposedHeaders(exposedHeaders);
-        ((ServletContextHandler) environment.getApplicationContext()).insertHandler(corsHandler);
+        ServletContextHandler context = environment.getApplicationContext();
+        context.insertHandler(corsHandler);
     }
 }
