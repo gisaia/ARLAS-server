@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-server-parent</artifactId>
-    <version>28.0.1-SNAPSHOT</version>
+    <version>28.0.0-rc7</version>
     <packaging>pom</packaging>
     <name>ARLAS server parent</name>
     <distributionManagement>
