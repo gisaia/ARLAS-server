@@ -57,9 +57,10 @@
             <version>${keycloak.version}</version>
         </dependency>
         <dependency>
-            <groupId>co.elastic.apm</groupId>
-            <artifactId>apm-agent-api</artifactId>
-            <version>${elastic-apm.version}</version>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+            <version>${opentelemetry-api.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
