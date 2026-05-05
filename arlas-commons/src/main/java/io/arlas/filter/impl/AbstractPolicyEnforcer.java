@@ -19,8 +19,6 @@
 
 package io.arlas.filter.impl;
 
-import co.elastic.apm.api.ElasticApm;
-import co.elastic.apm.api.Transaction;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.arlas.commons.cache.BaseCacheManager;
@@ -30,6 +28,7 @@ import io.arlas.filter.config.ResourceDefinitions;
 import io.arlas.filter.config.TechnicalRoles;
 import io.arlas.filter.core.ArlasClaims;
 import io.arlas.filter.core.PolicyEnforcer;
+import io.opentelemetry.api.trace.Span;
 import jakarta.annotation.Priority;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Priorities;
@@ -205,7 +204,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
         MDC.put(CLIENT_IP, ip);
 
         try {
-            Transaction transaction = ElasticApm.currentTransaction();
+            Span span = Span.current();
             boolean isPublic = path.concat(":").concat(method).matches(authConf.getPublicRegex());
             boolean isApiKey = false;
             String keyIdHeader = ctx.getHeaderString(ARLAS_API_KEY_ID);
@@ -252,7 +251,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                 if (!StringUtil.isNullOrEmpty(userId)) {
                     ctx.getHeaders().putSingle(authConf.headerUser, userId);
                     LOGGER.debug("Add Header [" + authConf.headerUser + ": " + userId + "]");
-                    transaction.setUser(userId, "", "");
+                    span.setAttribute(USER_ID, userId);
                     MDC.put(USER_ID, userId);
                     getSubjectEmail(token).ifPresent(s -> MDC.put(USER_EMAIL, s));
                     if (orgFilter != null) {
@@ -282,7 +281,7 @@ public abstract class AbstractPolicyEnforcer implements PolicyEnforcer {
                     ArlasClaims arlasClaims = new ArlasClaims(permissions.stream().toList());
                     ctx.setProperty("claims", arlasClaims.getRules());
                     if ((ok != null && ok) || arlasClaims.isAllowed(method, path)) {
-                        arlasClaims.injectHeaders(ctx.getHeaders(), transaction);
+                        arlasClaims.injectHeaders(ctx.getHeaders(), span);
                         putDecision(getDecisionCacheKey(ctx, method, fullPath, accessToken), Boolean.TRUE);
                         logUAM(LOGGER::debug, ALLOWED, "granted: " + log);
                         return;

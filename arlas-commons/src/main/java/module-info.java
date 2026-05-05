@@ -37,7 +37,6 @@ module arlas.commons {
     uses PolicyEnforcer;
     provides PolicyEnforcer with NoPolicyEnforcer, HTTPPolicyEnforcer, Auth0PolicyEnforcer, KeycloakPolicyEnforcer;
 
-    requires co.elastic.apm.api;
     requires com.auth0.jwt;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.core;
@@ -60,4 +59,5 @@ module arlas.commons {
     requires org.eclipse.jetty.http;
     requires org.eclipse.jetty.server;
     requires org.eclipse.jetty.ee10.servlet;
+    requires io.opentelemetry.api;
 }

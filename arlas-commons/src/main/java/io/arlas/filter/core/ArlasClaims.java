@@ -19,7 +19,7 @@
 
 package io.arlas.filter.core;
 
-import co.elastic.apm.api.Transaction;
+import io.opentelemetry.api.trace.Span;
 import jakarta.ws.rs.core.MultivaluedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,12 +88,12 @@ public class ArlasClaims {
         return false;
     }
 
-    public void injectHeaders(MultivaluedMap<String, String> requestHeaders, Transaction transaction) {
+    public void injectHeaders(MultivaluedMap<String, String> requestHeaders, Span span) {
         headers.forEach((k,v) -> {
             String value = String.join(",", v);
             LOGGER.trace("Injecting header '" + k +"' with value '" + value + "'");
             requestHeaders.add(k, value);
-            transaction.setLabel(k, value);
+            span.setAttribute(k, value);
         });
     }
 

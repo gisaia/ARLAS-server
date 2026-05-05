@@ -59,7 +59,7 @@
         <h3.version>4.1.1</h3.version>
         <!-- AUTH -->
         <jwt.version>4.4.0</jwt.version>
-        <elastic-apm.version>1.55.6</elastic-apm.version>
+        <opentelemetry-api.version>1.61.0</opentelemetry-api.version>
         <keycloak.version>26.0.9</keycloak.version>
         <nv-i18n.version>1.29</nv-i18n.version>
         <itu.version>1.14.0</itu.version>
