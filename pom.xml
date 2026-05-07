@@ -97,10 +97,13 @@
                 <version>${jackson.core.version}</version>
             </dependency>
             <!-- TO FIX CVE-2026-2332  -->
+            <!-- TO NOT MIX JETTY VERSION  -->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-server</artifactId>
+                <artifactId>jetty-bom</artifactId>
                 <version>${jetty-server.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
