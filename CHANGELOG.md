@@ -1,5 +1,21 @@
 # Change Log
 
+## [v28.0.0-rc8](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc8) (2026-05-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc7...v28.0.0-rc8)
+
+## [v28.0.0-rc7](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc7) (2026-04-24)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc4...v28.0.0-rc7)
+
+## [v28.0.0-rc4](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc4) (2026-04-23)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc9...v28.0.0-rc4)
+
+## [v28.0.0-rc9](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc9) (2026-04-23)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc3...v28.0.0-rc9)
+
 ## [v28.0.0-rc3](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc3) (2026-04-23)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc2...v28.0.0-rc3)
@@ -23,6 +39,10 @@
 ## [v27.3.9](https://github.com/gisaia/ARLAS-server/tree/v27.3.9) (2026-04-15)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.3.4...v27.3.9)
+
+**Miscellaneous:**
+
+- release.sh: rely on git and docker only [\#318](https://github.com/gisaia/ARLAS-server/issues/318)
 
 ## [v27.3.4](https://github.com/gisaia/ARLAS-server/tree/v27.3.4) (2026-04-15)
 
