@@ -7,10 +7,10 @@
     <parent>
         <groupId>io.arlas</groupId>
         <artifactId>arlas-server-parent</artifactId>
-        <version>28.0.0-rc10</version>
+        <version>28.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>arlas-tests</artifactId>
-    <version>28.0.0-rc10</version>
+    <version>28.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>ARLAS server tests</name>
     <dependencies>
