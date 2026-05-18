@@ -37,21 +37,21 @@ ARLAS security management allows the enforcement of two kinds of protection mech
 They are strings of characters with a specific formatting that are expected to be found in the access token and/or permission token
 (RPT: requesting party token) in specific claims.
 
-### Protection of ARLAS WUI dashboards: groups
+### Protection of ARLAS dashboards and data
 
-By default dashboards are only viewable and editable by their creator (owner).  
-One can share (view and/or edit rights) a dashboard with any group of users they already belong to,
-e.g. if `userA` belongs to groups `grp1` and `grp2`, they can share their dashboards with part or all of these groups,
-and these groups only.
+Important: to access a functional dashboard, a user needs access to the dashboard **and** to the data.
 
-It implies that prior to sharing a dashboard, groups must be created and assigned to users.  
-This is done by assigning specific roles whose names are formatted as `group/config.json/GRPNAME`,
-e.g. `group/config.json/spot6`(in this example, the group name is `spot6` and will be displayed as such in ARLAS hub).
+#### Dashboard access
 
-A good practice is to assign data protection headers to these roles in order to enforce an even better protection level, e.g.:
+By default dashboards can viewed and edited by their creator (owner) only. One can share (view and/or edit rights) a dashboard with any group of users they already belong to,
+e.g. if `userA` belongs to groups `grp1` and `grp2`, they can share their dashboards with part or all of these groups, and these groups only.
 
-- `group/config.json/spot6`
-- `h:column-filter:spot6_*:*`
+It implies that prior to sharing a dashboard, groups must be created and assigned to users. This is done by assigning specific roles whose names are formatted as `group/config.json/GRPNAME`, e.g. `group/config.json/spot6`(in this example, the group name is `spot6` and will be displayed as such in ARLAS hub).
+
+#### Data access
+
+A user with the role `role/data/all` accesses all collections. It is possible to create a permission (e.g. `h:column-filter:spot6:*`) and link it to a role (`role/data/spot6`). Users having that role **but not** `role/data/all` will only access the collection of the permission (`spot6`). The permissions on the data are cumulatives, for instance a user having role `role/data/spot6` and role `role/data/spot7` accesses collections `spot6` and `spot7`.
+
 
 ### Protection of ARLAS APIs: rules
 The actions a user can do, i.e. API endpoints and HTTP verbs, can be limited to a configurable list of URIs.
@@ -196,7 +196,7 @@ can be set using the header mechanism described above.
 
 #### Column-filter
 
-The header `column-filter` allows you to pass a list of collections and fields of the data.
+The `column-filter` allows you to pass a list of collections and fields of the data.
 Only the collections and fields present in this list are visible in the response of a request.
 
 This allows certain collections and fields to be restricted to certain users.
@@ -204,22 +204,22 @@ This allows certain collections and fields to be restricted to certain users.
 !!! info "column-filter syntax"
     See the `column-filter` syntax in [ARLAS Exploration API configuration section](arlas-api-exploration.md#column-filtering).
 
-These must be defined and associated to roles (preferably 'group' roles) in order to be available in the permission token.  
+These must be defined and associated to roles (conventionally 'role/data/xxx' roles).  
 If multiple instances of the same header name are found in the resulting list of permissions, they are merged into a
-single multi-value header (values separated by commas).
+single multi-value filter (values separated by commas).
 
 #### Partition-filter
 
-The header `partition-filter` allows you to pass an ARLAS filter to apply to the request.
+The `partition-filter` allows you to pass an ARLAS filter to apply to the request.
 
 This allows certain data to be restricted to certain users.
 
 !!! info "partition-filter syntax"
     See the `partition-filter` syntax in [ARLAS Exploration API configuration section](arlas-api-exploration.md#partition-filtering).
 
-These must be defined and associated to roles (preferably 'group' roles) in order to be available in the permission token.  
+These must be defined and associated to roles (conventionally 'role/data/xxx' roles).  
 If multiple instances of the same header name are found in the resulting list of permissions, they are merged into a
-single multi-value header (values separated by commas).
+single multi-value filter (values separated by commas).
 
 #### Organisation filter
 

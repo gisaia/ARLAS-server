@@ -59,9 +59,35 @@ Keycloak is configured through multiple items. ARLAS uses only a subset of them,
   Modifications to a group (adding/removing roles) will be spread to all users belonging to the group. This is not the same concept as an ARLAS group.
 - **Users**: are accounts allowed to connect to ARLAS. They can (and should) belong to keycloak *groups* and can also be mapped to individual *client roles*.
 
+There are four types of roles used by ARLAS, which are distinguished by their prefixes:
+
+- `group/`
+- `role/arlas/`
+- `role/data/`
+- `role/m2m/importer`
+
+Roles prefixed with `group/` are used to manage access to dashboards. The specific group `group/public` allows you to share dashboards with unauthenticated users. Groups prefixed with `group/config.json/` allow you to define access groups for dashboards (but not for data!).
+
+
+Roles prefixed with `role/arlas/` are used to define access to ARLAS services:
+
+| Role    | Service   | 
+|-------------------------|-------------------------|
+|  `role/arlas/user`  |  Data access service  | 
+|  `role/arlas/builder`  |  Dashboard development services  | 
+|  `role/arlas/downloader`  |  ARLAS AIAS Download services  | 
+|  `role/arlas/datasets`  |  ARLAS AIAS Ingestion and Enichment services  | 
+|  `role/arlas/tagger`  |  ARLAS Tagging service  | 
+
+
+Roles prefixed with `role/data/` are used to define data access. By default, the `role/data/all` role must be created and grants access to all data to users having that role. Other roles (`role/data/xxx`), can be created and associated with a resource, which is itself associated with a permission, which is itself associated with a policy. 
+Important: the `role/data/all` role must not be assigned to users having more restricted access through other `role/data/xxx` roles.
+
+The `role/m2m/importer` role allows collections to be imported via the dedicated endpoint on the ARLAS server, primarily used by M2M processes.
+
 !!! warning
     The list of *client roles* associated to a user must result in at least one *resource* once the *permissions* are
-    evaluated, as "no permissions" equals to 403 response (and not an empty permission list) when requesting the RPT from Keycloak
+    evaluated, as "no permissions" equals to 403 response (and not an empty permission list) when requesting the RPT from Keycloak.
 
 ### Manual configuration
 
@@ -86,14 +112,16 @@ Another way is to import the default configuration file given with this module (
     - Save
 4. *(Clients/Arlas-backend/Login settings)* Select Client Authenticator "Client Id and Secret" and copy the Secret value to `ARLAS_AUTH_KEYCLOAK_SECRET`
 5. *(Clients/Arlas-backend/Roles)* Add the following roles:
-    - `group/public` (required to allow dashboards to be shared to anonymous users)
-    - `role/arlas/builder` (rules to create/edit/delete ARLAS WUI dashboards)
+    - `group/public` (See [`groups` in Concepts](#concepts))
+    - `group/config.json/xxx`: add as many groups as needed where `xxx` will be the name of groups available to share dashboards in ARLAS hub and that can be associated to data filters.
+    - `role/arlas/builder` (See [`role/arlas/` in Concepts](#concepts))
+    - `role/arlas/tagger`
+    - `role/arlas/user`
+    - `role/arlas/downloader`
+    - `role/arlas/datasets`
+    - `role/data/all`  (See [`role/data/all` in Concepts](#concepts))
+    - `role/data/xxx`: add as many roles as needed where `xxx` will be a role linked to a data permission (see [Protect data access](arlas_security#protect-data-access))
     - `role/m2m/importer` (rule to import collections via the dedicated ARLAS server endpoint, mainly used by M2M processes)
-    - `role/arlas/tagger` (rules to use the [Tagger]() backend)
-    - `role/arlas/user`  (rules to view data)
-    - `role/arlas/downloader` (rules to download data with [AIAS])
-    - `role/arlas/datasets` (rules to manage data (ingest, update and enrich) in ARLAS)
-    - `group/config.json/XXXXX`: add as many groups as needed where `XXXXX` will be the name of groups available to share dashboards in ARLAS hub and that can be associated to data filters.
 6. *(Clients/Arlas-backend/Authorization/Policies)* Add role policies for each new role you have added.
    Choose a policy type `Role`. Keep the logic to Positive. Choose the relevant role in the `arlas-backend` roles list.
 7. *(Clients/Arlas-backend/Authorization/Resources)* Add any resource `header:name:value` (as name) you need (optionally setting
@@ -110,7 +138,7 @@ Another way is to import the default configuration file given with this module (
        - h:partition-filter:{*:*}
    ```
    You can use the environment variable `ARLAS_AUTH_INIT_RESOURCES_PATH` to set the path of the resources.yaml file.  
-   A basic example: you might need to authorize a user to see all the fields of all the collections. This is a resource   named `h:column-filter:*:*`.
+   A basic example: you might need to authorize a user to see all the fields of all the collections. This is a resource named `h:column-filter:*:*`.
    Create a role and policy named `role/data/all`.
    Then create a resource named `h:column-filter:*:*` and create a permission for this resource and apply `role/data/all` to it.
 8. *(Groups)* Add groups with some `arlas-backend` *client roles* according to the way you want to assign permissions to users.
@@ -154,7 +182,7 @@ Another way is to import the default configuration file given with this module (
     To import configuration remove all the JS type resource (Default resource).
 
 1. In the realm selection drop down list, select "Create realm".
-2. Select the file to import and click `Create` (template is in `arlas-commons/src/main/resources/realm-export.json`)
+2. Select the file to import and click `Create` (template is in `https://github.com/gisaia/ARLAS-Exploration-stack/blob/develop/conf/keycloak/keycloak.realm.json`)
 3. *(Clients/Arlas-backend/Credentials)* Select Client Authenticator "Client Id and Secret", regenerate the secret,
    and copy the Secret value to `ARLAS_AUTH_KEYCLOAK_SECRET`
 4. *(Clients/Arlasm2m/Credentials)* Select Client Authenticator "Client Id and Secret", regenerate the secret (and copy if needed)
