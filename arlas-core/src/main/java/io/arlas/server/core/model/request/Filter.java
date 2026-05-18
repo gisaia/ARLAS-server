@@ -25,6 +25,7 @@ import java.util.List;
 public class Filter implements Serializable {
     private static final long serialVersionUID = 4914602782094826840L;
 
+    // Should f & q be required even though they can just be empty?
     public List<MultiValueFilter<Expression>> f;
     public List<MultiValueFilter<String>> q;
     public String dateformat;

@@ -23,4 +23,6 @@ public class Search extends Request {
     public Page page;
     public Projection projection;
     public String returned_geometries;
+
+    // TODO: page is mandatory?
 }

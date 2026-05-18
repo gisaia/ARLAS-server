@@ -31,7 +31,9 @@ import java.util.List;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Aggregation {
+    // This should always be defined
     public AggregationTypeEnum type;
+    // This should always be defined
     public String field;
     public Interval interval;
     public String format;

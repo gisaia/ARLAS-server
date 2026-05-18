@@ -30,9 +30,11 @@ import static io.arlas.server.core.model.CollectionReference.FIELD_DISPLAY_NAME;
 public class CollectionDisplayNames implements Serializable {
     private static final long serialVersionUID = 7438255714694047836L;
 
+    // Should be required
     @JsonProperty(value = COLLECTION_DISPLAY_NAME, required = false)
     public String collection = null;
 
+    // Should be required
     @JsonProperty(value = FIELD_DISPLAY_NAME, required = false)
     public Map<String, String> fields = null;
 

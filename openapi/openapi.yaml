@@ -3406,6 +3406,9 @@ components:
   schemas:
     Success:
       type: object
+      required:
+      - status
+      - message
       properties:
         status:
           type: integer
@@ -3414,6 +3417,10 @@ components:
           type: string
     Error:
       type: object
+      required:
+      - status
+      - message
+      - error
       properties:
         status:
           type: integer
@@ -3423,12 +3430,12 @@ components:
         error:
           type: string
     Bbox:
+      type: object
       required:
       - east
       - north
       - south
       - west
-      type: object
       properties:
         north:
           type: number
@@ -3444,6 +3451,9 @@ components:
           format: double
     CollectionDisplayNames:
       type: object
+      required:
+      - collection
+      - fields
       properties:
         collection:
           type: string
@@ -3457,6 +3467,8 @@ components:
             type: string
     CollectionOrganisations:
       type: object
+      required:
+      - public
       properties:
         owner:
           type: string
@@ -3572,6 +3584,10 @@ components:
         coverage_centroid:
           type: string
     Expression:
+      required:
+      - field
+      - op
+      - value
       type: object
       properties:
         field:
@@ -3806,6 +3822,9 @@ components:
           type: string
     CollectionReferenceUpdateOrg:
       type: object
+      required:
+      - public
+      - shared
       properties:
         public:
           type: boolean
@@ -3815,6 +3834,10 @@ components:
             type: string
     AggregationMetric:
       type: object
+      required:
+      - type
+      - field
+      - value
       properties:
         type:
           type: string
@@ -3824,6 +3847,13 @@ components:
           type: object
     AggregationResponse:
       type: object
+      # Not sure here
+      required:
+      - count
+      - key
+      - key_as_string
+      - elements
+      - hits
       properties:
         query_time:
           type: integer
@@ -3879,6 +3909,10 @@ components:
           additionalProperties:
             type: object
     Feature:
+      required:
+      - properties
+      - geometry
+      - id
       type: object
       allOf:
       - $ref: "#/components/schemas/GeoJsonObject"
@@ -3892,6 +3926,10 @@ components:
             $ref: "#/components/schemas/GeoJsonObject"
           id:
             type: string
+          type:
+            type: string
+            enum:
+              - Feature
     FeatureCollection:
       type: object
       allOf:
@@ -3902,6 +3940,10 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/Feature"
+          type:
+            type: string
+            enum:
+              - FeatureCollection
     GeoJsonObject:
       required:
       - type
@@ -3928,6 +3970,10 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/GeoJsonObject"
+          type:
+            type: string
+            enum:
+              - GeometryCollection
     LineString:
       type: object
       allOf:
@@ -3938,6 +3984,10 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/LngLatAlt"
+          type:
+            type: string
+            enum:
+              - LineString
     LngLatAlt:
       type: object
       properties:
@@ -3967,6 +4017,10 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/LngLatAlt"
+          type:
+            type: string
+            enum:
+              - MultiLineString
     MultiPoint:
       type: object
       allOf:
@@ -3977,6 +4031,10 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/LngLatAlt"
+          type:
+            type: string
+            enum:
+              - MultiPoint
     MultiPolygon:
       type: object
       allOf:
@@ -3991,6 +4049,10 @@ components:
                 type: array
                 items:
                   $ref: "#/components/schemas/LngLatAlt"
+          type:
+            type: string
+            enum:
+              - MultiPolygon
     Point:
       type: object
       allOf:
@@ -3999,6 +4061,10 @@ components:
         properties:
           coordinates:
             $ref: "#/components/schemas/LngLatAlt"
+          type:
+            type: string
+            enum:
+              - Point
     Polygon:
       type: object
       allOf:
@@ -4011,6 +4077,10 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/LngLatAlt"
+          type:
+            type: string
+            enum:
+              - Polygon
     ReturnedGeometry:
       type: object
       properties:
@@ -4024,6 +4094,9 @@ components:
           type: boolean
     Aggregation:
       type: object
+      required:
+      - type
+      - field
       properties:
         type:
           type: string
@@ -4109,6 +4182,8 @@ components:
           items:
             type: string
     Interval:
+      required:
+      - value
       type: object
       properties:
         value:
@@ -4125,6 +4200,9 @@ components:
           - minute
           - second
     Metric:
+      required:
+      - collect_field
+      - collect_fct
       type: object
       properties:
         collect_field:
@@ -4141,6 +4219,8 @@ components:
           - GEOBBOX
     RawGeometry:
       type: object
+      required:
+      - geometry
       properties:
         geometry:
           type: string
@@ -4154,6 +4234,12 @@ components:
             type: string
     ComputationResponse:
       type: object
+      required:
+      - query_time
+      - total_time
+      - totalnb
+      - field
+      - metric
       properties:
         query_time:
           type: integer
@@ -4184,6 +4270,9 @@ components:
           $ref: "#/components/schemas/GeoJsonObject"
     ComputationRequest:
       type: object
+      required:
+      - field
+      - metric
       properties:
         partitionFilter:
           type: array
@@ -4221,6 +4310,10 @@ components:
         geometry:
           $ref: "#/components/schemas/GeoJsonObject"
     Hits:
+      required:
+      - collection
+      - hits
+      - nbhits
       type: object
       properties:
         collection:
@@ -4240,10 +4333,10 @@ components:
           additionalProperties:
             $ref: "#/components/schemas/Link"
     Link:
+      type: object
       required:
       - href
       - method
-      type: object
       properties:
         href:
           type: string
@@ -4253,6 +4346,10 @@ components:
           type: object
     MD:
       type: object
+      required:
+      - id
+      - timestamp
+      - centroid
       properties:
         id:
           type: string
@@ -4279,10 +4376,10 @@ components:
         form:
           $ref: "#/components/schemas/Form"
     CollectionReferenceDescription:
+      type: object
       required:
       - collection_name
       - params
-      type: object
       properties:
         properties:
           type: object
@@ -4294,6 +4391,9 @@ components:
           $ref: "#/components/schemas/CollectionReferenceParameters"
     CollectionReferenceDescriptionProperty:
       type: object
+      required:
+      - type
+      - format
       properties:
         type:
           type: string
@@ -4362,6 +4462,10 @@ components:
           type: boolean
     Page:
       type: object
+      required:
+      - size
+      - from
+      - sort
       properties:
         size:
           type: integer
@@ -4384,6 +4488,8 @@ components:
           type: string
     Search:
       type: object
+      required:
+      - page
       properties:
         partitionFilter:
           type: array

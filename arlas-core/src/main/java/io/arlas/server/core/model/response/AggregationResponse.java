@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AggregationResponse extends OperationInfo {
+    // Missing collection
     public String name;
     public Long count;
     public Long sumotherdoccounts;

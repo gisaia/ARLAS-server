@@ -25,9 +25,11 @@ public class Interval {
     public Number value;
     public UnitEnum unit;
 
+    // This should not be legal
     public Interval() {
     }
 
+    // Could unit not be defined?
     public Interval(Number value, UnitEnum unit) {
         this.value = value;
         this.unit = unit;

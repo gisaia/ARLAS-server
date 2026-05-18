@@ -30,6 +30,7 @@ public class Expression implements Serializable {
     public OperatorEnum op;
     public String value;
 
+    // Is that possible ??
     public Expression() {
     }
 

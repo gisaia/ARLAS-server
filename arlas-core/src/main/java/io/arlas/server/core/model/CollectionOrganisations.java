@@ -32,12 +32,14 @@ public class CollectionOrganisations implements Serializable {
     @Serial
     private static final long serialVersionUID = 4330989126306933505L;
 
+    // Should it be required?
     @JsonProperty(value = ORGANISATIONS_OWNER, required = false)
     public String owner = null;
 
     @JsonProperty(value = ORGANISATIONS_SHARED, required = false)
     public List<String> sharedWith = null;
 
+    // Is required because default value
     @JsonProperty(value = ORGANISATIONS_PUBLIC, required = false)
     public Boolean isPublic = false;
 

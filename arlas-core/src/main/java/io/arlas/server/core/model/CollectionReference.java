@@ -60,6 +60,7 @@ public class CollectionReference implements Serializable {
     @JsonProperty(value = COLLECTION_NAME, required = true)
     public String collectionName;
 
+    // Is it really required if the object can be constructed without it?
     @JsonProperty(value = "params", required = true)
     public CollectionReferenceParameters params;
 

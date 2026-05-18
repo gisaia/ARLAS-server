@@ -27,6 +27,7 @@ public class RawGeometry {
     public String signedSort;
     public List<String> include;
 
+    // Why
     public RawGeometry() {
     }
 

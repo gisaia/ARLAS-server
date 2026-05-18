@@ -26,4 +26,6 @@ public class Request {
     public List<Filter> partitionFilter;
     public Filter filter;
     public Form form;
+
+    // TODO: what is mandatory? A filter ? A partitionFilter?
 }
