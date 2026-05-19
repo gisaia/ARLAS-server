@@ -5,7 +5,7 @@
   <artifactId>arlas-server-client</artifactId>
   <packaging>jar</packaging>
   <name>arlas-server-client</name>
-  <version>28.0.0-rc9</version>
+  <version>28.0.0-rc10</version>
   <url>https://github.com/swagger-api/swagger-codegen</url>
   <description>Explore the ARLAS collections</description>
   <scm>
@@ -214,7 +214,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>${jackson-version}</version>
+      <version>${jackson-annotations-version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -242,8 +242,9 @@
   </dependencies>
   <properties>
     <swagger-core-version>2.2.20</swagger-core-version>
-    <jersey-version>3.0.17</jersey-version>
-    <jackson-version>2.18.2</jackson-version>
+    <jersey-version>3.1.11</jersey-version>
+    <jackson-version>2.21.1</jackson-version>
+    <jackson-annotations-version>2.21</jackson-annotations-version>
     <junit-version>4.13.2</junit-version>
   </properties>
     <distributionManagement>

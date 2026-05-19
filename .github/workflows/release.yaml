@@ -20,7 +20,7 @@ on:
         type: boolean
         default: true
       elasticsearch_versions:
-        description: "Elasticsearch versions to test (comma-separated, e.g. 7.17.6,7.16.0)"
+        description: "Elasticsearch versions to test (comma-separated, e.g. 8.19.14,8.13.3)"
         required: false
         default: "8.13.3"
       skip_api:
@@ -218,10 +218,14 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      - name: Tag & push Docker image
+      - name: Tag & push Docker image ${{ env.FULL_API_VERSION }}
         run: |
           docker tag gisaia/arlas-server:latest gisaia/arlas-server:${{ env.FULL_API_VERSION }} 
           docker push gisaia/arlas-server:${{ env.FULL_API_VERSION }}
+
+      - name: Tag & push Docker image latest
+        if: ${{ env.IS_DEVELOP == 'true' }}
+        run: |
           docker push gisaia/arlas-server:latest
 
       # ----------------------------------------

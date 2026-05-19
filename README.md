@@ -13,26 +13,15 @@ ARLAS-server provides a highly simplified **REST API** for exploring data collec
 
 ### Building
 
-ARLAS-server is a Dropwizard project. You need JDK 8 and Maven 3 to be installed.
+ARLAS-server is a Dropwizard project. You need JDK 17 and Maven 3 to be installed.
 
 ### Running
 
 You need a Java Runtime (JRE) 17 and an ElasticSearch server running. ARLAS is compliant with the following versions:
 
 | ElasticSearch Version |
-|  ---  |
-| 7.0.1 |
-| 7.1.0 |
-| 7.2.1 |
-| 7.3.2 |
-| 7.4.2 |
-| 7.5.2 |
-| 7.6.2 |
-| 7.7.1 |
-| 7.8.1 |
-| 7.9.2 |
-| 7.12.1 |
-| 7.14.2 |
+|-----------------------|
+| >= 8.13.3             |
 
 ## Build
 

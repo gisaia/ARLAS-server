@@ -30,7 +30,7 @@ services:
       - ARLAS_AUTH_CERT_URL="${ARLAS_AUTH_CERT_URL}"
       - ARLAS_CACHE_FACTORY_CLASS="${ARLAS_CACHE_FACTORY_CLASS:-io.arlas.server.core.impl.cache.LocalCacheFactory}"
       - ARLAS_CACHE_TIMEOUT="${ARLAS_CACHE_TIMEOUT:-5}"
-      - ARLAS_SWAGGER_RESOURCE_PKG="${ARLAS_SWAGGER_RESOURCE_PKG:-io.arlas.server.rest}"
+      - ARLAS_SWAGGER_RESOURCE_PKG="${ARLAS_SWAGGER_RESOURCE_PKG:-io.arlas.server.rest,io.arlas.server.stac}"
     ports:
       - 19999:9999 # !EXPOSE!
     volumes:

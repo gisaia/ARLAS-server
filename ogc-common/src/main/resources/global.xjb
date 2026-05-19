@@ -1,7 +1,6 @@
 <jxb:bindings
     version="3.0"
     xmlns:jxb="https://jakarta.ee/xml/ns/jaxb"
-    xmlns:annox="http://annox.dev.java.net"
     xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
     xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
@@ -39,14 +38,16 @@
     		</jxb:bindings>
     	</jxb:bindings>
     </jxb:bindings>
-    <jxb:bindings  schemaLocation="csw/ows-1.1/owsCommon.xsd" node="/xs:schema">
-    		<jxb:bindings node="xs:complexType[@name='BoundingBoxType']//xs:element[@name='LowerCorner']">
-    			<annox:annotate target="field">@jakarta.xml.bind.annotation.XmlSchemaType(name="double")</annox:annotate>
-    		</jxb:bindings>
-    		<jxb:bindings node="xs:complexType[@name='BoundingBoxType']//xs:element[@name='UpperCorner']">
-    			<annox:annotate target="field">@jakarta.xml.bind.annotation.XmlSchemaType(name="double")</annox:annotate>
-    		</jxb:bindings>
-    	</jxb:bindings>
+    <jxb:bindings schemaLocation="csw/ows-1.1/owsCommon.xsd" node="/xs:schema">
+        <jxb:bindings node="xs:complexType[@name='BoundingBoxType']//xs:element[@name='LowerCorner']">
+            <jxb:property name="lowerCorner"/>
+        </jxb:bindings>
+    </jxb:bindings>
+    <jxb:bindings schemaLocation="csw/ows-1.1/owsCommon.xsd" node="/xs:schema">
+        <jxb:bindings node="xs:complexType[@name='BoundingBoxType']//xs:element[@name='UpperCorner']">
+            <jxb:property name="upperCorner"/>
+        </jxb:bindings>
+    </jxb:bindings>
     <jxb:bindings schemaLocation="http://schemas.opengis.net/gml/3.2.1/coordinateReferenceSystems.xsd" node="/xs:schema">
         <jxb:bindings>
             <jxb:bindings node="//xs:element[@name='userDefinedCS']">
