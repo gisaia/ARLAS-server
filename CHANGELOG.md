@@ -1,5 +1,26 @@
 # Change Log
 
+## [v28.0.0](https://github.com/gisaia/ARLAS-server/tree/v28.0.0) (2026-05-19)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc10...v28.0.0)
+
+**Fixed bugs:**
+
+- STAC missing in arlas server API during release process [\#1022](https://github.com/gisaia/ARLAS-server/issues/1022)
+
+**Miscellaneous:**
+
+- Enhance release.sh and add some github ckeckings [\#265](https://github.com/gisaia/ARLAS-server/issues/265)
+- Bump keycloak to latest version [\#996](https://github.com/gisaia/ARLAS-server/issues/996)
+
+## [v28.0.0-rc10](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc10) (2026-05-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc9...v28.0.0-rc10)
+
+## [v28.0.0-rc9](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc9) (2026-05-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc8...v28.0.0-rc9)
+
 ## [v28.0.0-rc8](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc8) (2026-05-07)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc7...v28.0.0-rc8)
@@ -10,11 +31,7 @@
 
 ## [v28.0.0-rc4](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc4) (2026-04-23)
 
-[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc9...v28.0.0-rc4)
-
-## [v28.0.0-rc9](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc9) (2026-04-23)
-
-[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc3...v28.0.0-rc9)
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc3...v28.0.0-rc4)
 
 ## [v28.0.0-rc3](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc3) (2026-04-23)
 
