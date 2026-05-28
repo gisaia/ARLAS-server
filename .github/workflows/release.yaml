@@ -186,7 +186,7 @@ jobs:
             --mount dst=/input/api.json,src="$PWD/target/tmp/openapi.json",type=bind,ro \
             --mount dst=/output,src="$PWD/target/tmp/typescript-fetch",type=bind \
             gisaia/swagger-codegen-3.0.42 \
-              -l typescript-fetch --additional-properties modelPropertyNaming=snake_case
+              -l typescript-fetch --additional-properties modelPropertyNaming=snake_case  --reserved-words-mappings public=public
 
       - name: Build TypeScript API client
         if: ${{ !inputs.skip_api }}
@@ -220,7 +220,7 @@ jobs:
 
       - name: Tag & push Docker image ${{ env.FULL_API_VERSION }}
         run: |
-          docker tag gisaia/arlas-server:latest gisaia/arlas-server:${{ env.FULL_API_VERSION }} 
+          docker tag gisaia/arlas-server:latest gisaia/arlas-server:${{ env.FULL_API_VERSION }}
           docker push gisaia/arlas-server:${{ env.FULL_API_VERSION }}
 
       - name: Tag & push Docker image latest
