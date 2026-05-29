@@ -19,6 +19,7 @@
 
 package io.arlas.server.core.model.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.server.core.model.Link;
 
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Hits {
+    @JsonProperty(value = "collection", required = true)
     public String collection;
     public List<ArlasHit> hits;
     public long nbhits;

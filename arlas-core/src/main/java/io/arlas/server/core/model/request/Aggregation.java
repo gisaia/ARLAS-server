@@ -20,6 +20,7 @@
 package io.arlas.server.core.model.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.arlas.server.core.model.enumerations.AggregatedGeometryEnum;
@@ -31,7 +32,10 @@ import java.util.List;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Aggregation {
+    @JsonProperty(value = "type", required = true)
     public AggregationTypeEnum type;
+
+    @JsonProperty(value = "field", required = true)
     public String field;
     public Interval interval;
     public String format;
