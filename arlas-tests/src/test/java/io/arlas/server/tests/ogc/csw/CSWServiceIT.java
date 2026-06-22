@@ -22,6 +22,7 @@ package io.arlas.server.tests.ogc.csw;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.DublinCoreElementName;
+import io.arlas.server.tests.AbstractTestContext;
 import io.arlas.server.tests.AbstractTestWithCollection;
 import io.arlas.server.tests.CollectionTool;
 import io.restassured.response.ValidatableResponse;
@@ -45,7 +46,7 @@ import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.stringContainsInOrder;
 
-public class CSWServiceIT extends AbstractTestWithCollection {
+public class CSWServiceIT extends AbstractTestContext {
 
     static DublinCoreElementName[] dcelements;
 

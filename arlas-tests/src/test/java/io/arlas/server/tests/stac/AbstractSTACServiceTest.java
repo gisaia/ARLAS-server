@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.InvalidParameterException;
 import io.arlas.server.core.model.request.Filter;
 import io.arlas.server.stac.model.SearchBody;
-import io.arlas.server.tests.AbstractTestWithCollection;
+import io.arlas.server.tests.AbstractTestContext;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.Pair;
@@ -43,7 +43,7 @@ import static io.arlas.server.tests.stac.STACFilterModels.RequestTarget;
 import static io.arlas.server.tests.stac.STACFilterModels.StacFilterScenario;
 import static io.arlas.server.tests.stac.STACFilterModels.TypeOfGet;
 
-public class AbstractSTACServiceTest extends AbstractTestWithCollection {
+public class AbstractSTACServiceTest extends AbstractTestContext {
 
     public static final String COLLECTION = "geodata";
 
