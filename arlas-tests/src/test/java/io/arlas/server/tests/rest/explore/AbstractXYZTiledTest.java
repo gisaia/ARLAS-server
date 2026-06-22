@@ -23,14 +23,14 @@ import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.*;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
 public abstract class AbstractXYZTiledTest extends AbstractProjectedTest {
-    @Before
+    @BeforeEach
     public void setUpSearch() {
         search.filter = new Filter();
         search.filter.righthand = false;

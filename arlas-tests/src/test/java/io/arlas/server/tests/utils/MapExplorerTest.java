@@ -25,12 +25,13 @@ import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.server.core.utils.MapExplorer;
 import org.hamcrest.collection.IsMapContaining;
 import org.hamcrest.core.IsNot;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MapExplorerTest {
 
@@ -40,13 +41,13 @@ public class MapExplorerTest {
                 MapExplorer.flat(
                         new ObjectMapper().readerFor(new TypeReference<Map<String, Object>>(){}).readValue(this.getClass().getClassLoader().getResourceAsStream("flatMapTest.json")),
                         new MapExplorer.ReduceArrayOnKey(ArlasServerConfiguration.FLATTEN_CHAR), Collections.singleton("a.e.g.2"));
-        Assert.assertThat(flat,IsMapContaining.hasEntry("a_b_0_c", 1));
-        Assert.assertThat(flat,IsMapContaining.hasEntry("a_b_1_c", 2));
-        Assert.assertThat(flat,IsMapContaining.hasEntry("a_b_2_d", "a"));
-        Assert.assertThat(flat,IsMapContaining.hasEntry("a_b_3_d", "b"));
-        Assert.assertThat(flat,IsMapContaining.hasEntry("a_e_f", "a"));
-        Assert.assertThat(flat,IsMapContaining.hasEntry("a_e_g_0", 1));
-        Assert.assertThat(flat,IsMapContaining.hasEntry("a_e_g_1", 2));
-        Assert.assertThat(flat,IsNot.not(IsMapContaining.hasEntry("a_e_g_2", 3)));
+        assertThat(flat,IsMapContaining.hasEntry("a_b_0_c", 1));
+        assertThat(flat,IsMapContaining.hasEntry("a_b_1_c", 2));
+        assertThat(flat,IsMapContaining.hasEntry("a_b_2_d", "a"));
+        assertThat(flat,IsMapContaining.hasEntry("a_b_3_d", "b"));
+        assertThat(flat,IsMapContaining.hasEntry("a_e_f", "a"));
+        assertThat(flat,IsMapContaining.hasEntry("a_e_g_0", 1));
+        assertThat(flat,IsMapContaining.hasEntry("a_e_g_1", 2));
+        assertThat(flat,IsNot.not(IsMapContaining.hasEntry("a_e_g_2", 3)));
     }
 }

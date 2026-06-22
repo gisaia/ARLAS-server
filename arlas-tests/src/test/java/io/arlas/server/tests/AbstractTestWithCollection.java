@@ -23,8 +23,8 @@ import io.arlas.server.core.app.ArlasServerConfiguration;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.request.Filter;
 import io.arlas.server.core.model.request.Request;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.io.IOException;
 
@@ -41,12 +41,12 @@ public abstract class AbstractTestWithCollection extends AbstractTestContext {
         request.filter.righthand = false;
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws ArlasException, IOException {
         new CollectionTool().load(10000);
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws IOException, ArlasException {
         new CollectionTool().delete(true);
     }

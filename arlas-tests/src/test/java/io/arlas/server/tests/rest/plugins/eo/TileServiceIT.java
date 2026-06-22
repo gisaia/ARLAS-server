@@ -27,10 +27,10 @@ import jakarta.ws.rs.core.Response;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
 import org.hamcrest.Matchers;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -43,6 +43,7 @@ import java.util.stream.Stream;
 import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.arlas.server.tests.CollectionTool.COLLECTION_NAME;
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
 
@@ -52,7 +53,7 @@ public class TileServiceIT extends AbstractTestContext {
         return arlasPath + "explore/" + collection + "/_tile";
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws IOException, InterruptedException, ArlasException {
         AbstractTestWithCollection.beforeClass();
 
@@ -88,7 +89,7 @@ public class TileServiceIT extends AbstractTestContext {
         Thread.sleep(5000);
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws IOException, ArlasException {
         AbstractTestWithCollection.afterClass();
     }
@@ -122,20 +123,20 @@ public class TileServiceIT extends AbstractTestContext {
                 givenTileQuery("f=id:eq:ID_0_10DI_bottom", Optional.empty())
                         .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
 
-        Assert.assertThat("image height is 256",
+        assertThat("image height is 256",
                 image.getHeight(),
                 Matchers.equalTo(256));
-        Assert.assertThat("image width is 256",
+        assertThat("image width is 256",
                 image.getWidth(),
                 Matchers.equalTo(256));
 
         int coverage = ImageUtil.coverage(image,10);
 
-        Assert.assertThat("coverage",
+        assertThat("coverage",
                 coverage,
                 greaterThan(40));
 
-        Assert.assertThat("coverage",
+        assertThat("coverage",
                 coverage,
                 lessThan(60));
 
@@ -145,18 +146,18 @@ public class TileServiceIT extends AbstractTestContext {
                         .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
         coverage = ImageUtil.coverage(image,10);
 
-        Assert.assertThat("image height is 256",
+        assertThat("image height is 256",
                 image.getHeight(),
                 Matchers.equalTo(256));
-        Assert.assertThat("image width is 256",
+        assertThat("image width is 256",
                 image.getWidth(),
                 Matchers.equalTo(256));
 
-        Assert.assertThat("coverage",
+        assertThat("coverage",
                 coverage,
                 greaterThan(40));
 
-        Assert.assertThat("coverage",
+        assertThat("coverage",
                 coverage,
                 lessThan(60));
 
@@ -165,16 +166,15 @@ public class TileServiceIT extends AbstractTestContext {
                 givenTileQuery("f=id:eq:ID_0_10DI_bottom,ID_0_10DI_top&coverage=70", Optional.empty())
                         .statusCode(Response.Status.OK.getStatusCode()).extract().asInputStream());
 
-        Assert.assertThat("image height is 256",
+        assertThat("image height is 256",
                 image.getHeight(),
                 Matchers.equalTo(256));
-        Assert.assertThat("image width is 256",
+        assertThat("image width is 256",
                 image.getWidth(),
                 Matchers.equalTo(256));
 
         coverage = ImageUtil.coverage(image,10);
-
-        Assert.assertThat("coverage",
+        assertThat("coverage",
                 coverage,
                 greaterThan(90));
     }

@@ -22,7 +22,7 @@ package io.arlas.server.tests.task;
 import io.arlas.server.tests.AbstractTestWithDataSet;
 import io.arlas.server.tests.DataSetTool;
 import org.hamcrest.Matcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;

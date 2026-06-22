@@ -22,8 +22,8 @@ package io.arlas.server.tests;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.request.Filter;
 import io.arlas.server.core.model.request.Request;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -37,7 +37,7 @@ public abstract class AbstractTestWithDataSet extends AbstractTestContext {
         request.filter.righthand = false;
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         try {
             DataSetTool.loadDataSet(false);
@@ -56,7 +56,7 @@ public abstract class AbstractTestWithDataSet extends AbstractTestContext {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws IOException, ArlasException {
         DataSetTool.clearDataSet();
     }

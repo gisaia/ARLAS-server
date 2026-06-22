@@ -20,7 +20,7 @@
 package io.arlas.server.tests.rest;
 
 import io.arlas.server.tests.AbstractTestContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 

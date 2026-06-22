@@ -29,9 +29,10 @@ import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hamcrest.Matchers;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -53,7 +54,7 @@ public class CSWServiceIT extends AbstractTestWithCollection {
         return arlasPath + "ogc/csw";
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws ArlasException, IOException {
         InputStreamReader dcelementForCollection = new InputStreamReader(CollectionTool.class.getClassLoader().getResourceAsStream("csw.collection.dcelements.json"));
         dcelements = new ObjectMapper().readValue(dcelementForCollection, DublinCoreElementName[].class);
@@ -61,7 +62,7 @@ public class CSWServiceIT extends AbstractTestWithCollection {
         new CollectionTool().loadCsw(10000l);
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws IOException, ArlasException {
         new CollectionTool().deleteCsw();
     }

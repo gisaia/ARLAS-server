@@ -23,8 +23,9 @@ import io.arlas.server.core.model.enumerations.ComputationEnum;
 import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.*;
 import io.restassured.response.ValidatableResponse;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 
 import java.util.Arrays;
 
@@ -34,7 +35,7 @@ import static io.restassured.RestAssured.given;
 public abstract class AbstractComputationTest extends AbstractFilteredTest {
     protected static ComputationRequest computationRequest;
 
-    @Before
+    @BeforeEach
     public void setUpComputationRequest() {
         computationRequest = new ComputationRequest();
         computationRequest.filter = new Filter();

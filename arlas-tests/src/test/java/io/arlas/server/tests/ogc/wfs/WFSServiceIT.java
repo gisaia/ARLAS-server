@@ -27,7 +27,8 @@ import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.Optional;
 import static org.hamcrest.Matchers.*;
