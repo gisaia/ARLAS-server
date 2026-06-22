@@ -224,6 +224,19 @@ public class StacCollectionsRESTService extends StacRESTService {
                                         If a feature has multiple temporal properties, it is the decision of the server whether only a single temporal property is used to determine the extent or all relevant temporal properties.""",
                                         style = ParameterStyle.FORM)
                                 @QueryParam(value = "datetime") String datetime,
+                                @Parameter(name = "filter", required = false, description = "**Extension:** Filter  A CQL filter expression for filtering items.")
+                                    @QueryParam(value = "filter") String filter,
+
+                                @Parameter(name = "filter-lang", required = false,
+                                        description = """
+                                        **Extension:** Filter  The language in which the filter expression is written.
+                                        If not provided, defaults to 'cql2-text'.
+                                        Allowed values: 'cql2-text', 'cql2-json'
+                                        Example: 'cql2-text', 'cql2-json'""",
+                                        style = ParameterStyle.FORM,
+                                        schema = @Schema(type = "string", allowableValues = {"cql2-text", "cql2-json"}, defaultValue = "cql2-text")
+                                )
+                                    @QueryParam(value = "filter-lang") String filterLang,
 
                                 // --------------------------------------------------------
                                 // -----------------------  PAGE   -----------------------
@@ -268,7 +281,9 @@ public class StacCollectionsRESTService extends StacRESTService {
                 .from(from.get())
                 .sortBy(sortBy)
                 .after(after)
-                .before(before);
+                .before(before)
+                .filter(filter)
+                .filterLang(filterLang);
 
         return cache(Response.ok(getStacFeatureCollection(collectionReference, partitionFilter, Optional.ofNullable(columnFilter),
                 searchBody, f, uriInfo, "GET", true)), 0);

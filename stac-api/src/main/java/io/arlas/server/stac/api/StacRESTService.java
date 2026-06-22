@@ -21,7 +21,6 @@ package io.arlas.server.stac.api;
 
 import com.ethlo.time.ITU;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.arlas.commons.exceptions.ArlasException;
@@ -46,7 +45,6 @@ import io.arlas.server.stac.model.*;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -56,6 +54,7 @@ import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
 import org.geojson.Polygon;
+import org.geotools.api.filter.Filter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
@@ -70,6 +69,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.arlas.server.core.utils.TimestampTypeMapper.formatDate;
+import static io.arlas.server.stac.api.CQL2FilterUtils.toFilterWithBboxCcwCorrection;
 import static jakarta.ws.rs.core.UriBuilder.fromUri;
 
 @Path("/stac")
@@ -271,6 +271,12 @@ public abstract class StacRESTService {
                                                                  String method,
                                                                  boolean isOgc) throws ArlasException {
         Search search = new Search();
+        List<String> arlasFilterString = new ArrayList<>();
+        if (Objects.nonNull(body) && Objects.nonNull(body.getFilterLang())) {
+            Filter cql2Filter = toFilterWithBboxCcwCorrection(body.getFilter(),body.getFilterLang());
+            arlasFilterString.addAll(ArlasFilterUtils.cql2toArlasFilterList(cql2Filter, collectionReference.params.isStacModel));
+        }
+        filter.addAll(arlasFilterString);
         search.filter = ParamsParser.getFilter(collectionReference, filter, null, null, true);
         if (body != null) {
             String sortBy = null;
@@ -299,7 +305,7 @@ public abstract class StacRESTService {
         HashMap<String, Object> context = new HashMap<>();
 
 
-        List<StacLink> links = new ArrayList<>(); // TODO what do we put in there?
+        List<StacLink> links = new ArrayList<>();
         links.add(getRootLink(uriInfo));
         links.add(getParentLink(uriInfo));
 
@@ -324,7 +330,6 @@ public abstract class StacRESTService {
             Arrays.asList("self", "next", "previous").forEach(rel -> {
                 if (context.containsKey(rel)) {
                     if (method.equals("POST")) {
-                        // TODO : fix when body is null!!
                         links.add(getRawLink(((Link)context.get(rel)).href, rel, getSearchBody(body, (Search) ((Link)context.get(rel)).body)));
                     } else {
                         links.add(getRawLink(((Link)context.get(rel)).href, rel));
@@ -413,7 +418,7 @@ public abstract class StacRESTService {
     protected String getGeoFilter(GeoJsonObject geojson, CollectionReference collectionReference) throws ArlasException {
         if (geojson != null) {
             try {
-                // righthand parameter is forced for STAC; therefore, passed righthand WKTs will be used correctly;
+                // STAC forces the right-hand parameter, so passed WKTs are used correctly
                 Geometry geometry = reader.read(writer.writeValueAsString(geojson));
                 return StringUtil.concat(collectionReference.params.geometryPath, ":", OperatorEnum.intersects.name(), ":",
                         geometry.toText());
@@ -428,7 +433,7 @@ public abstract class StacRESTService {
         List<Double> bboxList = null;
         try {
             if (bbox != null) {
-                bboxList = Stream.of(bbox.split(",")).map(Double::valueOf).collect(Collectors.toList());
+                bboxList = Stream.of(bbox.split(",")).map(Double::valueOf).toList();
             }
         } catch (NumberFormatException e) {
             throw new InvalidParameterException("Invalid bbox definition: " + bbox);

@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class SearchBody<T>  {
+  public static final String CQL2_TEXT_STRING = "cql2-text";
+  public static final String CQL2_JSON_STRING = "cql2-json";
+
   private @Valid List<Double> bbox;
 
   private @Valid String datetime = null;
@@ -48,14 +51,49 @@ public class SearchBody<T>  {
 
   private @Valid String before = null;
 
+  private @Valid String filter = null;
+
+  private @Valid String filterLang = null;
+
   /**
    **/
-  public SearchBody datetime(String datetime) {
+  public SearchBody<T> datetime(String datetime) {
     this.datetime = datetime;
     return this;
   }
 
-  
+  /**
+   **/
+  public SearchBody<T> filterLang(String filterLang) {
+    this.filterLang = filterLang;
+    return this;
+  }
+
+  @Schema()
+  @JsonProperty("filter-lang")
+  public String getFilterLang() {
+    return filterLang;
+  }
+  public void setFilterLang(String filterLang) {
+    this.filterLang = filterLang;
+  }
+
+  /**
+   **/
+  public SearchBody<T> filter(String filter) {
+    this.filter = filter;
+    return this;
+  }
+
+  @Schema()
+  @JsonProperty("filter")
+  public String getFilter() {
+    return filter;
+  }
+  public void setFilter(String filter) {
+    this.filter = filter;
+  }
+
   @Schema()
   @JsonProperty("datetime")
 
@@ -68,7 +106,7 @@ public class SearchBody<T>  {
 
   /**
    **/
-  public SearchBody intersects(GeoJsonObject intersects) {
+  public SearchBody<T> intersects(GeoJsonObject intersects) {
     this.intersects = intersects;
     return this;
   }
@@ -86,7 +124,7 @@ public class SearchBody<T>  {
 
   /**
    **/
-  public SearchBody bbox(List<Double> bbox) {
+  public SearchBody<T> bbox(List<Double> bbox) {
     this.bbox = bbox;
     return this;
   }
@@ -104,7 +142,7 @@ public class SearchBody<T>  {
 
   /**
    **/
-  public SearchBody collections(List<String> collections) {
+  public SearchBody<T> collections(List<String> collections) {
     this.collections = collections;
     return this;
   }
@@ -122,7 +160,7 @@ public class SearchBody<T>  {
 
   /**
    **/
-  public SearchBody ids(List<String> ids) {
+  public SearchBody<T> ids(List<String> ids) {
     this.ids = ids;
     return this;
   }
@@ -140,7 +178,7 @@ public class SearchBody<T>  {
 
   /**
    **/
-  public SearchBody limit(Integer limit) {
+  public SearchBody<T> limit(Integer limit) {
     this.limit = limit;
     return this;
   }
@@ -158,7 +196,7 @@ public class SearchBody<T>  {
 
   /**
    **/
-  public SearchBody from(Integer from) {
+  public SearchBody<T> from(Integer from) {
     this.from = from;
     return this;
   }
@@ -172,7 +210,7 @@ public class SearchBody<T>  {
 
   /**
    **/
-  public SearchBody sortBy(T sortBy) {
+  public SearchBody<T> sortBy(T sortBy) {
     this.sortBy = sortBy;
     return this;
   }
@@ -190,7 +228,7 @@ public class SearchBody<T>  {
 
   /**
    **/
-  public SearchBody after(String after) {
+  public SearchBody<T> after(String after) {
     this.after = after;
     return this;
   }
@@ -208,7 +246,7 @@ public class SearchBody<T>  {
 
   /**
    **/
-  public SearchBody before(String before) {
+  public SearchBody<T> before(String before) {
     this.before = before;
     return this;
   }
@@ -233,7 +271,7 @@ public class SearchBody<T>  {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SearchBody searchBodyPost = (SearchBody) o;
+    SearchBody<T> searchBodyPost = (SearchBody<T>) o;
     return Objects.equals(datetime, searchBodyPost.datetime) &&
         Objects.equals(intersects, searchBodyPost.intersects) &&
         Objects.equals(collections, searchBodyPost.collections) &&
