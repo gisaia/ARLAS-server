@@ -25,7 +25,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.XmlConfig;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.stream.Collectors;

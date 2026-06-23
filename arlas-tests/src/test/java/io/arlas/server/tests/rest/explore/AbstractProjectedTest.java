@@ -26,15 +26,16 @@ import io.arlas.server.core.model.request.Request;
 import io.arlas.server.core.model.request.Page;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 
 import java.util.Arrays;
 import java.util.List;
 
 public abstract class AbstractProjectedTest extends AbstractPaginatedTest {
 
-    @Before
+    @BeforeEach
     public void setUpSearch() {
         search.page = new Page();
         search.filter = new Filter();

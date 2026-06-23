@@ -21,13 +21,13 @@ package io.arlas.server.tests.rest.explore;
 
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.tests.CollectionTool;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.io.IOException;
 
 public class CountServiceNoExcludeIT extends CountServiceIT {
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws ArlasException, IOException {
         new CollectionTool().load(10000, false, false, false);
     }

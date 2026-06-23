@@ -27,6 +27,18 @@
             <artifactId>itu</artifactId>
             <version>${itu.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-cql2-text</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-cql2-json</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -39,9 +39,9 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.XmlConfig.xmlConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Every.everyItem;
-import static org.junit.Assert.assertThat;
 
 public class ATOMSearchServiceIT extends AbstractProjectedTest {
 

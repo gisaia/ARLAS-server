@@ -42,9 +42,11 @@ import io.swagger.v3.oas.annotations.enums.ParameterStyle;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -146,12 +148,24 @@ public class StacSearchRESTService extends StacRESTService {
 //            @Parameter(name = "fields", description = "**Optional Extension:** Fields  Determines the shape of the features in the response")
 //            @QueryParam(value = "fields") String fields,
 
-//            @Parameter(name = "filter", required = true, description = "**Extension:** Filter  A CQL filter expression for filtering items.")
-//            @QueryParam(value = "filter") Filter filter,
+        @Parameter(name = "filter", required = false, description = "**Extension:** Filter  A CQL filter expression for filtering items.")
+        @QueryParam(value = "filter") String filter,
 
-            @Parameter(name = "sortby", description = """
-                    **Optional Extension:** Sort  An array of property names, prefixed by either "+" for ascending or "-" for descending. If no prefix is provided, "+" is assumed.""")
-            @QueryParam(value = "sortby") String sortBy,
+        @Parameter(name = "filter-lang", required = false,
+                        description = """
+                                        **Extension:** Filter  The language in which the filter expression is written.
+                                        If not provided, defaults to 'cql2-text'.
+                                        Allowed values: 'cql2-text', 'cql2-json'
+                                        Example: 'cql2-text', 'cql2-json'
+                        """,
+                        style = ParameterStyle.FORM,
+                        schema = @Schema(type = "string", allowableValues = {"cql2-text", "cql2-json"}, defaultValue = "cql2-text")
+        )
+        @QueryParam(value = "filter-lang") String filterLang,
+
+        @Parameter(name = "sortby", description = """
+                        **Optional Extension:** Sort  An array of property names, prefixed by either "+" for ascending or "-" for descending. If no prefix is provided, "+" is assumed.""")
+        @QueryParam(value = "sortby") String sortBy,
 
             // --------------------------------------------------------
             // -----------------------  PAGE   -----------------------
@@ -187,7 +201,9 @@ public class StacSearchRESTService extends StacRESTService {
                 .sortBy(sortBy)
                 .from(from.get())
                 .after(after)
-                .before(before);
+                .before(before)
+                .filter(filter)
+                .filterLang(filterLang);
 
         if (!StringUtil.isNullOrEmpty(intersects)) {
             searchBody.setIntersects(GeoUtil.geojsonReader.readValue(intersects));
@@ -208,12 +224,14 @@ public class StacSearchRESTService extends StacRESTService {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "A feature collection.",
                     content = @Content(schema = @Schema(implementation = StacFeatureCollection.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid query parameter.",
+            @ApiResponse(responseCode = "400", description = "Invalid request body or query parameter.",
                     content = @Content(schema = @Schema(implementation = Error.class))),
             @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
                     content = @Content(schema = @Schema(implementation = Error.class)))
     })
     public Response postItemSearch(@Context UriInfo uriInfo,
+                                   @NotNull
+                                   @RequestBody(required = true)
                                    @Valid SearchBody<List<SortBy>> body,
 
                                    @Parameter(hidden = true)
@@ -232,11 +250,16 @@ public class StacSearchRESTService extends StacRESTService {
     // -----------
 
     private <T> StacFeatureCollection getItems(String partitionFilter, Optional<String> columnFilter, Optional<String> organisations, UriInfo uriInfo, SearchBody<T> body, String method) throws ArlasException {
-        // TODO search in more than the first collection given as parameter
-        CollectionReference collectionReference = body.getCollections() == null || body.getCollections().isEmpty() ?
-                collectionReferenceService.getAllCollectionReferences(columnFilter, organisations).get(0) :
-                collectionReferenceService.getCollectionReference(body.getCollections().get(0), organisations);
-
+        List<String> collections = body.getCollections();
+        if (collections == null || collections.size() != 1) {
+            throw new BadRequestException(
+                    Response.status(Response.Status.BAD_REQUEST)
+                            .type(MediaType.APPLICATION_JSON)
+                            .entity(new Error(400,"BadRequest", "Provided collections list must contain exactly one element"))
+                            .build()
+            );
+        }
+        CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collections.get(0), organisations);
         return getStacFeatureCollection(collectionReference, partitionFilter, columnFilter, body,
                 getFilter(collectionReference, body), uriInfo, method, false);
     }

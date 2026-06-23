@@ -40,6 +40,7 @@ cd ${SCRIPT_PATH}/../..
 ./scripts/ci/tests-integration-stage.sh --stage=REST
 ./scripts/ci/tests-integration-stage.sh --stage=REST_WKT_GEOMETRIES
 ./scripts/ci/tests-integration-stage.sh --stage=STAC
+./scripts/ci/tests-integration-stage.sh --stage=STAC_FILTER
 ./scripts/ci/tests-integration-stage.sh --stage=WFS
 ./scripts/ci/tests-integration-stage.sh --stage=CSW
 ./scripts/ci/tests-integration-stage.sh --stage=DOC

@@ -23,12 +23,13 @@ import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.impl.elastic.utils.GeoTypeMapper;
 import io.arlas.server.core.model.enumerations.GeoTypeEnum;
 import org.geojson.Point;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class GeoTypeMapperTest {
 

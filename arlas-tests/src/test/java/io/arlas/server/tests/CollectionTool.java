@@ -29,7 +29,7 @@ import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.request.Expression;
 import io.arlas.server.core.model.request.Filter;
 import io.arlas.server.core.model.request.MultiValueFilter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -195,6 +195,10 @@ public class CollectionTool extends AbstractTestContext {
             when().delete(arlasPath + "collections/" + COLLECTION_NAME_ACTOR).then().statusCode(200);
         }
         DataSetTool.clearDataSet();
+    }
+    @Test
+    public  void delete() throws IOException, ArlasException {
+        this.delete(true);
     }
 
     public  void deleteCsw() throws IOException, ArlasException {

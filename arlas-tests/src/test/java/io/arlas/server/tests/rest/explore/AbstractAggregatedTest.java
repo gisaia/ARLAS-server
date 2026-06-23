@@ -25,9 +25,10 @@ import io.arlas.server.tests.DataSetTool;
 import io.dropwizard.jackson.JsonSnakeCase;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,7 +42,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
     protected static AggregationsRequest aggregationRequest;
     protected static Aggregation aggregationModel;
 
-    @Before
+    @BeforeEach
     public void setUpAggregationRequest() {
         aggregationRequest = new AggregationsRequest();
         aggregationRequest.filter = new Filter();
@@ -201,7 +202,7 @@ public abstract class AbstractAggregatedTest extends AbstractFormattedTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     // Not testable without ES premium, so ignored for CI
     public void testGeohexAggregate() throws Exception {
         //GEOHEX

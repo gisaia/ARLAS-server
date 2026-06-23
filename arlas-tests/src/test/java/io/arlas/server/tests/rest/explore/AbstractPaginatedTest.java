@@ -29,18 +29,18 @@ import io.arlas.server.core.model.request.Page;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.notNullValue;
 import java.net.URLDecoder;
 import java.util.HashMap;
-import java.util.Optional;
 
 public abstract class AbstractPaginatedTest extends AbstractFormattedTest{
     protected static Search search = new Search();
 
-    @Before
+    @BeforeEach
     public void setUpSearch() {
         search.page = new Page();
         search.filter = new Filter();

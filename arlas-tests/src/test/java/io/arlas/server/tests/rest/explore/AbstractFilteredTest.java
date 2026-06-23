@@ -33,8 +33,8 @@ import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hamcrest.Matcher;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ import static org.hamcrest.Matchers.*;
 public abstract class AbstractFilteredTest extends AbstractTestWithCollection {
 
     private static ObjectMapper objectMapper = new ObjectMapper();
-    @Before
+    @BeforeEach
     public void setUpFilter() {
         request = new Request();
         request.filter = new Filter();

@@ -22,6 +22,7 @@ package io.arlas.server.tests.ogc.csw;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.model.DublinCoreElementName;
+import io.arlas.server.tests.AbstractTestContext;
 import io.arlas.server.tests.AbstractTestWithCollection;
 import io.arlas.server.tests.CollectionTool;
 import io.restassured.response.ValidatableResponse;
@@ -29,9 +30,10 @@ import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hamcrest.Matchers;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,7 +46,7 @@ import static io.arlas.commons.rest.utils.ServerConstants.COLUMN_FILTER;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.stringContainsInOrder;
 
-public class CSWServiceIT extends AbstractTestWithCollection {
+public class CSWServiceIT extends AbstractTestContext {
 
     static DublinCoreElementName[] dcelements;
 
@@ -53,7 +55,7 @@ public class CSWServiceIT extends AbstractTestWithCollection {
         return arlasPath + "ogc/csw";
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws ArlasException, IOException {
         InputStreamReader dcelementForCollection = new InputStreamReader(CollectionTool.class.getClassLoader().getResourceAsStream("csw.collection.dcelements.json"));
         dcelements = new ObjectMapper().readValue(dcelementForCollection, DublinCoreElementName[].class);
@@ -61,7 +63,7 @@ public class CSWServiceIT extends AbstractTestWithCollection {
         new CollectionTool().loadCsw(10000l);
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws IOException, ArlasException {
         new CollectionTool().deleteCsw();
     }

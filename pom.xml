@@ -40,7 +40,7 @@
         <!-- DEV TOOLS -->
         <cyclops.version>10.4.1</cyclops.version>
         <!-- TESTS -->
-        <junit.version>4.13.2</junit.version>
+        <junit.version>6.1.0</junit.version>
         <org.hamcrest.version>2.2</org.hamcrest.version>
         <io.rest-assured.version>5.4.0</io.rest-assured.version>
         <!-- REST AND DROPWIZARD-->
@@ -82,8 +82,8 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -161,6 +161,11 @@
         </plugins>
     </build>
     <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository>
         <repository>
             <id>osgeo</id>
             <name>OSGeo Release Repository</name>

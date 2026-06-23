@@ -22,7 +22,7 @@ package io.arlas.server.tests.rest.explore;
 import io.arlas.server.tests.AbstractTestWithCollection;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Optional;

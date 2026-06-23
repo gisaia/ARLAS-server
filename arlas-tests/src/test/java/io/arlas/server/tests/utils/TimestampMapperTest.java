@@ -23,10 +23,10 @@ import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.server.core.utils.TimestampTypeMapper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TimestampMapperTest {
 
