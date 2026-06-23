@@ -23,15 +23,19 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import org.hamcrest.Matcher;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.arlas.server.tests.stac.STACFilterModels.FilterClause;
 import static io.arlas.server.tests.stac.STACFilterModels.RequestTarget;
 import static io.arlas.server.tests.stac.STACFilterModels.TypeOfGet;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
 
 public class STACResponseAssertions {
-
+    private static final List<String> ROOT_STAC_FIELD = List.of("collection", "catalog", "id", "geometry", "bbox", "centroid", "type");
+    private static final List<String> ROOT_STAC_KEY = List.of("properties.", "assets.");
     public void assertCommonResponse(
             ValidatableResponse response,
             int expectedMatched,
@@ -49,28 +53,91 @@ public class STACResponseAssertions {
 
     public void assertClauses(
             ValidatableResponse response,
-            List<FilterClause> clauses
+            List<FilterClause> clauses,
+            Boolean isStacModel
     ) {
         for (FilterClause clause : clauses) {
-            assertClause(response, clause);
+            assertClause(response, clause, isStacModel);
         }
     }
 
-    private void assertClause(
-            ValidatableResponse response,
-            FilterClause clause
-    ) {
-        String path = "features.properties." + clause.property();
-
-        switch (clause.operator()) {
-            case EQ -> response.body(path, everyItem(equalTo(clause.value())));
-            case NE -> response.body(path, everyItem(not(equalTo(clause.value()))));
-            case GT -> response.body(path, everyItem(greaterThanValue(clause.value())));
-            case GTE -> response.body(path, everyItem(greaterThanOrEqualToValue(clause.value())));
-            case LT -> response.body(path, everyItem(lessThanValue(clause.value())));
-            case LTE -> response.body(path, everyItem(lessThanOrEqualToValue(clause.value())));
-            case LIKE -> response.body(path, everyItem(containsString(String.valueOf(clause.value()))));
+    private void assertClause(ValidatableResponse response, FilterClause clause, Boolean isStacModel) {
+        if (Boolean.TRUE.equals(isStacModel)) {
+            List<Object> values = extractSTACValues(response, clause.property());
+            assertThat(values, everyItem(matcherFor(clause)));
+            return;
         }
+
+        String path = "features.properties." + clause.property();
+        response.body(path, everyItem(matcherFor(clause)));
+    }
+
+    private List<Object> extractSTACValues(ValidatableResponse response, String property) {
+        String normalizedProperty = normalizeSTACProperty(property);
+        String quotedPath = quotePath(normalizedProperty);
+        List<Object> rawList = response.extract().jsonPath().getList(quotedPath);
+        return flattenNonNull(rawList);
+    }
+
+    private String normalizeSTACProperty(String property) {
+        if (!ROOT_STAC_FIELD.contains(property) &&
+                ROOT_STAC_KEY.stream().noneMatch(property::startsWith)) {
+            return "properties." + property;
+        }
+        return property;
+    }
+
+    private List<Object> flattenNonNull(List<Object> rawList) {
+        List<Object> cleanList = new ArrayList<>();
+        if (rawList == null) {
+            return cleanList;
+        }
+        for (Object obj : rawList) {
+            if (obj instanceof List<?> list) {
+                for (Object subObj : list) {
+                    if (subObj != null) {
+                        cleanList.add(subObj);
+                    }
+                }
+            } else if (obj != null) {
+                cleanList.add(obj);
+            }
+        }
+        return cleanList;
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private Matcher matcherFor(FilterClause clause) {
+        Object value = clause.value();
+        return switch (clause.operator()) {
+            case EQ -> equalTo(value);
+            case NE -> not(equalTo(value));
+            case GT -> greaterThanValue(value);
+            case GTE -> greaterThanOrEqualToValue(value);
+            case LT -> lessThanValue(value);
+            case LTE -> lessThanOrEqualToValue(value);
+            case LIKE -> containsString(String.valueOf(value));
+            case ST_INTERSECTS ->  equalTo(true);
+            case ST_WITHIN -> equalTo(true);
+            case BBOX ->  equalTo(true);
+            case BETWEEN -> {
+                if (value instanceof STACFilterModels.BetweenValue v) {
+                    yield allOf(greaterThanOrEqualToValue(v.lower()),lessThanOrEqualToValue(v.upper())) ;
+                } else {
+                    yield equalTo(true);
+                }
+            }
+        };
+    }
+
+    private static String quotePath(String path) {
+        if (path == null || path.isBlank()) {
+            return path;
+        }
+        if (path.contains("\"")) {
+            return path;
+        }
+        return "\"" + path.replace(".", "\".\"") + "\"";
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

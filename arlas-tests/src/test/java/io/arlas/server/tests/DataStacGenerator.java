@@ -28,8 +28,8 @@ public class DataStacGenerator {
     private static final int NUM_FEATURES = 60;
     private static final long SEED = 12345L;
     private static final Random random = new Random(SEED);
-    private static final Calendar c = Calendar.getInstance();
-
+    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
+    private static final Calendar c = Calendar.getInstance(UTC);
     public static List<DataStac> generateDataStacList() {
         List<DataStac> features = new ArrayList<>();
         for (int i = 0; i < NUM_FEATURES; i++) {

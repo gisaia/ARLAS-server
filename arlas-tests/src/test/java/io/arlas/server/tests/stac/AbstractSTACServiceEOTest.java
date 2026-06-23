@@ -26,18 +26,17 @@ import org.junit.jupiter.api.BeforeAll;
 
 import java.io.IOException;
 
-public class AbstractSTACServiceTest extends AbstractSTACTestContext {
+public class AbstractSTACServiceEOTest extends AbstractSTACTestContext {
 
     @BeforeAll
     public static void beforeClass() throws ArlasException {
         // Exclude fields from the collection: false
         // Include a datetime field in the mapping: true
-        // Indicates whether the collection refers to a STAC model: false
-        new CollectionTool().load(10000,false,true,false);
+        // Indicates whether the collection refers to a STAC model: true
+        new CollectionTool().load(10000,false,true,true);
     }
-
     @AfterAll
     public static void afterClass() throws IOException, ArlasException {
-        new CollectionTool().delete(true);
+        new CollectionTool().delete(false);
     }
 }
