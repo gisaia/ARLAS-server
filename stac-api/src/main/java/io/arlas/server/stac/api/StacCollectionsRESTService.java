@@ -20,6 +20,9 @@
 package io.arlas.server.stac.api;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InvalidParameterException;
 import io.arlas.commons.exceptions.NotFoundException;
@@ -27,8 +30,10 @@ import io.arlas.commons.rest.response.Error;
 import io.arlas.server.core.app.Documentation;
 import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
+import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.stac.model.*;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,6 +52,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -148,6 +154,58 @@ public class StacCollectionsRESTService extends StacRESTService {
     ) throws ArlasException {
 
         return cache(Response.ok(getCollection(collectionReferenceService.getCollectionReference(collectionId, Optional.ofNullable(organisations)), uriInfo)), 0);
+    }
+
+    @Timed
+    @Path("/collections/{collectionId}/queryables")
+    @GET
+    @Produces({ "application/schema+json", MediaType.APPLICATION_JSON })
+    @Operation(
+            summary = "Describe queryables for the feature collection with id `collectionId`",
+            description = """
+                Returns a JSON Schema document describing the queryable properties
+                that may be used in filter expressions for the collection `collectionId`.
+                Only indexed fields are exposed in the schema.
+                """
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = """
+                                    A JSON Schema document describing the queryables available
+                                    for the collection `collectionId`.
+                                    """,
+                    content = @Content(
+                            mediaType = "application/schema+json",
+                            schema = @Schema(implementation = Object.class)
+                    )),
+            @ApiResponse(responseCode = "404", description = "The requested URI was not found.",
+                    content = @Content(schema = @Schema(implementation = Error.class))),
+            @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
+                    content = @Content(schema = @Schema(implementation = Error.class)))
+    })
+    public Response queryable(@Context UriInfo uriInfo,
+                                       @Parameter(name = "collectionId", description = "Local identifier of a collection", required = true)
+                                       @PathParam(value = "collectionId") String collectionId,
+                                       @Parameter(hidden = true)
+                                       @HeaderParam(value = COLUMN_FILTER) String columnFilter,
+                                       @Parameter(hidden = true)
+                                       @HeaderParam(value = ARLAS_ORGANISATION) String organisations
+    ) throws ArlasException {
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService()
+                .getCollectionReference(collectionId, Optional.ofNullable(organisations));
+        if (collectionReference == null) {
+            throw new NotFoundException(collectionId);
+        }
+        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), Collections.singletonList(collectionReference));
+        CollectionReferenceDescription collectionReferenceDescription = exploreService.describeCollection(collectionReference, Optional.ofNullable(columnFilter));
+        if (collectionReferenceDescription == null) {
+            throw new NotFoundException("No collection description found for " + collectionId);
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode config = mapper.valueToTree(collectionReferenceDescription);
+        QueryablesBuilder builder = new QueryablesBuilder();
+        ObjectNode queryables = builder.build(baseUri, config);
+        return cache(Response.ok(queryables),0);
     }
 
     @Timed
