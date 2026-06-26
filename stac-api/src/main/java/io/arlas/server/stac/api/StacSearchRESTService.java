@@ -275,7 +275,7 @@ public class StacSearchRESTService extends StacRESTService {
                             mediaType = "application/schema+json",
                             schema = @Schema(implementation = Object.class)
                     )),
-            @ApiResponse(responseCode = "404", description = "The requested URI was not found.",
+            @ApiResponse(responseCode = "404", description = "Collection not found.",
                     content = @Content(schema = @Schema(implementation = Error.class))),
             @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
                     content = @Content(schema = @Schema(implementation = Error.class)))
@@ -301,12 +301,12 @@ public class StacSearchRESTService extends StacRESTService {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
                 .getCollectionReference(collectionId, Optional.ofNullable(organisations));
         if (collectionReference == null) {
-            throw new io.arlas.commons.exceptions.NotFoundException(collectionId);
+            throw new NotFoundException(collectionId);
         }
         ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), Collections.singletonList(collectionReference));
         CollectionReferenceDescription collectionReferenceDescription = exploreService.describeCollection(collectionReference, Optional.ofNullable(columnFilter));
         if (collectionReferenceDescription == null) {
-            throw new io.arlas.commons.exceptions.NotFoundException("No collection description found for " + collectionId);
+            throw new NotFoundException("No collection description found for " + collectionId);
         }
         ObjectMapper mapper = new ObjectMapper();
         JsonNode config = mapper.valueToTree(collectionReferenceDescription);

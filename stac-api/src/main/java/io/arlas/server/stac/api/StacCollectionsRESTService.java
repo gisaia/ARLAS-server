@@ -140,7 +140,7 @@ public class StacCollectionsRESTService extends StacRESTService {
                       * An optional extent that can be used to provide an indication of the spatial and temporal extent of the collection - typically derived from the data;
                       * An optional indicator about the type of the items in the collection (the default value, if the indicator is not provided, is 'feature').""",
                     content = @Content(schema = @Schema(implementation = Collection.class))),
-            @ApiResponse(responseCode = "404", description = "The requested URI was not found.",
+            @ApiResponse(responseCode = "404", description = "Collection not found.",
                     content = @Content(schema = @Schema(implementation = Error.class))),
             @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
                     content = @Content(schema = @Schema(implementation = Error.class)))
@@ -148,12 +148,18 @@ public class StacCollectionsRESTService extends StacRESTService {
     public Response describeCollection(@Context UriInfo uriInfo,
                                        @Parameter(name = "collectionId", description = "Local identifier of a collection", required = true)
                                        @PathParam(value = "collectionId") String collectionId,
-
+                                       @Parameter(hidden = true)
+                                       @HeaderParam(value = COLUMN_FILTER) String columnFilter,
                                        @Parameter(hidden = true)
                                        @HeaderParam(value = ARLAS_ORGANISATION) String organisations
     ) throws ArlasException {
-
-        return cache(Response.ok(getCollection(collectionReferenceService.getCollectionReference(collectionId, Optional.ofNullable(organisations)), uriInfo)), 0);
+        CollectionReference collectionReference = collectionReferenceService
+                .getCollectionReference(collectionId, Optional.ofNullable(organisations));
+        if (collectionReference == null) {
+            throw new NotFoundException(collectionId);
+        }
+        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), Collections.singletonList(collectionReference));
+        return cache(Response.ok(getCollection(collectionReference, uriInfo)), 0);
     }
 
     @Timed
@@ -178,7 +184,7 @@ public class StacCollectionsRESTService extends StacRESTService {
                             mediaType = "application/schema+json",
                             schema = @Schema(implementation = Object.class)
                     )),
-            @ApiResponse(responseCode = "404", description = "The requested URI was not found.",
+            @ApiResponse(responseCode = "404", description = "Collection not found.",
                     content = @Content(schema = @Schema(implementation = Error.class))),
             @ApiResponse(responseCode = "500", description = "Arlas Server Error.",
                     content = @Content(schema = @Schema(implementation = Error.class)))
