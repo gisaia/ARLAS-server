@@ -22,6 +22,8 @@ package io.arlas.server.stac.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.geojson.Polygon;
 import org.geotools.api.filter.*;
 import org.geotools.api.filter.expression.Expression;
 import org.geotools.api.filter.expression.Literal;
@@ -41,6 +43,9 @@ import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.GeometryCollection;
 
 public class ArlasFilterUtils {
+
+    private static final List<String> ROOT_STAC_FIELD = List.of("collection", "catalog", "id", "geometry", "bbox", "centroid", "type");
+    private static final List<String> ROOT_STAC_KEY = List.of("properties.", "assets.");
 
     public static List<String> cql2toArlasFilterList(Filter filter, Boolean isStacModel) throws ArlasException {
         List<String> filters = new ArrayList<>();
@@ -220,17 +225,22 @@ public class ArlasFilterUtils {
         return StringUtil.concat(property, ":", arlasOperator, ":", value);
     }
 
+
+
     private static String normalizeProperty(String property, Boolean isStacModel) {
         String normalized = property.replace('/', '.');
         if (Boolean.TRUE.equals(isStacModel)) {
             normalized = normalized.replaceFirst(":", "__");
+            if(!ROOT_STAC_FIELD.contains(normalized) && ROOT_STAC_KEY.stream().noneMatch(normalized::startsWith)) {
+                normalized = "properties." + normalized;
+            }
         }
         return normalized;
     }
 
     /**
      * Validates LIKE literal to reject unescaped leading wildcards.
-     * - Exception if pattern starts with an unescaped wildcard (default '%').
+     * - Exception if pattern contains with an unescaped wildcard (default '%').
      * - Allowed if the leading wildcard is escaped with the escape character.
      */
     private static void validateLikeLiteral(PropertyIsLike like) throws InvalidParameterException {
@@ -240,10 +250,10 @@ public class ArlasFilterUtils {
         }
         String wildCard = "%";
         String escape = like.getEscape();
-        if (escape != null && !escape.isEmpty() && literal.startsWith(escape + wildCard)) {
+        if (escape != null && !escape.isEmpty() && literal.contains(escape + wildCard)) {
             return;
         }
-        if (literal.startsWith(wildCard)) {
+        if (literal.contains(wildCard)) {
             throw new InvalidParameterException("LIKE filters starting with an unescaped wildcard are not supported");
         }
     }

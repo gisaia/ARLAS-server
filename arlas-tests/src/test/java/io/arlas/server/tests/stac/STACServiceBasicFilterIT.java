@@ -86,12 +86,13 @@ public class STACServiceBasicFilterIT extends AbstractSTACServiceTest {
             FilterLang lang
     ) throws Exception {
         ValidatableResponse response = executeRequest(scenario, target, lang);
-        response.assertThat().statusCode(200);
+        assertCommonResponse(response, scenario,target);
+        assertReturnedValues(response, scenario);
 
     }
     static Stream<Arguments> filterLikeEscapeCases() {
         return Stream.of(
-                scenarioCases(StacFilterScenario.simple("params.job", FilterOperator.LIKE, "\\%cto", 60, 59))
+                scenarioCases(StacFilterScenario.simple("params.job", FilterOperator.LIKE, "\\%cto", 60, 0))
         ).flatMap(s -> s);
     }
 

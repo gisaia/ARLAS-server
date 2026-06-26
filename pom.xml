@@ -78,7 +78,7 @@
         <!-- JAXB RUNTIME -->
         <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
         <!-- JACKSON CORE -->
-        <jackson.core.version>2.21.1</jackson.core.version>
+        <jackson.core.version>2.21.4</jackson.core.version>
     </properties>
     <dependencies>
         <dependency>
@@ -94,6 +94,12 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
+                <version>${jackson.core.version}</version>
+            </dependency>
+            <!-- TO FIX CVE-2026-54512 and CVE-2026-54513  -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
                 <version>${jackson.core.version}</version>
             </dependency>
             <!-- TO FIX CVE-2026-2332  -->

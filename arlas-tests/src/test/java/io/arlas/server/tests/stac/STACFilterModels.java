@@ -185,7 +185,7 @@ public final class STACFilterModels {
             Object upper
     ) { }
 
-    record BboxValue(
+    public record BboxValue(
             double minX,
             double minY,
             double maxX,

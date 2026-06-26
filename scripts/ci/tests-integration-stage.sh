@@ -188,8 +188,6 @@ function test_wfs() {
         mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="delete" -pl arlas-tests -B
 }
 
-
-
 function test_stac_filter() {
     export ARLAS_PREFIX="/arlastest"
     export ARLAS_APP_PATH="/pathtest"
@@ -205,43 +203,37 @@ function test_stac_filter() {
         -e ARLAS_PORT="9999" \
         -e ARLAS_PREFIX=${ARLAS_PREFIX} \
         -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
-        -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED} \
-        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
-        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
-        --net arlas_default \
-        maven:3.8.5-openjdk-17 \
-        mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="$1" -pl arlas-tests -B
-
-    docker run --rm \
-        -w /opt/maven \
-        -v $PWD:/opt/maven \
-        -v $HOME/.m2:/root/.m2 \
-        -e ARLAS_HOST="arlas-server" \
-        -e ARLAS_PORT="9999" \
-        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
-        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
         -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED}\
         -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.8.5-openjdk-17 \
-        mvn "-Dit.test=STACService*IT" verify -DskipTests=false -DfailIfNoTests=false -B
-
-    docker run --rm \
-        -w /opt/maven \
-        -v $PWD:/opt/maven \
-        -v $HOME/.m2:/root/.m2 \
-        -e ARLAS_HOST="arlas-server" \
-        -e ARLAS_PORT="9999" \
-        -e ARLAS_PREFIX=${ARLAS_PREFIX} \
-        -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
-        -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
-        -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
-        --net arlas_default \
-        maven:3.8.5-openjdk-17 \
-        mvn exec:java -Dexec.mainClass="io.arlas.server.tests.CollectionTool" -Dexec.classpathScope=test -Dexec.args="$2" -pl arlas-tests -B
+        mvn "-Dit.test=STACService*IT,!STACService*EoIT" verify -DskipTests=false -DfailIfNoTests=false -B
 }
 
+function test_stac_filter_arlas_eo() {
+      export ARLAS_PREFIX="/arlastest"
+      export ARLAS_APP_PATH="/pathtest"
+      export ARLAS_BASE_URI="http://arlas-server:9999/pathtest/arlastest/"
+      export ARLAS_SERVICE_STAC_ENABLE=true
+      export ARLAS_INSPIRE_ENABLED=true
+      start_stack
+      docker run --rm \
+          -w /opt/maven \
+          -v $PWD:/opt/maven \
+          -v $HOME/.m2:/root/.m2 \
+          -e ARLAS_HOST="arlas-server" \
+          -e ARLAS_PORT="9999" \
+          -e ARLAS_PREFIX=${ARLAS_PREFIX} \
+          -e ARLAS_APP_PATH=${ARLAS_APP_PATH} \
+          -e ARLAS_INSPIRE_ENABLED=${ARLAS_INSPIRE_ENABLED}\
+          -e ARLAS_ELASTIC_NODES="elasticsearch:9200" \
+          -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
+          --net arlas_default \
+          maven:3.8.5-openjdk-17 \
+          mvn "-Dit.test=STACService*EoIT" verify -DskipTests=false -DfailIfNoTests=false -B
+
+}
 
 function test_stac() {
     export ARLAS_PREFIX="/arlastest"
@@ -360,7 +352,8 @@ if [ "$STAGE" == "REST" ]; then export ALIASED_COLLECTION="false"; export WKT_GE
 if [ "$STAGE" == "WFS" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_wfs; fi
 if [ "$STAGE" == "CSW" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_csw; fi
 if [ "$STAGE" == "STAC" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_stac "loadstac" "delete"; fi
-if [ "$STAGE" == "STAC_FILTER" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_stac_filter "loadstac" "delete";  fi
+if [ "$STAGE" == "STAC_FILTER" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_stac_filter ;  fi
+if [ "$STAGE" == "STAC_FILTER_ARLASEO" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="false"; test_stac_filter_arlas_eo ;  fi
 if [ "$STAGE" == "REST_WKT_GEOMETRIES" ]; then export ALIASED_COLLECTION="false"; export WKT_GEOMETRIES="true"; test_rest; fi
 if [ "$STAGE" == "REST_ALIASED" ]; then export ALIASED_COLLECTION="true"; export WKT_GEOMETRIES="false"; test_rest; fi
 if [ "$STAGE" == "WFS_ALIASED" ]; then export ALIASED_COLLECTION="true"; export WKT_GEOMETRIES="false"; test_wfs; fi
