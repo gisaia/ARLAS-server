@@ -59,10 +59,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import org.json.simple.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -214,7 +211,6 @@ public class StacSearchRESTService extends StacRESTService {
         if (!StringUtil.isNullOrEmpty(intersects)) {
             searchBody.setIntersects(GeoUtil.geojsonReader.readValue(intersects));
         }
-
         return cache(Response.ok(getItems(partitionFilter, Optional.ofNullable(columnFilter), Optional.ofNullable(organisations), uriInfo, (SearchBody<String>) searchBody, "GET")), 0);
 
     }
@@ -298,13 +294,18 @@ public class StacSearchRESTService extends StacRESTService {
             );
         }
         String collectionId = collections.get(0);
+        ObjectNode queryables = getQueryables(Optional.ofNullable(columnFilter), Optional.ofNullable(organisations), collectionId);
+        return cache(Response.ok(queryables),0);
+    }
+
+    private ObjectNode getQueryables(Optional<String> columnFilter, Optional<String> organisations, String collectionId) throws ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collectionId, Optional.ofNullable(organisations));
+                .getCollectionReference(collectionId, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collectionId);
         }
-        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), Collections.singletonList(collectionReference));
-        CollectionReferenceDescription collectionReferenceDescription = exploreService.describeCollection(collectionReference, Optional.ofNullable(columnFilter));
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Collections.singletonList(collectionReference));
+        CollectionReferenceDescription collectionReferenceDescription = exploreService.describeCollection(collectionReference, columnFilter);
         if (collectionReferenceDescription == null) {
             throw new NotFoundException("No collection description found for " + collectionId);
         }
@@ -312,9 +313,8 @@ public class StacSearchRESTService extends StacRESTService {
         JsonNode config = mapper.valueToTree(collectionReferenceDescription);
         QueryablesBuilder builder = new QueryablesBuilder();
         ObjectNode queryables = builder.build(baseUri, config);
-        return cache(Response.ok(queryables),0);
+        return queryables;
     }
-
 
 
     // -----------
@@ -330,8 +330,14 @@ public class StacSearchRESTService extends StacRESTService {
             );
         }
         CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collections.get(0), organisations);
+        Set<String> allowedQueryables = Set.of();
+        if(body.getFilter() != null){
+            ObjectNode queryables = getQueryables(columnFilter, organisations, collections.get(0));
+            allowedQueryables.addAll(QueryablesBuilder.getAllowedQueryables(queryables));
+        }
+
         return getStacFeatureCollection(collectionReference, partitionFilter, columnFilter, body,
-                getFilter(collectionReference, body), uriInfo, method, false);
+                getFilter(collectionReference, body), uriInfo, method, false, allowedQueryables);
     }
 
     private List<String> getFilter(CollectionReference collectionReference, SearchBody body) throws ArlasException {

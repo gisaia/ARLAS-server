@@ -21,8 +21,10 @@ package io.arlas.server.stac.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.ws.rs.BadRequestException;
 import org.geojson.Polygon;
 import org.geotools.api.filter.*;
 import org.geotools.api.filter.expression.Expression;
@@ -47,7 +49,7 @@ public class ArlasFilterUtils {
     private static final List<String> ROOT_STAC_FIELD = List.of("collection", "catalog", "id", "geometry", "bbox", "centroid", "type");
     private static final List<String> ROOT_STAC_KEY = List.of("properties.", "assets.");
 
-    public static List<String> cql2toArlasFilterList(Filter filter, Boolean isStacModel) throws ArlasException {
+    public static List<String> cql2toArlasFilterList(Filter filter, Boolean isStacModel, Set<String> allowedQueryables) throws ArlasException {
         List<String> filters = new ArrayList<>();
         if (filter == null) {
             return filters;
@@ -56,7 +58,7 @@ public class ArlasFilterUtils {
         if (filter instanceof And) {
             And and = (And) filter;
             for (Filter child : and.getChildren()) {
-                filters.addAll(cql2toArlasFilterList(child, isStacModel));
+                filters.addAll(cql2toArlasFilterList(child, isStacModel, allowedQueryables));
             }
             return filters;
         }
@@ -70,7 +72,7 @@ public class ArlasFilterUtils {
             // Support ONLY the GeoTools form generated from "<>":
             // NOT (property = literal)
             if (child instanceof BinaryComparisonOperator cmp && child instanceof PropertyIsEqualTo) {
-                filters.add(toBinaryComparisonFilter(cmp, "ne", isStacModel));
+                filters.add(toBinaryComparisonFilter(cmp, "ne", isStacModel, allowedQueryables));
                 return filters;
             }
 
@@ -80,28 +82,28 @@ public class ArlasFilterUtils {
         // Comparison operators
         if (filter instanceof BinaryComparisonOperator cmp) {
             if (filter instanceof PropertyIsEqualTo) {
-                filters.add(toBinaryComparisonFilter(cmp, "eq", isStacModel));
+                filters.add(toBinaryComparisonFilter(cmp, "eq", isStacModel, allowedQueryables));
                 return filters;
             } else if (filter instanceof PropertyIsGreaterThanOrEqualTo) {
-                filters.add(toBinaryComparisonFilter(cmp, "gte", isStacModel));
+                filters.add(toBinaryComparisonFilter(cmp, "gte", isStacModel, allowedQueryables));
                 return filters;
             } else if (filter instanceof PropertyIsLessThanOrEqualTo) {
-                filters.add(toBinaryComparisonFilter(cmp, "lte", isStacModel));
+                filters.add(toBinaryComparisonFilter(cmp, "lte", isStacModel, allowedQueryables));
                 return filters;
             } else if (filter instanceof PropertyIsGreaterThan) {
-                filters.add(toBinaryComparisonFilter(cmp, "gt", isStacModel));
+                filters.add(toBinaryComparisonFilter(cmp, "gt", isStacModel, allowedQueryables));
                 return filters;
             } else if (filter instanceof PropertyIsLessThan) {
-                filters.add(toBinaryComparisonFilter(cmp, "lt", isStacModel));
+                filters.add(toBinaryComparisonFilter(cmp, "lt", isStacModel, allowedQueryables));
                 return filters;
             } else if (filter instanceof IsNotEqualToImpl) {
-                filters.add(toBinaryComparisonFilter(cmp, "ne", isStacModel));
+                filters.add(toBinaryComparisonFilter(cmp, "ne", isStacModel, allowedQueryables));
                 return filters;
             }
         }
 
         if (filter instanceof LikeFilterImpl likeFilter) {
-            filters.add(toLikeComparisonFilter(likeFilter, isStacModel));
+            filters.add(toLikeComparisonFilter(likeFilter, isStacModel, allowedQueryables));
             return filters;
         }
 
@@ -114,7 +116,7 @@ public class ArlasFilterUtils {
             if (!(expr instanceof PropertyName)) {
                 throw new InvalidParameterException("Unsupported BETWEEN filter: left-hand expression is not a property");
             }
-            String property = normalizeProperty(((PropertyName) expr).getPropertyName(), isStacModel);
+            String property = normalizeProperty(((PropertyName) expr).getPropertyName(), isStacModel, allowedQueryables);
             String low = literalToString(lower);
             String high = literalToString(upper);
             filters.add(StringUtil.concat(property, ":", "range", ":[", low, "<", high, "]"));
@@ -134,10 +136,10 @@ public class ArlasFilterUtils {
             String property;
             Expression geometryExpr;
             if (e1 instanceof PropertyName p) {
-                property = normalizeProperty(p.getPropertyName(), isStacModel);
+                property = normalizeProperty(p.getPropertyName(), isStacModel, allowedQueryables);
                 geometryExpr = e2;
             } else if (e2 instanceof PropertyName p) {
-                property = normalizeProperty(p.getPropertyName(), isStacModel);
+                property = normalizeProperty(p.getPropertyName(), isStacModel, allowedQueryables);
                 geometryExpr = e1;
             } else {
                 throw new InvalidParameterException("Unsupported spatial filter: no property name found in filter " + filter);
@@ -180,7 +182,7 @@ public class ArlasFilterUtils {
 
     private static String toLikeComparisonFilter(
             LikeFilterImpl cmp,
-            Boolean isStacModel
+            Boolean isStacModel, Set<String> allowedQueryables
     ) throws InvalidParameterException {
         Expression e1 = cmp.getExpression();
         String e2 = cmp.getLiteral();
@@ -189,7 +191,7 @@ public class ArlasFilterUtils {
         String property;
         String value;
         if (e1 instanceof PropertyName p) {
-            property = normalizeProperty(p.getPropertyName(), isStacModel);
+            property = normalizeProperty(p.getPropertyName(), isStacModel, allowedQueryables);
             value = e2;
         } else {
             throw new InvalidParameterException(
@@ -202,7 +204,7 @@ public class ArlasFilterUtils {
     private static String toBinaryComparisonFilter(
             BinaryComparisonOperator cmp,
             String arlasOperator,
-            Boolean isStacModel
+            Boolean isStacModel, Set<String> allowedQueryables
     ) throws InvalidParameterException {
         Expression e1 = cmp.getExpression1();
         Expression e2 = cmp.getExpression2();
@@ -211,10 +213,10 @@ public class ArlasFilterUtils {
         String value;
 
         if (e1 instanceof PropertyName p) {
-            property = normalizeProperty(p.getPropertyName(), isStacModel);
+            property = normalizeProperty(p.getPropertyName(), isStacModel, allowedQueryables);
             value = literalToString(e2);
         } else if (e2 instanceof PropertyName p) {
-            property = normalizeProperty(p.getPropertyName(), isStacModel);
+            property = normalizeProperty(p.getPropertyName(), isStacModel, allowedQueryables);
             value = literalToString(e1);
         } else {
             throw new InvalidParameterException(
@@ -227,14 +229,18 @@ public class ArlasFilterUtils {
 
 
 
-    private static String normalizeProperty(String property, Boolean isStacModel) {
+    private static String normalizeProperty(String property, Boolean isStacModel, Set<String> allowedQueryables) {
         String normalized = property.replace('/', '.');
         if (Boolean.TRUE.equals(isStacModel)) {
-            normalized = normalized.replaceFirst(":", "__");
             if(!ROOT_STAC_FIELD.contains(normalized) && ROOT_STAC_KEY.stream().noneMatch(normalized::startsWith)) {
                 normalized = "properties." + normalized;
             }
         }
+        //Check if property is queryable
+        if (!allowedQueryables.contains(normalized)) {
+            throw new BadRequestException("Unsupported queryable: " + normalized);
+        }
+        normalized = normalized.replaceFirst(":", "__");
         return normalized;
     }
 
