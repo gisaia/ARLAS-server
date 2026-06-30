@@ -1,9 +1,28 @@
+/*
+ * Licensed to Gisaïa under one or more contributor
+ * license agreements. See the NOTICE.txt file distributed with
+ * this work for additional information regarding copyright
+ * ownership. Gisaïa licenses this file to you under
+ * the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.arlas.server.tests.stac.conformance.ogc.commons;
-import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public class CollectionFilterMetadata {
+public class CollectionFilteringMetadata {
 
     private String collectionId;
     private String itemsPath;
@@ -12,7 +31,16 @@ public class CollectionFilterMetadata {
     private String spatialQueryable;
     private boolean additionalProperties = true;
     private List<Double> wgs84Bbox = new ArrayList<>();
-    private List<String> supportedCrs = new ArrayList<>();
+
+    public List<Map<String, Object>> getUnfilteredFeatures() {
+        return unfilteredFeatures;
+    }
+
+    public void setUnfilteredFeatures(List<Map<String, Object>> unfilteredFeatures) {
+        this.unfilteredFeatures = unfilteredFeatures;
+    }
+
+    private List<Map<String, Object>> unfilteredFeatures = new ArrayList<>();
 
     public String getCollectionId() {
         return collectionId;
@@ -68,13 +96,5 @@ public class CollectionFilterMetadata {
 
     public void setWgs84Bbox(List<Double> wgs84Bbox) {
         this.wgs84Bbox = wgs84Bbox == null ? new ArrayList<>() : new ArrayList<>(wgs84Bbox);
-    }
-
-    public List<String> getSupportedCrs() {
-        return supportedCrs;
-    }
-
-    public void setSupportedCrs(List<String> supportedCrs) {
-        this.supportedCrs = supportedCrs == null ? new ArrayList<>() : new ArrayList<>(supportedCrs);
     }
 }
