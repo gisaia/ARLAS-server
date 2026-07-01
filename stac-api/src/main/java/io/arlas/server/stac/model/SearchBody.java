@@ -55,6 +55,8 @@ public class SearchBody<T>  {
 
   private @Valid String filterLang = null;
 
+  private @Valid String filterCrs = null;
+
   /**
    **/
   public SearchBody<T> datetime(String datetime) {
@@ -93,6 +95,23 @@ public class SearchBody<T>  {
   public void setFilter(String filter) {
     this.filter = filter;
   }
+
+
+    /**
+     **/
+    public SearchBody<T> filterCrs(String filterCrs) {
+        this.filterCrs = filterCrs;
+        return this;
+    }
+
+    @Schema()
+    @JsonProperty("filterCrs")
+    public String getFilterCrs() {
+        return filterCrs;
+    }
+    public void setFilterCrd(String filterCrs) {
+        this.filterCrs = filterCrs;
+    }
 
   @Schema()
   @JsonProperty("datetime")

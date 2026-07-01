@@ -82,6 +82,7 @@ public final class QueryablesDiscoverySupport {
             }
 
             assertNotNull(sampleQueryable, "No sample queryable found for " + collectionId);
+            assertNotNull(spatialQueryable, "No sample spatial queryable found for " + collectionId);
 
             metadata.setSampleQueryable(sampleQueryable);
             metadata.setSpatialQueryable(spatialQueryable);

@@ -44,10 +44,13 @@ public class STACRequestFactory {
 
     public List<Pair<String, String>> buildGetParams(
             StacFilterScenario scenario,
-            FilterLang lang
+            FilterLang lang,
+            STACFilterModels.TypeOfGet typeOfGet
     ) throws ParseException, IOException {
         List<Pair<String, String>> params = new ArrayList<>();
-        params.add(new ImmutablePair<>("collections", collection));
+        if(typeOfGet.equals(STACFilterModels.TypeOfGet.STAC)){
+            params.add(new ImmutablePair<>("collections", collection));
+        }
         params.add(new ImmutablePair<>("filter", serializer.serialize(scenario.clauses(), lang)));
         params.add(new ImmutablePair<>("limit", String.valueOf(scenario.limit())));
         params.add(new ImmutablePair<>("filter-lang", lang.value()));

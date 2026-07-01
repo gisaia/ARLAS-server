@@ -31,6 +31,7 @@ public class CollectionFilteringMetadata {
     private String spatialQueryable;
     private boolean additionalProperties = true;
     private List<Double> wgs84Bbox = new ArrayList<>();
+    private List<Map<String, Object>> unfilteredFeatures = new ArrayList<>();
 
     public List<Map<String, Object>> getUnfilteredFeatures() {
         return unfilteredFeatures;
@@ -39,8 +40,6 @@ public class CollectionFilteringMetadata {
     public void setUnfilteredFeatures(List<Map<String, Object>> unfilteredFeatures) {
         this.unfilteredFeatures = unfilteredFeatures;
     }
-
-    private List<Map<String, Object>> unfilteredFeatures = new ArrayList<>();
 
     public String getCollectionId() {
         return collectionId;

@@ -145,7 +145,7 @@ public class STACServiceHeaderFilterIT extends AbstractSTACServiceTest {
     }
 
     static Stream<Arguments> authorizeColumnFilterCases() {
-        String columnFilter = "geodata:params.job,params.age,params.startdate";
+        String columnFilter = "geodata:params.job,geodata:params.age,geodata:params.startdate";
         return Stream.of(
                 scenarioCases(StacFilterScenario.and(
                         List.of(
@@ -170,7 +170,7 @@ public class STACServiceHeaderFilterIT extends AbstractSTACServiceTest {
     }
 
     static Stream<Arguments> forbiddenCollectionFilterCases() {
-        String columnFilter = "unknowCollection:params.job,params.age,params.startdate";
+        String columnFilter = "unknowCollection:params.job,unknowCollection:params.age,unknowCollection:params.startdate";
         return Stream.of(
                 scenarioCases(StacFilterScenario.and(
                         List.of(

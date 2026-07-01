@@ -199,7 +199,6 @@ public class QueryablesBuilder {
             case "BOOLEAN":
                 schema.put("type", "boolean");
                 return schema;
-            case "TEXT":
             case "KEYWORD":
                 schema.put("type", "string");
                 return schema;

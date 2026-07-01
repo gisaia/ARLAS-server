@@ -229,7 +229,7 @@ public class ArlasFilterUtils {
 
 
 
-    private static String normalizeProperty(String property, Boolean isStacModel, Set<String> allowedQueryables) {
+    private static String normalizeProperty(String property, Boolean isStacModel, Set<String> allowedQueryables) throws InvalidParameterException {
         String normalized = property.replace('/', '.');
         if (Boolean.TRUE.equals(isStacModel)) {
             if(!ROOT_STAC_FIELD.contains(normalized) && ROOT_STAC_KEY.stream().noneMatch(normalized::startsWith)) {
@@ -238,7 +238,7 @@ public class ArlasFilterUtils {
         }
         //Check if property is queryable
         if (!allowedQueryables.contains(normalized)) {
-            throw new BadRequestException("Unsupported queryable: " + normalized);
+            throw new InvalidParameterException("Unsupported queryable: " + normalized);
         }
         normalized = normalized.replaceFirst(":", "__");
         return normalized;

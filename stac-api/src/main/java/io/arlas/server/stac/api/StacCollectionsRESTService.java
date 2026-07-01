@@ -69,7 +69,7 @@ public class StacCollectionsRESTService extends StacRESTService {
     }
 
     private static final Set<String> RESERVED_QUERY_PARAMS = Set.of(
-            "limit", "bbox", "datetime", "filter", "filter-lang",
+            "limit", "bbox", "datetime", "filter", "filter-lang", "filter-crs",
             "sortby", "from", "after", "before"
     );
 
@@ -283,6 +283,7 @@ public class StacCollectionsRESTService extends StacRESTService {
                                         If a feature has multiple temporal properties, it is the decision of the server whether only a single temporal property is used to determine the extent or all relevant temporal properties.""",
                                         style = ParameterStyle.FORM)
                                 @QueryParam(value = "datetime") String datetime,
+
                                 @Parameter(name = "filter", required = false, description = "**Extension:** Filter  A CQL filter expression for filtering items.")
                                     @QueryParam(value = "filter") String filter,
 
@@ -296,6 +297,18 @@ public class StacCollectionsRESTService extends StacRESTService {
                                         schema = @Schema(type = "string", allowableValues = {"cql2-text", "cql2-json"}, defaultValue = "cql2-text")
                                 )
                                     @QueryParam(value = "filter-lang") String filterLang,
+
+                                @Parameter(
+                                        name = "filter-crs",
+                                        required = false,
+                                        description = """
+                                            **Extension:** Filter  The CRS used by spatial literals in the `filter` value.
+                                            Only the following value is supported: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84'.""",
+                                        style = ParameterStyle.FORM,
+                                        schema = @Schema(type = "string", allowableValues = { FILTER_CRS_CRS84 },example = FILTER_CRS_CRS84
+                                        )
+                                )
+                                    @QueryParam(value = "filter-crs") String filterCrs,
 
                                 // --------------------------------------------------------
                                 // -----------------------  PAGE   -----------------------
@@ -327,6 +340,9 @@ public class StacCollectionsRESTService extends StacRESTService {
                                 @HeaderParam(value = ARLAS_ORGANISATION) String organisations
                                 ) throws ArlasException {
 
+        if (filterCrs != null && !FILTER_CRS_CRS84.equals(filterCrs)) {
+            throw new InvalidParameterException("Invalid value for query parameter 'filter-crs'. Only '" + FILTER_CRS_CRS84 + "' is supported.");
+        }
         CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collectionId, Optional.ofNullable(organisations));
         String dateFilter = getDateFilter(datetime, collectionReference);
         String geoFilter = getGeoFilter(getBboxAsList(bbox), collectionReference);
@@ -354,6 +370,7 @@ public class StacCollectionsRESTService extends StacRESTService {
                 .after(after)
                 .before(before)
                 .filter(filter)
+                .filterCrs(filterCrs)
                 .filterLang(filterLang);
 
         return cache(Response.ok(getStacFeatureCollection(collectionReference, partitionFilter, Optional.ofNullable(columnFilter),
@@ -409,7 +426,7 @@ public class StacCollectionsRESTService extends StacRESTService {
     }
 
     // Retrieve allowed queryable from url param
-    private Map<String, List<String>> extractDynamicQueryables(UriInfo uriInfo, Set<String> allowedQueryables) {
+    private Map<String, List<String>> extractDynamicQueryables(UriInfo uriInfo, Set<String> allowedQueryables) throws InvalidParameterException {
         Map<String, List<String>> dynamicQueryables = new LinkedHashMap<>();
         for (Map.Entry<String, List<String>> entry : uriInfo.getQueryParameters().entrySet()) {
             String paramName = entry.getKey();
@@ -417,7 +434,7 @@ public class StacCollectionsRESTService extends StacRESTService {
                 continue;
             }
             if (!allowedQueryables.contains(paramName)) {
-                throw new BadRequestException("Unsupported queryable: " + paramName);
+                throw new InvalidParameterException("Unsupported queryable: " + paramName);
             }
             dynamicQueryables.put(paramName, new ArrayList<>(entry.getValue()));
         }

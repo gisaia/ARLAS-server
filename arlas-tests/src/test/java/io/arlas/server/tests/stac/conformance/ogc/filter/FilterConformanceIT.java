@@ -23,6 +23,7 @@ import io.arlas.server.tests.stac.conformance.ogc.commons.*;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -140,18 +141,46 @@ public class FilterConformanceIT extends AbstractOgcApiTest {
     }
 
     @Test
-    @Disabled
-    // ARLAS-Server does not support custom filter-crs param
     @DisplayName("Scenario: A.3.6 Conformance Test 11 - /conf/filter/filter-crs-param")
     void filterCrsParam() {
+        // ARLAS-Server supports only "http://www.opengis.net/def/crs/OGC/1.3/CRS84" for filter-crs param
+        final String supportedCrs = "http://www.opengis.net/def/crs/OGC/1.3/CRS84";
+        for (CollectionFilteringMetadata metadata : metadataList) {
+            if (metadata.getSpatialQueryable() == null || metadata.getWgs84Bbox().size() < 4) {
+                continue;
+            }
+            if (metadata.getUnfilteredFeatures() == null || metadata.getUnfilteredFeatures().isEmpty())  {
+                Response unfiltered = get(metadata.getItemsPath(), "application/geo+json");
+                assertTrue(unfiltered.statusCode() == 200 || unfiltered.statusCode() == 204);
+                metadata.setUnfilteredFeatures(
+                        unfiltered.statusCode() == 200 ? unfiltered.jsonPath().getList("features") : List.of()
+                );
+            }
+            List<Double> bbox = metadata.getWgs84Bbox();
+            String filter = CqlFilterBuilder.sIntersectsBbox(metadata.getSpatialQueryable(), bbox);
+            Map<String, Object> okParams = new LinkedHashMap<>();
+            okParams.put("filter-lang", "cql2-text");
+            okParams.put("filter-crs", supportedCrs);
+            okParams.put("filter", filter);
 
+            Response ok = get(metadata.getItemsPath(), okParams, "application/geo+json");
+            assertTrue(ok.statusCode() == 200 || ok.statusCode() == 204);
+
+            if (ok.statusCode() == 200) {
+                FilteringAssertions.assertSameFeatureIds(
+                        metadata.getUnfilteredFeatures(),
+                        ok.jsonPath().getList("features")
+                );
+            }
+
+            Map<String, Object> badParams = new LinkedHashMap<>();
+            badParams.put("filter-lang", "cql2-text");
+            badParams.put("filter-crs", "http://www.opengis.net/def/crs/EPSG/0/4326");
+            badParams.put("filter", filter);
+
+            Response bad = get(metadata.getItemsPath(), badParams, "application/geo+json");
+            assertEquals(400, bad.statusCode());
+        }
     }
 
-    @Test
-    @Disabled
-    // ARLAS-Server does not support custom functions
-    @DisplayName("Scenario: A.3.7 Conformance Test 12 - /conf/filter/get-functions")
-    void getFunctions() {
-
-    }
 }

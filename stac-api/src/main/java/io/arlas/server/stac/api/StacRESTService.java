@@ -84,6 +84,7 @@ public abstract class StacRESTService {
     public static final GeoJsonReader reader = new GeoJsonReader();
     public static final ObjectWriter writer = objectMapper.writer();
     public final String baseUri;
+    public final String FILTER_CRS_CRS84 = "http://www.opengis.net/def/crs/OGC/1.3/CRS84";
 
     public StacRESTService(STACConfiguration configuration,
                            int arlasRestCacheTimeout,
