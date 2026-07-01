@@ -208,7 +208,7 @@ function test_stac_filter() {
         -e ALIASED_COLLECTION=${ALIASED_COLLECTION} \
         --net arlas_default \
         maven:3.8.5-openjdk-17 \
-        mvn "-Dit.test=STACService*IT,!STACService*EoIT" verify -DskipTests=false -DfailIfNoTests=false -B
+        mvn "-Dit.test=STACService*IT,FilteringConformanceSuiteIT,!STACService*EoIT" verify -DskipTests=false -DfailIfNoTests=false -B
 }
 
 function test_stac_filter_arlas_eo() {
@@ -266,7 +266,7 @@ function test_stac() {
     docker run --rm \
          --net arlas_default \
          --env STAC_URL="${ARLAS_BASE_URI}stac/" \
-         gisaia/ets-ogcapi-features10:1.9.0
+         gisaia/ets-ogcapi-features10:1.9.2
 
     docker run --rm \
         -w /opt/maven \

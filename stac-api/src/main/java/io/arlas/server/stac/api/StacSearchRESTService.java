@@ -59,10 +59,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import org.json.simple.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -169,6 +166,18 @@ public class StacSearchRESTService extends StacRESTService {
         )
         @QueryParam(value = "filter-lang") String filterLang,
 
+                                  @Parameter(
+                                          name = "filter-crs",
+                                          required = false,
+                                          description = """
+                                            **Extension:** Filter  The CRS used by spatial literals in the `filter` value.
+                                            Only the following value is supported: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84'.""",
+                                          style = ParameterStyle.FORM,
+                                          schema = @Schema(type = "string", allowableValues = { FILTER_CRS_CRS84 },example = FILTER_CRS_CRS84
+                                          )
+                                  )
+                                      @QueryParam(value = "filter-crs") String filterCrs,
+
         @Parameter(name = "sortby", description = """
                         **Optional Extension:** Sort  An array of property names, prefixed by either "+" for ascending or "-" for descending. If no prefix is provided, "+" is assumed.""")
         @QueryParam(value = "sortby") String sortBy,
@@ -197,6 +206,9 @@ public class StacSearchRESTService extends StacRESTService {
             @HeaderParam(value = ARLAS_ORGANISATION) String organisations
 
     ) throws ArlasException, JsonProcessingException {
+        if (filterCrs != null && !FILTER_CRS_CRS84.equals(filterCrs)) {
+            throw new InvalidParameterException("Invalid value for query parameter 'filter-crs'. Only '" + FILTER_CRS_CRS84 + "' is supported.");
+        }
         collections = collections.stream().flatMap(e -> Stream.of(e.split(","))).collect(Collectors.toList());
 
         SearchBody searchBody = new SearchBody().bbox(getBboxAsList(bbox))
@@ -209,12 +221,12 @@ public class StacSearchRESTService extends StacRESTService {
                 .after(after)
                 .before(before)
                 .filter(filter)
+                .filterCrs(filterCrs)
                 .filterLang(filterLang);
 
         if (!StringUtil.isNullOrEmpty(intersects)) {
             searchBody.setIntersects(GeoUtil.geojsonReader.readValue(intersects));
         }
-
         return cache(Response.ok(getItems(partitionFilter, Optional.ofNullable(columnFilter), Optional.ofNullable(organisations), uriInfo, (SearchBody<String>) searchBody, "GET")), 0);
 
     }
@@ -250,6 +262,9 @@ public class StacSearchRESTService extends StacRESTService {
                                    @HeaderParam(value = ARLAS_ORGANISATION) String organisations
 
     ) throws ArlasException {
+        if (body.getFilterCrs() != null && !FILTER_CRS_CRS84.equals(body.getFilterCrs())) {
+            throw new InvalidParameterException("Invalid value for parameter 'filter-crs' in post body. Only '" + FILTER_CRS_CRS84 + "' is supported.");
+        }
         return cache(Response.ok(getItems(partitionFilter, Optional.ofNullable(columnFilter), Optional.ofNullable(organisations), uriInfo, body, "POST")), 0);
     }
 
@@ -298,13 +313,18 @@ public class StacSearchRESTService extends StacRESTService {
             );
         }
         String collectionId = collections.get(0);
+        ObjectNode queryables = getQueryables(Optional.ofNullable(columnFilter), Optional.ofNullable(organisations), collectionId);
+        return cache(Response.ok(queryables),0);
+    }
+
+    private ObjectNode getQueryables(Optional<String> columnFilter, Optional<String> organisations, String collectionId) throws ArlasException {
         CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collectionId, Optional.ofNullable(organisations));
+                .getCollectionReference(collectionId, organisations);
         if (collectionReference == null) {
             throw new NotFoundException(collectionId);
         }
-        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), Collections.singletonList(collectionReference));
-        CollectionReferenceDescription collectionReferenceDescription = exploreService.describeCollection(collectionReference, Optional.ofNullable(columnFilter));
+        ColumnFilterUtil.assertCollectionsAllowed(columnFilter, Collections.singletonList(collectionReference));
+        CollectionReferenceDescription collectionReferenceDescription = exploreService.describeCollection(collectionReference, columnFilter);
         if (collectionReferenceDescription == null) {
             throw new NotFoundException("No collection description found for " + collectionId);
         }
@@ -312,9 +332,8 @@ public class StacSearchRESTService extends StacRESTService {
         JsonNode config = mapper.valueToTree(collectionReferenceDescription);
         QueryablesBuilder builder = new QueryablesBuilder();
         ObjectNode queryables = builder.build(baseUri, config);
-        return cache(Response.ok(queryables),0);
+        return queryables;
     }
-
 
 
     // -----------
@@ -330,8 +349,14 @@ public class StacSearchRESTService extends StacRESTService {
             );
         }
         CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collections.get(0), organisations);
+        Set<String> allowedQueryables = new HashSet<>();
+        if(body.getFilter() != null){
+            ObjectNode queryables = getQueryables(columnFilter, organisations, collections.get(0));
+            allowedQueryables.addAll(QueryablesBuilder.getAllowedQueryables(queryables));
+        }
+
         return getStacFeatureCollection(collectionReference, partitionFilter, columnFilter, body,
-                getFilter(collectionReference, body), uriInfo, method, false);
+                getFilter(collectionReference, body), uriInfo, method, false, allowedQueryables);
     }
 
     private List<String> getFilter(CollectionReference collectionReference, SearchBody body) throws ArlasException {

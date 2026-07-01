@@ -23,9 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Builds a /queryables JSON Schema document from an ARLAS _describe collection response.
@@ -59,7 +57,7 @@ public class QueryablesBuilder {
         boolean isStacModel = describeResponse.path("params").path("is_stac_model").asBoolean(false);
         ObjectNode root = mapper.createObjectNode();
         root.put("$schema", JSON_SCHEMA_2020_12);
-        root.put("$id", baseUrl + "/stac/collections/" + collectionName + "/queryables");
+        root.put("$id", baseUrl + "stac/collections/" + collectionName + "/queryables");
         root.put("type", "object");
         root.put("title", "Queryables for " + collectionName);
         root.put("description", "Queryable names for collection " + collectionName + ".");
@@ -69,6 +67,23 @@ public class QueryablesBuilder {
         ObjectNode targetProperties = (ObjectNode) root.get("properties");
         flattenProperties("", sourceProperties, targetProperties, displayNames, isStacModel);
         return root;
+    }
+
+    // Retrieve all the queryable field in a set from queryable response
+    public static Set<String> getAllowedQueryables(JsonNode queryablesSchema) {
+        if (queryablesSchema == null || queryablesSchema.isMissingNode() || queryablesSchema.isNull()) {
+            return Set.of();
+        }
+        JsonNode properties = queryablesSchema.path("properties");
+        if (!properties.isObject()) {
+            return Set.of();
+        }
+        Set<String> allowedQueryables = new LinkedHashSet<>();
+        Iterator<String> fieldNames = properties.fieldNames();
+        while (fieldNames.hasNext()) {
+            allowedQueryables.add(fieldNames.next());
+        }
+        return allowedQueryables;
     }
 
     /**
@@ -184,7 +199,6 @@ public class QueryablesBuilder {
             case "BOOLEAN":
                 schema.put("type", "boolean");
                 return schema;
-            case "TEXT":
             case "KEYWORD":
                 schema.put("type", "string");
                 return schema;
@@ -193,6 +207,7 @@ public class QueryablesBuilder {
                 schema.put("format", "date-time");
                 return schema;
             case "LONG":
+            case "INTEGER":
                 schema.put("type", "integer");
                 return schema;
             case "FLOAT":

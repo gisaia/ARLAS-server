@@ -84,6 +84,7 @@ public abstract class StacRESTService {
     public static final GeoJsonReader reader = new GeoJsonReader();
     public static final ObjectWriter writer = objectMapper.writer();
     public final String baseUri;
+    public final String FILTER_CRS_CRS84 = "http://www.opengis.net/def/crs/OGC/1.3/CRS84";
 
     public StacRESTService(STACConfiguration configuration,
                            int arlasRestCacheTimeout,
@@ -111,6 +112,12 @@ public abstract class StacRESTService {
     protected StacLink getParentLink(UriInfo uriInfo) {
         return new StacLink().rel("parent").type(MediaType.APPLICATION_JSON)
                 .href(fromUri(new UriInfoWrapper(uriInfo,baseUri).getBaseUri()).path(StacRESTService.class).build().toString());
+    }
+
+    protected StacLink getQueryableLink(UriInfo uriInfo, String collection) {
+        return new StacLink().rel("http://www.opengis.net/def/rel/ogc/1.0/queryables").type("application/schema+json\"")
+                .href(fromUri(new UriInfoWrapper(uriInfo,baseUri).getBaseUri()).path(StacRESTService.class)
+                        .path("/collections/" + collection +"/queryables").build().toString());
     }
 
     protected StacLink getSelfLink(UriInfo uriInfo) {
@@ -156,6 +163,7 @@ public abstract class StacRESTService {
         List<StacLink> cLinks = new ArrayList<>();
         cLinks.add(getRootLink(uriInfo));
         cLinks.add(getParentLink(uriInfo));
+        cLinks.add(getQueryableLink(uriInfo,collectionReference.collectionName));
         if(collectionReference.params.licenseUrls != null &&  !collectionReference.params.licenseUrls.isEmpty()){
             collectionReference.params.licenseUrls.forEach(l -> cLinks.add(getRawLink(l, "licence")));
         }
@@ -269,12 +277,25 @@ public abstract class StacRESTService {
                                                                  List<String> filter,
                                                                  UriInfo uriInfo,
                                                                  String method,
-                                                                 boolean isOgc) throws ArlasException {
+                                                                 boolean isOgc, Set<String> allowedQueryables) throws ArlasException {
         Search search = new Search();
         List<String> arlasFilterString = new ArrayList<>();
-        if (Objects.nonNull(body) && Objects.nonNull(body.getFilterLang())) {
-            Filter cql2Filter = toFilterWithBboxCcwCorrection(body.getFilter(),body.getFilterLang());
-            arlasFilterString.addAll(ArlasFilterUtils.cql2toArlasFilterList(cql2Filter, collectionReference.params.isStacModel));
+        if (body != null) {
+            if (body.getFilter() != null && body.getFilterLang() == null) {
+                body.setFilterLang("cql2-text");
+            }
+            if (body.getFilterLang() != null) {
+                Filter cql2Filter = toFilterWithBboxCcwCorrection(
+                        body.getFilter(),
+                        body.getFilterLang()
+                );
+                arlasFilterString.addAll(
+                        ArlasFilterUtils.cql2toArlasFilterList(
+                                cql2Filter,
+                                collectionReference.params.isStacModel, allowedQueryables
+                        )
+                );
+            }
         }
         filter.addAll(arlasFilterString);
         search.filter = ParamsParser.getFilter(collectionReference, filter, null, null, true);
@@ -308,7 +329,6 @@ public abstract class StacRESTService {
         List<StacLink> links = new ArrayList<>();
         links.add(getRootLink(uriInfo));
         links.add(getParentLink(uriInfo));
-
         List<Item> items;
         if(collectionReference.params.isStacModel){
             Hits hits = exploreService.search(request, collectionReference, false, uriInfo, method);

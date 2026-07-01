@@ -27,14 +27,17 @@ import io.arlas.commons.exceptions.ArlasException;
 import io.arlas.commons.exceptions.InvalidParameterException;
 import io.arlas.commons.exceptions.NotFoundException;
 import io.arlas.commons.rest.response.Error;
+import io.arlas.commons.utils.StringUtil;
 import io.arlas.server.core.app.Documentation;
 import io.arlas.server.core.app.STACConfiguration;
 import io.arlas.server.core.model.CollectionReference;
+import io.arlas.server.core.model.enumerations.OperatorEnum;
 import io.arlas.server.core.model.response.CollectionReferenceDescription;
 import io.arlas.server.core.services.CollectionReferenceService;
 import io.arlas.server.core.services.ExploreService;
 import io.arlas.server.core.utils.ColumnFilterUtil;
 import io.arlas.server.stac.model.*;
+import io.arlas.server.stac.model.Collection;
 import io.dropwizard.jersey.params.IntParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -51,10 +54,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.arlas.commons.rest.utils.ServerConstants.*;
 
@@ -66,6 +67,11 @@ public class StacCollectionsRESTService extends StacRESTService {
                                       ExploreService exploreService, String baseUri) {
         super(configuration, arlasRestCacheTimeout, collectionReferenceService, exploreService, baseUri);
     }
+
+    private static final Set<String> RESERVED_QUERY_PARAMS = Set.of(
+            "limit", "bbox", "datetime", "filter", "filter-lang", "filter-crs",
+            "sortby", "from", "after", "before"
+    );
 
     @Timed
     @Path("/collections")
@@ -197,22 +203,11 @@ public class StacCollectionsRESTService extends StacRESTService {
                                        @Parameter(hidden = true)
                                        @HeaderParam(value = ARLAS_ORGANISATION) String organisations
     ) throws ArlasException {
-        CollectionReference collectionReference = exploreService.getCollectionReferenceService()
-                .getCollectionReference(collectionId, Optional.ofNullable(organisations));
-        if (collectionReference == null) {
-            throw new NotFoundException(collectionId);
-        }
-        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), Collections.singletonList(collectionReference));
-        CollectionReferenceDescription collectionReferenceDescription = exploreService.describeCollection(collectionReference, Optional.ofNullable(columnFilter));
-        if (collectionReferenceDescription == null) {
-            throw new NotFoundException("No collection description found for " + collectionId);
-        }
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode config = mapper.valueToTree(collectionReferenceDescription);
-        QueryablesBuilder builder = new QueryablesBuilder();
-        ObjectNode queryables = builder.build(baseUri, config);
+        ObjectNode queryables = getQueryables(collectionId, columnFilter, organisations);
         return cache(Response.ok(queryables),0);
     }
+
+
 
     @Timed
     @Path("/collections/{collectionId}/items")
@@ -288,6 +283,7 @@ public class StacCollectionsRESTService extends StacRESTService {
                                         If a feature has multiple temporal properties, it is the decision of the server whether only a single temporal property is used to determine the extent or all relevant temporal properties.""",
                                         style = ParameterStyle.FORM)
                                 @QueryParam(value = "datetime") String datetime,
+
                                 @Parameter(name = "filter", required = false, description = "**Extension:** Filter  A CQL filter expression for filtering items.")
                                     @QueryParam(value = "filter") String filter,
 
@@ -301,6 +297,18 @@ public class StacCollectionsRESTService extends StacRESTService {
                                         schema = @Schema(type = "string", allowableValues = {"cql2-text", "cql2-json"}, defaultValue = "cql2-text")
                                 )
                                     @QueryParam(value = "filter-lang") String filterLang,
+
+                                @Parameter(
+                                        name = "filter-crs",
+                                        required = false,
+                                        description = """
+                                            **Extension:** Filter  The CRS used by spatial literals in the `filter` value.
+                                            Only the following value is supported: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84'.""",
+                                        style = ParameterStyle.FORM,
+                                        schema = @Schema(type = "string", allowableValues = { FILTER_CRS_CRS84 },example = FILTER_CRS_CRS84
+                                        )
+                                )
+                                    @QueryParam(value = "filter-crs") String filterCrs,
 
                                 // --------------------------------------------------------
                                 // -----------------------  PAGE   -----------------------
@@ -332,14 +340,29 @@ public class StacCollectionsRESTService extends StacRESTService {
                                 @HeaderParam(value = ARLAS_ORGANISATION) String organisations
                                 ) throws ArlasException {
 
+        if (filterCrs != null && !FILTER_CRS_CRS84.equals(filterCrs)) {
+            throw new InvalidParameterException("Invalid value for query parameter 'filter-crs'. Only '" + FILTER_CRS_CRS84 + "' is supported.");
+        }
         CollectionReference collectionReference = collectionReferenceService.getCollectionReference(collectionId, Optional.ofNullable(organisations));
         String dateFilter = getDateFilter(datetime, collectionReference);
         String geoFilter = getGeoFilter(getBboxAsList(bbox), collectionReference);
-
         List<String> f = new ArrayList<>();
         if (dateFilter != null) { f.add(dateFilter); }
         if (geoFilter != null) { f.add(geoFilter); }
 
+        // Dynamic queryable filter
+        // Retrieve all queryables field
+        ObjectNode queryables = getQueryables(collectionId, columnFilter, organisations);
+        Set<String> allowedQueryables = QueryablesBuilder.getAllowedQueryables(queryables);
+        // Retrieve the queryable from url according allowedQueryable
+        Map<String, List<String>> dynamicQueryables = extractDynamicQueryables(uriInfo, allowedQueryables);
+        // Loop on param and add filter
+        for (Map.Entry<String, List<String>> entry : dynamicQueryables.entrySet()) {
+            String queryable = entry.getKey();
+            List<String> values = entry.getValue();
+            f.add(StringUtil.concat(queryable, ":", OperatorEnum.eq.name(), ":",
+                    String.join(",", values)));
+        }
         SearchBody searchBody = new SearchBody()
                 .limit(limit.get())
                 .from(from.get())
@@ -347,10 +370,13 @@ public class StacCollectionsRESTService extends StacRESTService {
                 .after(after)
                 .before(before)
                 .filter(filter)
+                .filterCrs(filterCrs)
                 .filterLang(filterLang);
 
         return cache(Response.ok(getStacFeatureCollection(collectionReference, partitionFilter, Optional.ofNullable(columnFilter),
-                searchBody, f, uriInfo, "GET", true)), 0);
+                searchBody, f, uriInfo, "GET", true, allowedQueryables))
+                .header("Link",
+                "<" + baseUri + "stac/collections/" + collectionId + "/queryables>; rel=\"http://www.opengis.net/def/rel/ogc/1.0/queryables\""), 0);
     }
 
     @Timed
@@ -389,7 +415,7 @@ public class StacCollectionsRESTService extends StacRESTService {
 
         StacFeatureCollection features = getStacFeatureCollection(collectionReference, partitionFilter, Optional.ofNullable(columnFilter), null,
                 java.util.Collections.singletonList(getIdFilter(featureId, collectionReference)),
-                uriInfo, "GET", true);
+                uriInfo, "GET", true, Set.of());
 
         if (features.getFeatures().size() > 0) {
             Item response = features.getFeatures().get(0);
@@ -397,5 +423,40 @@ public class StacCollectionsRESTService extends StacRESTService {
         } else {
             throw new NotFoundException("Item not found");
         }
+    }
+
+    // Retrieve allowed queryable from url param
+    private Map<String, List<String>> extractDynamicQueryables(UriInfo uriInfo, Set<String> allowedQueryables) throws InvalidParameterException {
+        Map<String, List<String>> dynamicQueryables = new LinkedHashMap<>();
+        for (Map.Entry<String, List<String>> entry : uriInfo.getQueryParameters().entrySet()) {
+            String paramName = entry.getKey();
+            if (RESERVED_QUERY_PARAMS.contains(paramName)) {
+                continue;
+            }
+            if (!allowedQueryables.contains(paramName)) {
+                throw new InvalidParameterException("Unsupported queryable: " + paramName);
+            }
+            dynamicQueryables.put(paramName, new ArrayList<>(entry.getValue()));
+        }
+        return dynamicQueryables;
+    }
+
+    // Build queryable response
+    private ObjectNode getQueryables(String collectionId, String columnFilter, String organisations) throws ArlasException {
+        CollectionReference collectionReference = exploreService.getCollectionReferenceService()
+                .getCollectionReference(collectionId, Optional.ofNullable(organisations));
+        if (collectionReference == null) {
+            throw new NotFoundException(collectionId);
+        }
+        ColumnFilterUtil.assertCollectionsAllowed(Optional.ofNullable(columnFilter), Collections.singletonList(collectionReference));
+        CollectionReferenceDescription collectionReferenceDescription = exploreService.describeCollection(collectionReference, Optional.ofNullable(columnFilter));
+        if (collectionReferenceDescription == null) {
+            throw new NotFoundException("No collection description found for " + collectionId);
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode config = mapper.valueToTree(collectionReferenceDescription);
+        QueryablesBuilder builder = new QueryablesBuilder();
+        ObjectNode queryables = builder.build(baseUri, config);
+        return queryables;
     }
 }

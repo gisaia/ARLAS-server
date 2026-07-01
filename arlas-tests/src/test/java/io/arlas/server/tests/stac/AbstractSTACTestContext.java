@@ -69,7 +69,9 @@ public class AbstractSTACTestContext extends AbstractTestContext {
             "http://www.opengis.net/spec/cql2/1.0/conf/cql2-json",
             "http://www.opengis.net/spec/cql2/1.0/conf/basic-cql2",
             "http://www.opengis.net/spec/cql2/1.0/conf/basic-spatial-functions",
-            "http://www.opengis.net/spec/cql2/1.0/conf/basic-spatial-functions-plus"
+            "http://www.opengis.net/spec/cql2/1.0/conf/basic-spatial-functions-plus",
+            "http://www.opengis.net/spec/ogcapi-features-3/1.0/conf/queryables",
+            "http://www.opengis.net/spec/ogcapi-features-3/1.0/conf/queryables-query-parameters"
     );
 
     @Override
@@ -174,7 +176,7 @@ public class AbstractSTACTestContext extends AbstractTestContext {
     ) throws IOException, InvalidParameterException, ParseException {
         return switch (target.mode()) {
             case GET -> get(
-                    requestFactory.buildGetParams(scenario, lang),
+                    requestFactory.buildGetParams(scenario, lang, target.typeOfGet()),
                     scenario.partitionFilter(),
                     scenario.columnFilter(),
                     target.typeOfGet()

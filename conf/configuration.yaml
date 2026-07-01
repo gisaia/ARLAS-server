@@ -167,6 +167,8 @@ arlas_stac:
     - http://www.opengis.net/spec/cql2/1.0/conf/basic-cql2
     - http://www.opengis.net/spec/cql2/1.0/conf/basic-spatial-functions
     - http://www.opengis.net/spec/cql2/1.0/conf/basic-spatial-functions-plus
+    - http://www.opengis.net/spec/ogcapi-features-3/1.0/conf/queryables
+    - http://www.opengis.net/spec/ogcapi-features-3/1.0/conf/queryables-query-parameters
 
 
 arlas_cors:
