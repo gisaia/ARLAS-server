@@ -102,6 +102,7 @@ ARLAS supports the following operators in CQL2 filters:
 - `=<`.
 - `between`.
 - `like`.
+- `in`.
 - `st_within`.
 - `st_intersect`.
 - `bbox`.

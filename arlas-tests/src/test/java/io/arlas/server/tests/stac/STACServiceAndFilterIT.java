@@ -50,6 +50,13 @@ public class STACServiceAndFilterIT extends AbstractSTACServiceTest {
         return Stream.of(
                 scenarioCases(StacFilterScenario.and(
                         List.of(
+                                new FilterClause("params.job", FilterOperator.IN, List.of("Actor","Dancer")),
+                                new FilterClause("params.age", FilterOperator.IN, List.of(0,13600)),
+                                new FilterClause("params.startdate", FilterOperator.LTE, 1000000)),
+                        600, 3
+                )),
+                scenarioCases(StacFilterScenario.and(
+                        List.of(
                                 new FilterClause("params.job", FilterOperator.EQ, "Actor"),
                                 new FilterClause("params.age", FilterOperator.EQ, 0),
                                 new FilterClause("params.startdate", FilterOperator.EQ, 1000000)),
