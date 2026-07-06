@@ -33,7 +33,9 @@ public class Hits {
     @JsonProperty(value = "collection", required = true)
     public String collection;
     public List<ArlasHit> hits;
+    @JsonProperty(value = "nbhits", required = true)
     public long nbhits;
+    @JsonProperty(value = "totalnb", required = true)
     public long totalnb;
     public HashMap<String, Link> links;
 
