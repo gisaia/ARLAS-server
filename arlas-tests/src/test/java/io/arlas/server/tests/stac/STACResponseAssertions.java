@@ -117,6 +117,17 @@ public class STACResponseAssertions {
             case LT -> lessThanValue(value);
             case LTE -> lessThanOrEqualToValue(value);
             case LIKE -> containsString(String.valueOf(value));
+            case IN -> {
+                if (value instanceof List<?> list) {
+                    @SuppressWarnings("unchecked")
+                    Matcher<Object>[] matchers = list.stream()
+                            .map(org.hamcrest.Matchers::equalTo)
+                            .toArray(Matcher[]::new);
+                    yield anyOf(matchers);
+                } else {
+                    yield equalTo(true);
+                }
+            }
             case ST_INTERSECTS ->  equalTo(true);
             case ST_WITHIN -> equalTo(true);
             case BBOX ->  equalTo(true);

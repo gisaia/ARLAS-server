@@ -49,8 +49,11 @@ import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Polygon;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Utility methods for parsing CQL2 filters and applying a targeted post-processing step
@@ -91,9 +94,9 @@ public final class CQL2FilterUtils {
         Filter cql2_filter = null;
         if(lang.equals(SearchBody.CQL2_TEXT_STRING)){
             try {
-                cql2_filter = CQL2.toFilter(cql2);
+                cql2_filter = CQL2.toFilter(rewriteInToOr(cql2));
             } catch (Exception e) {
-                throw new InvalidParameterException("Invalid CQL2-JSON filter: " + e.getMessage());
+                throw new InvalidParameterException("Invalid CQL2-TEXT filter: " + e.getMessage());
             }
         }else if(lang.equals(SearchBody.CQL2_JSON_STRING)){
             try {
@@ -357,5 +360,25 @@ public final class CQL2FilterUtils {
             result = Math.max(result, value);
         }
         return result;
+    }
+
+    //Geotools CQL2 parser does not support IN operator, so we rewrite it to OR operator before parsing
+    private static String rewriteInToOr(String cql2Input) {
+        // Captures the attribute, detects the case-insensitive "IN", and captures the list within parentheses
+        Pattern pattern = Pattern.compile("([\\w\\.]+)\\s+(?i)IN\\s*\\(([^)]+)\\)");
+        Matcher matcher = pattern.matcher(cql2Input);
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            String attribute = matcher.group(1);
+            String[] values = matcher.group(2).split(",\\s*");
+            // Transform to (attr = 'val1' OR attr = 'val2')
+            String orClause = Arrays.stream(values)
+                    .map(val -> attribute + " = " + val.trim())
+                    .collect(Collectors.joining(" OR ", "(", ")"));
+
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(orClause));
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
     }
 }

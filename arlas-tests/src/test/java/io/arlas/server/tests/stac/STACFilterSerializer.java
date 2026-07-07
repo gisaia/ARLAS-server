@@ -82,6 +82,10 @@ public class STACFilterSerializer {
                         toCqlTextLiteral(between.upper())
                 );
             }
+            case IN -> "%s IN %s".formatted(
+                        clause.property(),
+                        toCqlListLiteral(clause.value())
+                );
             case ST_INTERSECTS -> "S_INTERSECTS(%s,%s)".formatted(
                     clause.property(),
                     toCqlSpatialArgument(clause.value())
@@ -115,6 +119,20 @@ public class STACFilterSerializer {
                         clause.property(),
                         toJsonLiteral(between.lower()),
                         toJsonLiteral(between.upper())
+                ).replace("\n", "").trim();
+            }
+            case IN -> {
+                if (!(clause.value() instanceof List<?> values)) {
+                    throw new IllegalArgumentException("IN operator expects a list value");
+                }
+                String jsonArray = values.stream()
+                        .map(this::toJsonLiteral)
+                        .collect(java.util.stream.Collectors.joining(",", "[", "]"));
+                yield """
+                        {"op":"in","args":[{"property":"%s"},%s]}
+                      """.formatted(
+                        clause.property(),
+                        jsonArray
                 ).replace("\n", "").trim();
             }
             case ST_INTERSECTS -> """
@@ -165,6 +183,16 @@ public class STACFilterSerializer {
     private String toCqlTextLiteral(Object value) {
         if (value instanceof String) {
             return "'" + escapeCqlText(value) + "'";
+        }
+        return escapeCqlText(value);
+    }
+
+    private String toCqlListLiteral(Object value) {
+        if (value instanceof List<?> list) {
+            return list.stream()
+                    .map(this::escapeCqlText)
+                    .map(v -> "'" + v + "'")
+                    .collect(java.util.stream.Collectors.joining(", ", "(", ")"));
         }
         return escapeCqlText(value);
     }

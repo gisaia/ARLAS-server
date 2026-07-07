@@ -62,10 +62,41 @@ public class ArlasFilterUtils {
             }
             return filters;
         }
-
-        // OR / NOT are not supported in this conversion (would require translation to ARLAS syntax supporting boolean logic)
-        if (filter instanceof Or) {
-            throw new InvalidParameterException("CQL2 OR filters are not supported by ARLAS STAC filter");
+        // OR  are  supported only for PropertyIsEqualTo on the same field, and will be converted to a single ARLAS filter with multiple values
+        if (filter instanceof Or or) {
+            List<Filter> children = or.getChildren();
+            if (children == null || children.isEmpty()) {
+                throw new InvalidParameterException("CQL2 OR filters are not supported by ARLAS STAC filter");
+            }
+            Expression referenceExpression = null;
+            List<String> values = new ArrayList<>();
+            for (Filter child : children) {
+                if (!(child instanceof BinaryComparisonOperator cmp) || !(child instanceof PropertyIsEqualTo)) {
+                    throw new InvalidParameterException(
+                            "CQL2 OR filters are only supported when all sub-expressions are PropertyIsEqualTo on the same field");
+                }
+                Expression expr1 = cmp.getExpression1();
+                Expression expr2 = cmp.getExpression2();
+                if (referenceExpression == null) {
+                    referenceExpression = expr1;
+                } else if (!referenceExpression.equals(expr1)) {
+                    throw new InvalidParameterException(
+                            "CQL2 OR filters are only supported when all sub-expressions target the same field");
+                }
+                if (!(expr2 instanceof Literal literal)) {
+                    throw new InvalidParameterException(
+                            "CQL2 OR filters are only supported when all sub-expressions compare against a literal");
+                }
+                Object literalValue = literal.getValue();
+                values.add(String.valueOf(literalValue));
+            }
+            String joinedValues = String.join(",", values);
+            String property = null;
+            if (referenceExpression instanceof PropertyName p) {
+                property = normalizeProperty(p.getPropertyName(), isStacModel, allowedQueryables);
+            }
+            filters.add(StringUtil.concat(property, ":", "eq", ":", joinedValues));
+            return filters;
         }
         if (filter instanceof Not not) {
             Filter child = not.getFilter();

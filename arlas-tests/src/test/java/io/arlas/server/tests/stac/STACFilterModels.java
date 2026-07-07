@@ -44,7 +44,8 @@ public final class STACFilterModels {
         LIKE("like"),
         ST_INTERSECTS("s_intersects"),
         ST_WITHIN("s_within"),
-        BBOX("bbox");
+        BBOX("bbox"),
+        IN("in");
         private final String symbol;
 
         FilterOperator(String symbol) {

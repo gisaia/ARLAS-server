@@ -28,6 +28,8 @@ import io.arlas.server.tests.stac.STACFilterModels.RequestTarget;
 import io.arlas.server.tests.stac.STACFilterModels.FilterLang;
 import io.arlas.server.tests.stac.STACFilterModels.FilterOperator;
 import io.arlas.server.tests.stac.STACFilterModels.BetweenValue;
+
+import java.util.List;
 import java.util.stream.Stream;
 
 public class STACServiceBasicFilterIT extends AbstractSTACServiceTest {
@@ -55,7 +57,9 @@ public class STACServiceBasicFilterIT extends AbstractSTACServiceTest {
                 scenarioCases(StacFilterScenario.simple("params.job", FilterOperator.LT, "Actor", 60, 0)),
                 scenarioCases(StacFilterScenario.simple("params.job", FilterOperator.LTE, "Actor", 60, 59)),
                 scenarioCases(StacFilterScenario.simple("params.job", FilterOperator.LIKE, "cto", 60, 59)),
-                scenarioCases(StacFilterScenario.simple("params.job", FilterOperator.BETWEEN, new BetweenValue("Architect","Dancer"), 600, 420))
+                scenarioCases(StacFilterScenario.simple("params.job", FilterOperator.BETWEEN, new BetweenValue("Architect","Dancer"), 600, 420)),
+                scenarioCases(StacFilterScenario.simple("params.job", FilterOperator.IN, List.of("Architect", "Dancer"), 600, 120))
+
         ).flatMap(s -> s);
     }
 
@@ -117,7 +121,9 @@ public class STACServiceBasicFilterIT extends AbstractSTACServiceTest {
                 scenarioCases(StacFilterScenario.simple("params.age", FilterOperator.GTE, 13600, 5, 4)),
                 scenarioCases(StacFilterScenario.simple("params.age", FilterOperator.LT, 13600, 600, 591)),
                 scenarioCases(StacFilterScenario.simple("params.age", FilterOperator.LTE, 13600, 600, 595)),
-                scenarioCases(StacFilterScenario.simple("params.age", FilterOperator.BETWEEN, new BetweenValue(10000, 50000), 600, 36))
+                scenarioCases(StacFilterScenario.simple("params.age", FilterOperator.BETWEEN, new BetweenValue(10000, 50000), 600, 36)),
+                scenarioCases(StacFilterScenario.simple("params.age", FilterOperator.IN, List.of(13600, 11900), 600, 8))
+
         ).flatMap(s -> s);
     }
 
