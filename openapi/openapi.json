@@ -12,7 +12,7 @@
       "name" : "Apache 2.0",
       "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version" : "28.0.1-SNAPSHOT"
+    "version" : "29.0.0-rc1"
   },
   "externalDocs" : {
     "description" : "API documentation",
@@ -3369,7 +3369,7 @@
             }
           },
           "404" : {
-            "description" : "The requested URI was not found.",
+            "description" : "Collection not found.",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -3541,6 +3541,33 @@
             "type" : "string"
           }
         }, {
+          "name" : "filter",
+          "in" : "query",
+          "description" : "**Extension:** Filter  A CQL filter expression for filtering items.",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "filter-lang",
+          "in" : "query",
+          "description" : "**Extension:** Filter  The language in which the filter expression is written.\nIf not provided, defaults to 'cql2-text'.\nAllowed values: 'cql2-text', 'cql2-json'\nExample: 'cql2-text', 'cql2-json'",
+          "style" : "form",
+          "schema" : {
+            "type" : "string",
+            "default" : "cql2-text",
+            "enum" : [ "cql2-text", "cql2-json" ]
+          }
+        }, {
+          "name" : "filter-crs",
+          "in" : "query",
+          "description" : "**Extension:** Filter  The CRS used by spatial literals in the `filter` value.\nOnly the following value is supported: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84'.",
+          "style" : "form",
+          "schema" : {
+            "type" : "string",
+            "example" : "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
+            "enum" : [ "http://www.opengis.net/def/crs/OGC/1.3/CRS84" ]
+          }
+        }, {
           "name" : "sortby",
           "in" : "query",
           "description" : "**Optional Extension:** Sort  An array of property names, prefixed by either \"+\"\nfor ascending or \"-\" for descending. If no prefix is provided, \"+\" is assumed.",
@@ -3622,6 +3649,65 @@
             "description" : "Arlas Server Error.",
             "content" : {
               "application/geo+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              },
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stac/collections/{collectionId}/queryables" : {
+      "get" : {
+        "tags" : [ "stac" ],
+        "summary" : "Describe queryables for the feature collection with id `collectionId`",
+        "description" : "Returns a JSON Schema document describing the queryable properties\nthat may be used in filter expressions for the collection `collectionId`.\nOnly indexed fields are exposed in the schema.\n",
+        "operationId" : "queryable",
+        "parameters" : [ {
+          "name" : "collectionId",
+          "in" : "path",
+          "description" : "Local identifier of a collection",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "A JSON Schema document describing the queryables available\nfor the collection `collectionId`.\n",
+            "content" : {
+              "application/schema+json" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Collection not found.",
+            "content" : {
+              "application/schema+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              },
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "content" : {
+              "application/schema+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/Error"
                 }
@@ -3782,6 +3868,33 @@
             }
           }
         }, {
+          "name" : "filter",
+          "in" : "query",
+          "description" : "**Extension:** Filter  A CQL filter expression for filtering items.",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "filter-lang",
+          "in" : "query",
+          "description" : "                **Extension:** Filter  The language in which the filter expression is written.\n                If not provided, defaults to 'cql2-text'.\n                Allowed values: 'cql2-text', 'cql2-json'\n                Example: 'cql2-text', 'cql2-json'\n",
+          "style" : "form",
+          "schema" : {
+            "type" : "string",
+            "default" : "cql2-text",
+            "enum" : [ "cql2-text", "cql2-json" ]
+          }
+        }, {
+          "name" : "filter-crs",
+          "in" : "query",
+          "description" : "**Extension:** Filter  The CRS used by spatial literals in the `filter` value.\nOnly the following value is supported: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84'.",
+          "style" : "form",
+          "schema" : {
+            "type" : "string",
+            "example" : "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
+            "enum" : [ "http://www.opengis.net/def/crs/OGC/1.3/CRS84" ]
+          }
+        }, {
           "name" : "sortby",
           "in" : "query",
           "description" : "**Optional Extension:** Sort  An array of property names, prefixed by either \"+\" for ascending or \"-\" for descending. If no prefix is provided, \"+\" is assumed.",
@@ -3888,7 +4001,8 @@
                 "$ref" : "#/components/schemas/SearchBodyListSortBy"
               }
             }
-          }
+          },
+          "required" : true
         },
         "responses" : {
           "200" : {
@@ -3902,7 +4016,7 @@
             }
           },
           "400" : {
-            "description" : "Invalid query parameter.",
+            "description" : "Invalid request body or query parameter.",
             "content" : {
               "application/geo+json" : {
                 "schema" : {
@@ -3923,11 +4037,73 @@
           }
         }
       }
+    },
+    "/stac/queryables" : {
+      "get" : {
+        "tags" : [ "stac" ],
+        "summary" : "Describe queryables for the feature collection with id `collectionId`",
+        "description" : "Returns a JSON Schema document describing the queryable properties\nthat may be used in filter expressions for the collection `collectionId`.\nOnly indexed fields are exposed in the schema.\n",
+        "operationId" : "queryable_1",
+        "parameters" : [ {
+          "name" : "collections",
+          "in" : "query",
+          "description" : "Array of Collection IDs to include in the search for items. Only Item objects in one of the provided collections will be searched ",
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "A JSON Schema document describing the queryables available\nfor the collection `collectionId`.\n",
+            "content" : {
+              "application/schema+json" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Collection not found.",
+            "content" : {
+              "application/schema+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              },
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Arlas Server Error.",
+            "content" : {
+              "application/schema+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              },
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
     "schemas" : {
       "Success" : {
+        "required" : [ "message", "status" ],
         "type" : "object",
         "properties" : {
           "status" : {
@@ -3940,6 +4116,7 @@
         }
       },
       "Error" : {
+        "required" : [ "error", "message", "status" ],
         "type" : "object",
         "properties" : {
           "status" : {
@@ -4160,6 +4337,7 @@
         }
       },
       "Expression" : {
+        "required" : [ "field", "op", "value" ],
         "type" : "object",
         "properties" : {
           "field" : {
@@ -4507,6 +4685,7 @@
         }
       },
       "AggregationMetric" : {
+        "required" : [ "field", "type", "value" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -4521,6 +4700,7 @@
         }
       },
       "AggregationResponse" : {
+        "required" : [ "count", "name" ],
         "type" : "object",
         "properties" : {
           "query_time" : {
@@ -4532,13 +4712,6 @@
             "format" : "int64"
           },
           "totalnb" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "count" : {
             "type" : "integer",
             "format" : "int64"
           },
@@ -4581,6 +4754,13 @@
             "additionalProperties" : {
               "type" : "object"
             }
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "count" : {
+            "type" : "integer",
+            "format" : "int64"
           }
         }
       },
@@ -4822,15 +5002,9 @@
         }
       },
       "Aggregation" : {
+        "required" : [ "field", "type" ],
         "type" : "object",
         "properties" : {
-          "type" : {
-            "type" : "string",
-            "enum" : [ "datehistogram", "geohash", "geotile", "histogram", "term", "geohex" ]
-          },
-          "field" : {
-            "type" : "string"
-          },
           "interval" : {
             "$ref" : "#/components/schemas/Interval"
           },
@@ -4872,6 +5046,13 @@
           },
           "fetch_hits" : {
             "$ref" : "#/components/schemas/HitsFetcher"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "datehistogram", "geohash", "geotile", "histogram", "term", "geohex" ]
+          },
+          "field" : {
+            "type" : "string"
           }
         }
       },
@@ -4925,18 +5106,20 @@
         }
       },
       "Interval" : {
+        "required" : [ "value" ],
         "type" : "object",
         "properties" : {
-          "value" : {
-            "type" : "number"
-          },
           "unit" : {
             "type" : "string",
             "enum" : [ "year", "quarter", "month", "week", "day", "hour", "minute", "second" ]
+          },
+          "value" : {
+            "type" : "number"
           }
         }
       },
       "Metric" : {
+        "required" : [ "collect_fct", "collect_field" ],
         "type" : "object",
         "properties" : {
           "collect_field" : {
@@ -4949,11 +5132,9 @@
         }
       },
       "RawGeometry" : {
+        "required" : [ "geometry" ],
         "type" : "object",
         "properties" : {
-          "geometry" : {
-            "type" : "string"
-          },
           "sort" : {
             "type" : "string"
           },
@@ -4965,10 +5146,14 @@
             "items" : {
               "type" : "string"
             }
+          },
+          "geometry" : {
+            "type" : "string"
           }
         }
       },
       "ComputationResponse" : {
+        "required" : [ "field", "metric" ],
         "type" : "object",
         "properties" : {
           "query_time" : {
@@ -4983,23 +5168,24 @@
             "type" : "integer",
             "format" : "int64"
           },
-          "field" : {
-            "type" : "string"
-          },
-          "metric" : {
-            "type" : "string",
-            "enum" : [ "AVG", "MAX", "MIN", "SUM", "CARDINALITY", "SPANNING", "GEOBBOX", "GEOCENTROID" ]
-          },
           "value" : {
             "type" : "number",
             "format" : "double"
           },
           "geometry" : {
             "$ref" : "#/components/schemas/GeoJsonObject"
+          },
+          "field" : {
+            "type" : "string"
+          },
+          "metric" : {
+            "type" : "string",
+            "enum" : [ "AVG", "MAX", "MIN", "SUM", "CARDINALITY", "SPANNING", "GEOBBOX", "GEOCENTROID" ]
           }
         }
       },
       "ComputationRequest" : {
+        "required" : [ "field", "metric" ],
         "type" : "object",
         "properties" : {
           "partitionFilter" : {
@@ -5046,16 +5232,23 @@
         }
       },
       "Hits" : {
+        "required" : [ "collection", "nbhits", "totalnb" ],
         "type" : "object",
         "properties" : {
-          "collection" : {
-            "type" : "string"
-          },
           "hits" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/ArlasHit"
             }
+          },
+          "links" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/Link"
+            }
+          },
+          "collection" : {
+            "type" : "string"
           },
           "nbhits" : {
             "type" : "integer",
@@ -5064,12 +5257,6 @@
           "totalnb" : {
             "type" : "integer",
             "format" : "int64"
-          },
-          "links" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "$ref" : "#/components/schemas/Link"
-            }
           }
         }
       },
@@ -5175,12 +5362,9 @@
         }
       },
       "Page" : {
+        "required" : [ "size" ],
         "type" : "object",
         "properties" : {
-          "size" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
           "from" : {
             "type" : "integer",
             "format" : "int32"
@@ -5193,6 +5377,10 @@
           },
           "before" : {
             "type" : "string"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         }
       },
@@ -5629,6 +5817,10 @@
       "SearchBodyListSortBy" : {
         "type" : "object",
         "properties" : {
+          "filterCrd" : {
+            "type" : "string",
+            "writeOnly" : true
+          },
           "bbox" : {
             "type" : "array",
             "items" : {
@@ -5672,6 +5864,15 @@
             "type" : "string"
           },
           "before" : {
+            "type" : "string"
+          },
+          "filter" : {
+            "type" : "string"
+          },
+          "filter-lang" : {
+            "type" : "string"
+          },
+          "filterCrs" : {
             "type" : "string"
           }
         }

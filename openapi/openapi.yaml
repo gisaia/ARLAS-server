@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 28.0.0
+  version: 29.0.0-rc1
 externalDocs:
   description: API documentation
   url: https://docs.arlas.io/external_docs/ARLAS-server/arlas-api/
@@ -3435,7 +3435,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Collection"
         "404":
-          description: The requested URI was not found.
+          description: Collection not found.
           content:
             application/json:
               schema:
@@ -3596,6 +3596,37 @@ paths:
         style: form
         schema:
           type: string
+      - name: filter
+        in: query
+        description: '**Extension:** Filter  A CQL filter expression for filtering
+          items.'
+        schema:
+          type: string
+      - name: filter-lang
+        in: query
+        description: |-
+          **Extension:** Filter  The language in which the filter expression is written.
+          If not provided, defaults to 'cql2-text'.
+          Allowed values: 'cql2-text', 'cql2-json'
+          Example: 'cql2-text', 'cql2-json'
+        style: form
+        schema:
+          type: string
+          default: cql2-text
+          enum:
+          - cql2-text
+          - cql2-json
+      - name: filter-crs
+        in: query
+        description: |-
+          **Extension:** Filter  The CRS used by spatial literals in the `filter` value.
+          Only the following value is supported: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84'.
+        style: form
+        schema:
+          type: string
+          example: http://www.opengis.net/def/crs/OGC/1.3/CRS84
+          enum:
+          - http://www.opengis.net/def/crs/OGC/1.3/CRS84
       - name: sortby
         in: query
         description: |-
@@ -3676,6 +3707,50 @@ paths:
           description: Arlas Server Error.
           content:
             application/geo+json:
+              schema:
+                $ref: "#/components/schemas/Error"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /stac/collections/{collectionId}/queryables:
+    get:
+      tags:
+      - stac
+      summary: Describe queryables for the feature collection with id `collectionId`
+      description: |
+        Returns a JSON Schema document describing the queryable properties
+        that may be used in filter expressions for the collection `collectionId`.
+        Only indexed fields are exposed in the schema.
+      operationId: queryable
+      parameters:
+      - name: collectionId
+        in: path
+        description: Local identifier of a collection
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: |
+            A JSON Schema document describing the queryables available
+            for the collection `collectionId`.
+          content:
+            application/schema+json:
+              schema:
+                type: object
+        "404":
+          description: Collection not found.
+          content:
+            application/schema+json:
+              schema:
+                $ref: "#/components/schemas/Error"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Arlas Server Error.
+          content:
+            application/schema+json:
               schema:
                 $ref: "#/components/schemas/Error"
             application/json:
@@ -3827,6 +3902,37 @@ paths:
           type: array
           items:
             type: string
+      - name: filter
+        in: query
+        description: '**Extension:** Filter  A CQL filter expression for filtering
+          items.'
+        schema:
+          type: string
+      - name: filter-lang
+        in: query
+        description: |2
+                          **Extension:** Filter  The language in which the filter expression is written.
+                          If not provided, defaults to 'cql2-text'.
+                          Allowed values: 'cql2-text', 'cql2-json'
+                          Example: 'cql2-text', 'cql2-json'
+        style: form
+        schema:
+          type: string
+          default: cql2-text
+          enum:
+          - cql2-text
+          - cql2-json
+      - name: filter-crs
+        in: query
+        description: |-
+          **Extension:** Filter  The CRS used by spatial literals in the `filter` value.
+          Only the following value is supported: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84'.
+        style: form
+        schema:
+          type: string
+          example: http://www.opengis.net/def/crs/OGC/1.3/CRS84
+          enum:
+          - http://www.opengis.net/def/crs/OGC/1.3/CRS84
       - name: sortby
         in: query
         description: "**Optional Extension:** Sort  An array of property names, prefixed\
@@ -3916,6 +4022,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/SearchBodyListSortBy"
+        required: true
       responses:
         "200":
           description: A feature collection.
@@ -3924,7 +4031,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/StacFeatureCollection"
         "400":
-          description: Invalid query parameter.
+          description: Invalid request body or query parameter.
           content:
             application/geo+json:
               schema:
@@ -3935,9 +4042,58 @@ paths:
             application/geo+json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /stac/queryables:
+    get:
+      tags:
+      - stac
+      summary: Describe queryables for the feature collection with id `collectionId`
+      description: |
+        Returns a JSON Schema document describing the queryable properties
+        that may be used in filter expressions for the collection `collectionId`.
+        Only indexed fields are exposed in the schema.
+      operationId: queryable_1
+      parameters:
+      - name: collections
+        in: query
+        description: 'Array of Collection IDs to include in the search for items.
+          Only Item objects in one of the provided collections will be searched '
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: |
+            A JSON Schema document describing the queryables available
+            for the collection `collectionId`.
+          content:
+            application/schema+json:
+              schema:
+                type: object
+        "404":
+          description: Collection not found.
+          content:
+            application/schema+json:
+              schema:
+                $ref: "#/components/schemas/Error"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Arlas Server Error.
+          content:
+            application/schema+json:
+              schema:
+                $ref: "#/components/schemas/Error"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     Success:
+      required:
+      - message
+      - status
       type: object
       properties:
         status:
@@ -3946,6 +4102,10 @@ components:
         message:
           type: string
     Error:
+      required:
+      - error
+      - message
+      - status
       type: object
       properties:
         status:
@@ -4105,6 +4265,10 @@ components:
         coverage_centroid:
           type: string
     Expression:
+      required:
+      - field
+      - op
+      - value
       type: object
       properties:
         field:
@@ -4347,6 +4511,10 @@ components:
           items:
             type: string
     AggregationMetric:
+      required:
+      - field
+      - type
+      - value
       type: object
       properties:
         type:
@@ -4356,6 +4524,9 @@ components:
         value:
           type: object
     AggregationResponse:
+      required:
+      - count
+      - name
       type: object
       properties:
         query_time:
@@ -4365,11 +4536,6 @@ components:
           type: integer
           format: int64
         totalnb:
-          type: integer
-          format: int64
-        name:
-          type: string
-        count:
           type: integer
           format: int64
         sumotherdoccounts:
@@ -4399,6 +4565,11 @@ components:
           type: object
           additionalProperties:
             type: object
+        name:
+          type: string
+        count:
+          type: integer
+          format: int64
     Crs:
       type: object
       properties:
@@ -4556,19 +4727,11 @@ components:
         is_raw:
           type: boolean
     Aggregation:
+      required:
+      - field
+      - type
       type: object
       properties:
-        type:
-          type: string
-          enum:
-          - datehistogram
-          - geohash
-          - geotile
-          - histogram
-          - term
-          - geohex
-        field:
-          type: string
         interval:
           $ref: "#/components/schemas/Interval"
         format:
@@ -4609,6 +4772,17 @@ components:
             - GEOHASH_CENTER
         fetch_hits:
           $ref: "#/components/schemas/HitsFetcher"
+        type:
+          type: string
+          enum:
+          - datehistogram
+          - geohash
+          - geotile
+          - histogram
+          - term
+          - geohex
+        field:
+          type: string
     AggregationsRequest:
       type: object
       properties:
@@ -4642,10 +4816,10 @@ components:
           items:
             type: string
     Interval:
+      required:
+      - value
       type: object
       properties:
-        value:
-          type: number
         unit:
           type: string
           enum:
@@ -4657,7 +4831,12 @@ components:
           - hour
           - minute
           - second
+        value:
+          type: number
     Metric:
+      required:
+      - collect_fct
+      - collect_field
       type: object
       properties:
         collect_field:
@@ -4673,10 +4852,10 @@ components:
           - GEOCENTROID
           - GEOBBOX
     RawGeometry:
+      required:
+      - geometry
       type: object
       properties:
-        geometry:
-          type: string
         sort:
           type: string
         signedSort:
@@ -4685,7 +4864,12 @@ components:
           type: array
           items:
             type: string
+        geometry:
+          type: string
     ComputationResponse:
+      required:
+      - field
+      - metric
       type: object
       properties:
         query_time:
@@ -4697,6 +4881,11 @@ components:
         totalnb:
           type: integer
           format: int64
+        value:
+          type: number
+          format: double
+        geometry:
+          $ref: "#/components/schemas/GeoJsonObject"
         field:
           type: string
         metric:
@@ -4710,12 +4899,10 @@ components:
           - SPANNING
           - GEOBBOX
           - GEOCENTROID
-        value:
-          type: number
-          format: double
-        geometry:
-          $ref: "#/components/schemas/GeoJsonObject"
     ComputationRequest:
+      required:
+      - field
+      - metric
       type: object
       properties:
         partitionFilter:
@@ -4754,24 +4941,28 @@ components:
         geometry:
           $ref: "#/components/schemas/GeoJsonObject"
     Hits:
+      required:
+      - collection
+      - nbhits
+      - totalnb
       type: object
       properties:
-        collection:
-          type: string
         hits:
           type: array
           items:
             $ref: "#/components/schemas/ArlasHit"
+        links:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Link"
+        collection:
+          type: string
         nbhits:
           type: integer
           format: int64
         totalnb:
           type: integer
           format: int64
-        links:
-          type: object
-          additionalProperties:
-            $ref: "#/components/schemas/Link"
     Link:
       required:
       - href
@@ -4894,11 +5085,10 @@ components:
         indexed:
           type: boolean
     Page:
+      required:
+      - size
       type: object
       properties:
-        size:
-          type: integer
-          format: int32
         from:
           type: integer
           format: int32
@@ -4908,6 +5098,9 @@ components:
           type: string
         before:
           type: string
+        size:
+          type: integer
+          format: int32
     Projection:
       type: object
       properties:
@@ -5342,6 +5535,9 @@ components:
     SearchBodyListSortBy:
       type: object
       properties:
+        filterCrd:
+          type: string
+          writeOnly: true
         bbox:
           type: array
           items:
@@ -5372,6 +5568,12 @@ components:
         after:
           type: string
         before:
+          type: string
+        filter:
+          type: string
+        filter-lang:
+          type: string
+        filterCrs:
           type: string
     SortBy:
       required:
