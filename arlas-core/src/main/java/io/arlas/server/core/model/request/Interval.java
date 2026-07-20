@@ -19,9 +19,11 @@
 
 package io.arlas.server.core.model.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.server.core.model.enumerations.UnitEnum;
 
 public class Interval {
+    @JsonProperty(value = "value", required = true)
     public Number value;
     public UnitEnum unit;
 

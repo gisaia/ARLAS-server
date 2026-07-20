@@ -23,12 +23,15 @@ package io.arlas.server.core.model.response;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AggregationResponse extends OperationInfo {
+    @JsonProperty(value = "name", required = true)
     public String name;
+    @JsonProperty(value = "count", required = true)
     public Long count;
     public Long sumotherdoccounts;
     public Object key;

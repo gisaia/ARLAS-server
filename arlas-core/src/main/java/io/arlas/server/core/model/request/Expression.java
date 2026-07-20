@@ -19,6 +19,7 @@
 
 package io.arlas.server.core.model.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.arlas.server.core.model.enumerations.OperatorEnum;
 
 import java.io.Serializable;
@@ -26,8 +27,13 @@ import java.io.Serializable;
 public class Expression implements Serializable {
     private static final long serialVersionUID = 7652642461292991964L;
 
+    @JsonProperty(value = "field", required = true)
     public String field;
+
+    @JsonProperty(value = "op", required = true)
     public OperatorEnum op;
+
+    @JsonProperty(value = "value", required = true)
     public String value;
 
     public Expression() {
