@@ -78,7 +78,7 @@
         <!-- JAXB RUNTIME -->
         <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
         <!-- JACKSON CORE -->
-        <jackson.core.version>2.21.4</jackson.core.version>
+        <jackson.core.version>2.21.5</jackson.core.version>
     </properties>
     <dependencies>
         <dependency>
