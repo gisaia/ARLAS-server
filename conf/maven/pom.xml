@@ -243,7 +243,7 @@
   <properties>
     <swagger-core-version>2.2.20</swagger-core-version>
     <jersey-version>3.1.11</jersey-version>
-    <jackson-version>2.21.1</jackson-version>
+    <jackson-version>2.21.4</jackson-version>
     <jackson-annotations-version>2.21</jackson-annotations-version>
     <junit-version>4.13.2</junit-version>
   </properties>
