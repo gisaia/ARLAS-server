@@ -58,6 +58,12 @@
             </goals>
             <configuration>
               <filters>
+                  <filter>
+                      <artifact>com.hazelcast:hazelcast</artifact>
+                      <excludes>
+                          <exclude>META-INF/maven/com.fasterxml.jackson.core/**</exclude>
+                      </excludes>
+                  </filter>
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
