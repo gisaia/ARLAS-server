@@ -72,7 +72,7 @@
         <!-- MEDIA JAXB -->
         <jersey-media-jaxb.version>3.1.11</jersey-media-jaxb.version>
         <!-- JETTY SERVER  -->
-        <jetty-server.version>12.1.8</jetty-server.version>
+        <jetty-server.version>12.1.10</jetty-server.version>
         <!-- JAKARTA XML BIND -->
         <jakarta.xml.bind-api.version>4.0.5</jakarta.xml.bind-api.version>
         <!-- JAXB RUNTIME -->
@@ -103,6 +103,7 @@
                 <version>${jackson.core.version}</version>
             </dependency>
             <!-- TO FIX CVE-2026-2332  -->
+            <!-- TO FIX CVE-2026-10050 -->
             <!-- TO NOT MIX JETTY VERSION  -->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
