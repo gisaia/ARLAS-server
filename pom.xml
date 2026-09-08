@@ -49,7 +49,7 @@
         <!-- CACHE-->
         <hazelcast.version>5.6.0</hazelcast.version>
         <!-- ELASTICSEARCH-->
-        <elastic.version>9.3.4</elastic.version>
+        <elastic.version>9.3.9</elastic.version>
         <elastic-rest-client.version>9.3.0</elastic-rest-client.version>
         <!-- GEO-->
         <geotools.version>34.0</geotools.version>
@@ -81,7 +81,7 @@
         <!-- JACKSON CORE -->
         <jackson.core.version>2.21.4</jackson.core.version>
         <!-- TOOLS JACKSON CORE -->
-        <toolsjackson.core.version>3.1.1 </toolsjackson.core.version>
+        <toolsjackson.core.version>3.1.4</toolsjackson.core.version>
     </properties>
     <dependencies>
         <dependency>
@@ -119,6 +119,11 @@
             <dependency>
                 <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
+                <version>${toolsjackson.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
                 <version>${toolsjackson.core.version}</version>
             </dependency>
         </dependencies>
