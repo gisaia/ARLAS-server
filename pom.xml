@@ -49,7 +49,8 @@
         <!-- CACHE-->
         <hazelcast.version>5.6.0</hazelcast.version>
         <!-- ELASTICSEARCH-->
-        <elastic.version>8.13.3</elastic.version>
+        <elastic.version>9.3.4</elastic.version>
+        <elastic-rest-client.version>9.3.0</elastic-rest-client.version>
         <!-- GEO-->
         <geotools.version>34.0</geotools.version>
         <protobuf.version>4.34.1</protobuf.version>
@@ -79,6 +80,8 @@
         <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
         <!-- JACKSON CORE -->
         <jackson.core.version>2.21.4</jackson.core.version>
+        <!-- TOOLS JACKSON CORE -->
+        <toolsjackson.core.version>3.1.1 </toolsjackson.core.version>
     </properties>
     <dependencies>
         <dependency>
@@ -111,6 +114,12 @@
                 <version>${jetty-server.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- TO FIX CVE GHSA-2m67-wjpj-xhg9   -->
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${toolsjackson.core.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -183,6 +192,10 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
+        </repository>
+        <repository>
+            <id>elastic</id>
+            <url>https://artifacts.elastic.co/maven</url>
         </repository>
     </repositories>
     <reporting>
