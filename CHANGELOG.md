@@ -1,5 +1,17 @@
 # Change Log
 
+## [v28.0.1](https://github.com/gisaia/ARLAS-server/tree/v28.0.1) (2026-09-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v29.0.0-rc1...v28.0.1)
+
+## [v29.0.0-rc1](https://github.com/gisaia/ARLAS-server/tree/v29.0.0-rc1) (2026-07-20)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0...v29.0.0-rc1)
+
+**Miscellaneous:**
+
+- Implement STAC Filter Extension [\#1055](https://github.com/gisaia/ARLAS-server/issues/1055) [[API](https://github.com/gisaia/ARLAS-server/labels/API)] [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)] [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
 ## [v28.0.0](https://github.com/gisaia/ARLAS-server/tree/v28.0.0) (2026-05-19)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc10...v28.0.0)
