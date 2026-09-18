@@ -4,6 +4,7 @@ on: push
 
 jobs:
   run-tests-rest:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [REST]
     steps:
@@ -17,6 +18,7 @@ jobs:
         run: scripts/ci/tests-integration-stage.sh --stage=REST
 
   run-tests-rest-aliased:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [REST_ALIASED]
     steps:
@@ -31,6 +33,7 @@ jobs:
 
 
   run-tests-rest-wkt-geometries:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [REST_WKT_GEOMETRIES]
     steps:
@@ -44,6 +47,7 @@ jobs:
         run: scripts/ci/tests-integration-stage.sh --stage=REST_WKT_GEOMETRIES
 
   run-test-wfs:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [WFS]
     steps:
@@ -57,6 +61,7 @@ jobs:
         run: scripts/ci/tests-integration-stage.sh --stage=WFS
 
   run-test-wfs-aliased:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [WFS_ALIASED]
     steps:
@@ -70,6 +75,7 @@ jobs:
         run: scripts/ci/tests-integration-stage.sh --stage=WFS_ALIASED
 
   run-test-csw:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [CSW]
     steps:
@@ -83,6 +89,7 @@ jobs:
         run: scripts/ci/tests-integration-stage.sh --stage=CSW
 
   run-test-csw-aliased:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [CSW_ALIASED]
     steps:
@@ -96,6 +103,7 @@ jobs:
         run: scripts/ci/tests-integration-stage.sh --stage=CSW_ALIASED
 
   run-test-stac-aliased:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [STAC_ALIASED]
     steps:
@@ -109,6 +117,7 @@ jobs:
         run: scripts/ci/tests-integration-stage.sh --stage=STAC_ALIASED
 
   run-test-stac:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [STAC]
     steps:
@@ -122,6 +131,7 @@ jobs:
         run: scripts/ci/tests-integration-stage.sh --stage=STAC
 
   run-test-stac-filter:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [STAC-FILTER]
     steps:
@@ -135,6 +145,7 @@ jobs:
         run: scripts/ci/tests-integration-stage.sh --stage=STAC_FILTER
 
   run-test-stac-filter-eo:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [STAC-FILTER ARLAS EO]
     steps:
@@ -148,6 +159,7 @@ jobs:
         run: scripts/ci/tests-integration-stage.sh --stage=STAC_FILTER_ARLASEO
 
   run-test-stac-eo:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [STAC ARLAS EO]
     steps:
@@ -161,6 +173,7 @@ jobs:
         run: scripts/ci/tests-integration-stage.sh --stage=STAC_ARLASEO
 
   run-test-doc:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [DOC]
     steps:
@@ -174,6 +187,7 @@ jobs:
         run: scripts/ci/tests-integration-stage.sh --stage=DOC
 
   run-test-auth:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     name: Run tests [AUTH]
     steps:
