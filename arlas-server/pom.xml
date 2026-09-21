@@ -21,6 +21,10 @@
       <version>23.0.9-SNAPSHOT</version>
     </dependency>
     <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-opensearch</artifactId>
       <version>23.0.9-SNAPSHOT</version>
@@ -143,6 +147,12 @@
             </goals>
             <configuration>
               <filters>
+                <filter>
+                    <artifact>com.hazelcast:hazelcast</artifact>
+                    <excludes>
+                        <exclude>META-INF/maven/com.fasterxml.jackson.core/**</exclude>
+                    </excludes>
+                </filter>
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>

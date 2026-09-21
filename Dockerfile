@@ -17,7 +17,7 @@ RUN mvn install \
 ###################
 # PACKAGING STAGE #
 ###################
-FROM gisaia/arlas-openjdk-17-distroless:20260325153316
+FROM gisaia/arlas-openjdk-17-dhi:20260720151022
 
 # application placed into /opt/app
 WORKDIR /opt/app
@@ -29,4 +29,4 @@ HEALTHCHECK --interval=5m --timeout=3s \
   CMD curl http://localhost:9999/admin/healthcheck | grep -v "\"healthy\":false" || exit 1
 
 ENV JDK_JAVA_OPTIONS="-Xmx512m -XX:+ExitOnOutOfMemoryError"
-CMD ["arlas-server.jar", "server", "/opt/app/configuration.yaml"]
+CMD ["java", "-jar", "/opt/app/arlas-server.jar", "server", "/opt/app/configuration.yaml"]

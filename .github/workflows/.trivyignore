@@ -73,3 +73,14 @@ CVE-2026-33636
 # Description: https://access.redhat.com/security/cve/cve-2026-4046
 CVE-2026-4046
 
+# Status: Can be ignored
+# Reason: ARLAS-server runs behind reverse proxies / ingress controllers (Nginx, Traefik, Envoy) that validate and normalize HTTP/1.1 chunked extensions. Direct Jetty upgrade to 12.x requires full Dropwizard 5 migration.
+# Description: Eclipse Jetty HTTP Request Smuggling via Chunked Extension Quoted-String Parsing
+CVE-2026-2332
+
+# Status: Can be ignored
+# Reason: ARLAS-server does not use HTTP Digest Authentication. Authentication is strictly token-based (Bearer JWT / Keycloak / Auth0 / IAM). The vulnerability in Jetty's DigestAuthenticator/DigestAuthentication is unreachable.
+# Description: Eclipse Jetty Authentication bypass via ISO-8859-1 lossy character encoding collision in HTTP Digest Authentication
+CVE-2026-10050
+
+

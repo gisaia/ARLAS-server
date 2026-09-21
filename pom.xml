@@ -81,6 +81,10 @@
     <keycloak.version>20.0.5</keycloak.version>
 
     <nv-i18n.version>1.29</nv-i18n.version>
+
+    <!-- JACKSON & COMMONS-IO SECURITY UPDATES -->
+    <jackson.version>2.18.8</jackson.version>
+    <commons-io.version>2.16.1</commons-io.version>
   </properties>
 
   <dependencies>
@@ -91,6 +95,30 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- TO FIX CVE GHSA-72hv-8253-57qq, CVE-2025-52999, CVE-2026-54512 and CVE-2026-54513 -->
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- TO FIX CVE-2024-47554 -->
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons-io.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>2.3.3</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <build>
     <plugins>
       <plugin>

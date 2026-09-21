@@ -119,7 +119,7 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
     public void run(ArlasServerConfiguration configuration, Environment environment) throws Exception {
         
         configuration.check();
-        LOGGER.info("Checked configuration: " + (new ObjectMapper()).writer().writeValueAsString(configuration));
+        LOGGER.info("Checked configuration: " + environment.getObjectMapper().writer().writeValueAsString(configuration));
 
         ColumnFilterUtil.COLUMN_FILTER_REQUIRED = configuration.arlasAuthColumnFilterRequired;
 
