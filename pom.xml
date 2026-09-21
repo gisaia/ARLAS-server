@@ -59,8 +59,8 @@
     <jaxb.version>2.3.8</jaxb.version>
     <jersey-media-jaxb.version>2.41</jersey-media-jaxb.version>
     <activation.version>2.1.2</activation.version>
-    <jackson.dataformat.version>2.15.4</jackson.dataformat.version>
-
+    <!-- JACKSON -->
+    <jackson.version>2.18.8</jackson.version>
     <!-- CACHE-->
     <hazelcast.version>5.3.6</hazelcast.version>
 
@@ -101,6 +101,23 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <!-- TO FIX CVE GHSA-72hv-8253-57qq, CVE-2026-54512 and CVE-2026-54513 -->
+      <dependency>
+          <groupId>com.fasterxml.jackson</groupId>
+          <artifactId>jackson-bom</artifactId>
+          <version>${jackson.version}</version>
+          <type>pom</type>
+          <scope>import</scope>
+      </dependency>
+      <dependency>
+          <groupId>jakarta.xml.bind</groupId>
+          <artifactId>jakarta.xml.bind-api</artifactId>
+          <version>2.3.3</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <build>
     <plugins>
       <plugin>
@@ -158,43 +175,33 @@
             <version>${swagger2markup.version}</version>
           </dependency>
         </dependencies>
-        <configuration>
-          <swaggerInput>${swagger.input}</swaggerInput>
-          <outputDir>${swagger.output}</outputDir>
-          <config>
-            <swagger2markup.markupLanguage>ASCIIDOC</swagger2markup.markupLanguage>
-            <swagger2markup.pathsGroupedBy>TAGS</swagger2markup.pathsGroupedBy>
-            <swagger2markup.extensions.dynamicOverview.contentPath>${project.basedir}/src/docs/asciidoc/extensions/overview</swagger2markup.extensions.dynamicOverview.contentPath>
-            <swagger2markup.extensions.dynamicDefinitions.contentPath>${project.basedir}/src/docs/asciidoc/extensions/definitions</swagger2markup.extensions.dynamicDefinitions.contentPath>
-            <swagger2markup.extensions.dynamicPaths.contentPath>${project.basedir}/src/docs/asciidoc/extensions/paths</swagger2markup.extensions.dynamicPaths.contentPath>
-            <swagger2markup.extensions.dynamicSecurity.contentPath>${project.basedir}src/docs/asciidoc/extensions/security</swagger2markup.extensions.dynamicSecurity.contentPath>
-          </config>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>io.github.swagger2markup</groupId>
-        <artifactId>swagger2markup-maven-plugin</artifactId>
-        <version>${swagger2markup.plugin.version}</version>
-        <dependencies>
-          <dependency>
-            <groupId>io.github.swagger2markup</groupId>
-            <artifactId>swagger2markup-import-files-ext</artifactId>
-            <version>${swagger2markup.extension.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.github.swagger2markup</groupId>
-            <artifactId>swagger2markup</artifactId>
-            <version>${swagger2markup.version}</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <swaggerInput>${swagger.input}</swaggerInput>
-          <outputDir>${swagger.output}</outputDir>
-          <config>
-            <swagger2markup.markupLanguage>MARKDOWN</swagger2markup.markupLanguage>
-          </config>
-        </configuration>
+        <executions>
+          <execution>
+            <id>generate-asciidoc</id>
+            <configuration>
+              <swaggerInput>${swagger.input}</swaggerInput>
+              <outputDir>${swagger.output}</outputDir>
+              <config>
+                <swagger2markup.markupLanguage>ASCIIDOC</swagger2markup.markupLanguage>
+                <swagger2markup.pathsGroupedBy>TAGS</swagger2markup.pathsGroupedBy>
+                <swagger2markup.extensions.dynamicOverview.contentPath>${project.basedir}/src/docs/asciidoc/extensions/overview</swagger2markup.extensions.dynamicOverview.contentPath>
+                <swagger2markup.extensions.dynamicDefinitions.contentPath>${project.basedir}/src/docs/asciidoc/extensions/definitions</swagger2markup.extensions.dynamicDefinitions.contentPath>
+                <swagger2markup.extensions.dynamicPaths.contentPath>${project.basedir}/src/docs/asciidoc/extensions/paths</swagger2markup.extensions.dynamicPaths.contentPath>
+                <swagger2markup.extensions.dynamicSecurity.contentPath>${project.basedir}src/docs/asciidoc/extensions/security</swagger2markup.extensions.dynamicSecurity.contentPath>
+              </config>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generate-markdown</id>
+            <configuration>
+              <swaggerInput>${swagger.input}</swaggerInput>
+              <outputDir>${swagger.output}</outputDir>
+              <config>
+                <swagger2markup.markupLanguage>MARKDOWN</swagger2markup.markupLanguage>
+              </config>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
