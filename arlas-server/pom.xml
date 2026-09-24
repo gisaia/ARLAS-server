@@ -4,21 +4,21 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.arlas</groupId>
   <artifactId>arlas-server</artifactId>
-  <version>23.0.8-security.4</version>
+  <version>23.0.9-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>ARLAS server</name>
 
   <parent>
     <groupId>io.arlas</groupId>
     <artifactId>arlas-server-parent</artifactId>
-    <version>23.0.8-security.4</version>
+    <version>23.0.9-SNAPSHOT</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-rest</artifactId>
-      <version>23.0.8-security.4</version>
+      <version>23.0.9-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -27,7 +27,7 @@
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-opensearch</artifactId>
-      <version>23.0.8-security.4</version>
+      <version>23.0.9-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <artifactId>jakarta.xml.bind-api</artifactId>
@@ -38,22 +38,22 @@
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>ogc-csw</artifactId>
-      <version>23.0.8-security.4</version>
+      <version>23.0.9-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>ogc-wfs</artifactId>
-      <version>23.0.8-security.4</version>
+      <version>23.0.9-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>stac-api</artifactId>
-      <version>23.0.8-security.4</version>
+      <version>23.0.9-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.arlas</groupId>
       <artifactId>arlas-admin</artifactId>
-      <version>23.0.8-security.4</version>
+      <version>23.0.9-SNAPSHOT</version>
     </dependency>
 
     <dependency>
