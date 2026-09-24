@@ -1,5 +1,110 @@
 # Change Log
 
+## [v24.1.9](https://github.com/gisaia/ARLAS-server/tree/v24.1.9) (2026-09-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.1...v24.1.9)
+
+## [v28.0.1](https://github.com/gisaia/ARLAS-server/tree/v28.0.1) (2026-09-11)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v29.0.0-rc1...v28.0.1)
+
+## [v29.0.0-rc1](https://github.com/gisaia/ARLAS-server/tree/v29.0.0-rc1) (2026-07-20)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0...v29.0.0-rc1)
+
+**Miscellaneous:**
+
+- Implement STAC Filter Extension [\#1055](https://github.com/gisaia/ARLAS-server/issues/1055) [[API](https://github.com/gisaia/ARLAS-server/labels/API)] [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)] [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
+
+## [v28.0.0](https://github.com/gisaia/ARLAS-server/tree/v28.0.0) (2026-05-19)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc10...v28.0.0)
+
+**Fixed bugs:**
+
+- STAC missing in arlas server API during release process [\#1022](https://github.com/gisaia/ARLAS-server/issues/1022)
+
+**Miscellaneous:**
+
+- Enhance release.sh and add some github ckeckings [\#265](https://github.com/gisaia/ARLAS-server/issues/265)
+- Bump keycloak to latest version [\#996](https://github.com/gisaia/ARLAS-server/issues/996)
+
+## [v28.0.0-rc10](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc10) (2026-05-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc9...v28.0.0-rc10)
+
+## [v28.0.0-rc9](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc9) (2026-05-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc8...v28.0.0-rc9)
+
+## [v28.0.0-rc8](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc8) (2026-05-07)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc7...v28.0.0-rc8)
+
+## [v28.0.0-rc7](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc7) (2026-04-24)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc4...v28.0.0-rc7)
+
+## [v28.0.0-rc4](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc4) (2026-04-23)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc3...v28.0.0-rc4)
+
+## [v28.0.0-rc3](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc3) (2026-04-23)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc2...v28.0.0-rc3)
+
+## [v28.0.0-rc2](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc2) (2026-04-22)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v28.0.0-rc.1...v28.0.0-rc2)
+
+## [v28.0.0-rc.1](https://github.com/gisaia/ARLAS-server/tree/v28.0.0-rc.1) (2026-04-16)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.3.9...v28.0.0-rc.1)
+
+**New stuff:**
+
+- Add send message on chat when release [\#994](https://github.com/gisaia/ARLAS-server/issues/994)
+
+**Miscellaneous:**
+
+- implement the release script in github actions [\#980](https://github.com/gisaia/ARLAS-server/issues/980)
+
+## [v27.3.9](https://github.com/gisaia/ARLAS-server/tree/v27.3.9) (2026-04-15)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.3.4...v27.3.9)
+
+**Miscellaneous:**
+
+- release.sh: rely on git and docker only [\#318](https://github.com/gisaia/ARLAS-server/issues/318)
+
+## [v27.3.4](https://github.com/gisaia/ARLAS-server/tree/v27.3.4) (2026-04-15)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.3.3...v27.3.4)
+
+## [v27.3.3](https://github.com/gisaia/ARLAS-server/tree/v27.3.3) (2026-04-14)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.3.2...v27.3.3)
+
+## [v27.3.2](https://github.com/gisaia/ARLAS-server/tree/v27.3.2) (2026-04-09)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.3.1...v27.3.2)
+
+## [v27.3.1](https://github.com/gisaia/ARLAS-server/tree/v27.3.1) (2026-04-09)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.0.4...v27.3.1)
+
+## [v27.0.4](https://github.com/gisaia/ARLAS-server/tree/v27.0.4) (2026-03-31)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v26.0.14...v27.0.4)
+
+## [v26.0.14](https://github.com/gisaia/ARLAS-server/tree/v26.0.14) (2026-03-31)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v23.0.8-security.3...v26.0.14)
+
+## [v23.0.8-security.3](https://github.com/gisaia/ARLAS-server/tree/v23.0.8-security.3) (2026-03-31)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v24.1.8...v23.0.8-security.3)
+
 ## [v24.1.8](https://github.com/gisaia/ARLAS-server/tree/v24.1.8) (2026-03-31)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v27.3.0...v24.1.8)
