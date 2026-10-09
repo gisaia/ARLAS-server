@@ -36,7 +36,9 @@ env:
 jobs:
   release:
     runs-on: ubuntu-latest
-
+    permissions:
+      id-token: write
+      contents: write
     steps:
       # ----------------------------------------
       # Checkout & Git setup
@@ -82,9 +84,10 @@ jobs:
         if: ${{ !inputs.skip_api }}
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "22"
           registry-url: "https://registry.npmjs.org"
-
+      - name: Install latest npm version
+        run: npm install -g npm@12.2.0
       # ----------------------------------------
       # Set release version
       # ----------------------------------------
@@ -202,8 +205,6 @@ jobs:
       - name: Publish TypeScript API client to npm
         if: ${{ !inputs.skip_api }}
         working-directory: target/tmp/typescript-fetch/dist
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
         run: |
           cp ${{ github.workspace }}/conf/npm/package-publish.json package.json
           npm version --no-git-tag-version ${{ env.FULL_API_VERSION }}
