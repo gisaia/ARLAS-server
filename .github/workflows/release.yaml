@@ -86,7 +86,7 @@ jobs:
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
-      - name: Install latest npm version
+      - name: Install npm version 12.2.0
         run: npm install -g npm@12.2.0
       # ----------------------------------------
       # Set release version
@@ -208,7 +208,7 @@ jobs:
         run: |
           cp ${{ github.workspace }}/conf/npm/package-publish.json package.json
           npm version --no-git-tag-version ${{ env.FULL_API_VERSION }}
-          npm publish || echo "npm publish failed, continuing..."
+          npm publish || (echo "npm publish failed" && exit 1)
 
       # ----------------------------------------
       # Docker image — tag & push
