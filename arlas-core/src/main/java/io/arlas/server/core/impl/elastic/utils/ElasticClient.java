@@ -238,7 +238,7 @@ public class ElasticClient {
                 AtomicReference<Map> lastMapping = new AtomicReference<>(new HashMap());
                 client.indices()
                         .getMapping(b -> b.index(index))
-                        .result()
+                        .mappings()
                         .forEach((_index, _record) -> {
                             isPattern.set(!_index.equals(index));
                             res.put(_index, toMap(_record.mappings().properties()));
@@ -251,7 +251,7 @@ public class ElasticClient {
             } else {
                 client.indices()
                         .getMapping()
-                        .result()
+                        .mappings()
                         .forEach((_index, _record) -> res.put(_index, toMap(_record.mappings().properties())));
             }
 
@@ -353,10 +353,10 @@ public class ElasticClient {
     public boolean isDateField(String field, String index) throws ArlasException {
         String lastKey = field.substring(field.lastIndexOf(".") + 1);
         GetFieldMappingResponse response = getFieldMapping(index, field);
-        return response.result().keySet()
+        return response.fieldMappings().keySet()
                 .stream()
                 .anyMatch(indexName -> {
-                    TypeFieldMappings data = response.result().get(indexName);
+                    TypeFieldMappings data = response.fieldMappings().get(indexName);
                     return data != null && data.mappings().get(field).mapping().get(lastKey).isDate();
                 });
     }

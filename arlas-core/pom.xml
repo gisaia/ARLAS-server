@@ -47,6 +47,11 @@
             <artifactId>elasticsearch-java</artifactId>
             <version>${elastic.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+            <version>${elastic-rest-client.version}</version>
+        </dependency>
         <!-- ____________________________________________________ -->
         <!-- GEO -->
         <!-- ____________________________________________________ -->

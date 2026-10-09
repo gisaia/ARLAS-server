@@ -187,12 +187,12 @@ public class ElasticFluidSearch extends FluidSearchService {
                     BoolQuery.Builder orBoolQueryBuilder = new BoolQuery.Builder();
                     for (String valueInValues : fieldValues) {
                         CheckParams.checkRangeValidity(valueInValues);
-                        orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(newField, valueInValues, dateFormat).build()._toQuery());
+                        orBoolQueryBuilder = orBoolQueryBuilder.should(getRangeQueryBuilder(newField, valueInValues, dateFormat).build()._toRangeQuery()._toQuery());
                     }
                     ret = ret.filter(orBoolQueryBuilder.build()._toQuery());
                 } else {
                     CheckParams.checkRangeValidity(value);
-                    ret = ret.filter(getRangeQueryBuilder(newField, value, dateFormat).build()._toQuery());
+                    ret = ret.filter(getRangeQueryBuilder(newField, value, dateFormat).build()._toRangeQuery()._toQuery());
                 }
                 break;
             case within:
@@ -243,11 +243,11 @@ public class ElasticFluidSearch extends FluidSearchService {
 
     @FunctionalInterface
     interface Operation {
-        RangeQuery.Builder execute(String field, String value, OperatorEnum operator) throws ArlasException;
+        UntypedRangeQuery.Builder execute(String field, String value, OperatorEnum operator) throws ArlasException;
     }
 
-    private RangeQuery.Builder getCompareQuery(String field, String value, OperatorEnum operator) throws ArlasException {
-        RangeQuery.Builder builder = QueryBuilders.range().field(field);
+    private UntypedRangeQuery.Builder getCompareQuery(String field, String value, OperatorEnum operator) throws ArlasException {
+        UntypedRangeQuery.Builder builder = UntypedRangeQuery.of(b -> b.field(field)).rebuild().field(field);
         return switch (operator) {
             case lte -> builder.lte(JsonData.of(value));
             case gte -> builder.gte(JsonData.of(value));
@@ -261,9 +261,9 @@ public class ElasticFluidSearch extends FluidSearchService {
         if (isDateField(field) && !StringUtil.isNullOrEmpty(dateFormat)) {
             value = ParamsParser.parseDate(value, dateFormat);
         }
-        RangeQuery.Builder rangeQuery = operation.execute(field,value,operator);
+        UntypedRangeQuery.Builder rangeQuery = operation.execute(field,value,operator);
         applyFormatOnRangeQuery(field, value, rangeQuery);
-        ret = ret.filter(rangeQuery.build()._toQuery());
+        ret = ret.filter(rangeQuery.build()._toRangeQuery()._toQuery());
         return ret;
     }
 
@@ -286,14 +286,14 @@ public class ElasticFluidSearch extends FluidSearchService {
     }
 
 
-    public void applyFormatOnRangeQuery(String field, String value, RangeQuery.Builder rangeQuery) throws ArlasException {
+    public void applyFormatOnRangeQuery(String field, String value, UntypedRangeQuery.Builder rangeQuery) throws ArlasException {
         if (field.equals(collectionReference.params.timestampPath)) {
             CheckParams.checkTimestampFormatValidity(value);
             rangeQuery.format(TimestampType.epoch_millis.name());
         }
     }
 
-    protected RangeQuery.Builder getRangeQueryBuilder(String field, String value, String dateFormat) throws ArlasException {
+    protected UntypedRangeQuery.Builder getRangeQueryBuilder(String field, String value, String dateFormat) throws ArlasException {
         boolean incMin = value.startsWith("[");
         boolean incMax = value.endsWith("]");
         String min = value.substring(1, value.lastIndexOf("<"));
@@ -308,7 +308,7 @@ public class ElasticFluidSearch extends FluidSearchService {
             CheckParams.checkTimestampFormatValidity(min);
             CheckParams.checkTimestampFormatValidity(max);
         }
-        RangeQuery.Builder ret = QueryBuilders.range().field(field);
+        UntypedRangeQuery.Builder ret = UntypedRangeQuery.of(b -> b.field(field)).rebuild().field(field);
         if (incMin) {
             ret.gte(JsonData.of(min));
         } else {
@@ -618,7 +618,7 @@ public class ElasticFluidSearch extends FluidSearchService {
             throw new BadRequestException(NO_FORMAT_TO_SPECIFY);
         }
         //get the precision
-        GeoHashPrecision precision = GeoHashPrecision.of(builder -> builder.geohashLength(aggregationModel.interval.value));
+        GeoHashPrecision precision = GeoHashPrecision.of(builder -> builder.geohashLength(aggregationModel.interval.value.intValue()));
         GeoHashGridAggregation.Builder geoHashAggregationBuilder = AggregationBuilders.geohashGrid().precision(precision).field(aggregationModel.field);
         //get collect_field, collect_fct, order, on
         Map<String,co.elastic.clients.elasticsearch._types.aggregations.Aggregation> metricsAggregation = getAggregationParameters(aggregationModel, geoHashAggregationBuilder);
