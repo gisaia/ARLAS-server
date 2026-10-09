@@ -47,7 +47,7 @@
         <dropwizard.version>5.0.1</dropwizard.version>
         <dropwizard.swagger.version>4.0.5-1</dropwizard.swagger.version>
         <!-- CACHE-->
-        <hazelcast.version>5.6.0</hazelcast.version>
+        <hazelcast.version>5.7.0</hazelcast.version>
         <!-- ELASTICSEARCH-->
         <elastic.version>9.3.9</elastic.version>
         <elastic-rest-client.version>9.3.0</elastic-rest-client.version>
@@ -79,9 +79,9 @@
         <!-- JAXB RUNTIME -->
         <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
         <!-- JACKSON CORE -->
-        <jackson.core.version>2.21.4</jackson.core.version>
+        <jackson.core.version>2.22.3</jackson.core.version>
         <!-- TOOLS JACKSON CORE -->
-        <toolsjackson.core.version>3.1.4</toolsjackson.core.version>
+        <toolsjackson.core.version>3.2.3</toolsjackson.core.version>
     </properties>
     <dependencies>
         <dependency>
