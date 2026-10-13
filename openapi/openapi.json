@@ -12,7 +12,7 @@
       "name" : "Apache 2.0",
       "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version" : "29.0.3-SNAPSHOT"
+    "version" : "29.0.3"
   },
   "externalDocs" : {
     "description" : "API documentation",
@@ -4103,6 +4103,7 @@
   "components" : {
     "schemas" : {
       "Success" : {
+        "required" : [ "message", "status" ],
         "type" : "object",
         "properties" : {
           "status" : {
@@ -4115,6 +4116,7 @@
         }
       },
       "Error" : {
+        "required" : [ "error", "message", "status" ],
         "type" : "object",
         "properties" : {
           "status" : {
@@ -4335,6 +4337,7 @@
         }
       },
       "Expression" : {
+        "required" : [ "field", "op", "value" ],
         "type" : "object",
         "properties" : {
           "field" : {
@@ -4682,6 +4685,7 @@
         }
       },
       "AggregationMetric" : {
+        "required" : [ "field", "type", "value" ],
         "type" : "object",
         "properties" : {
           "type" : {
@@ -4696,6 +4700,7 @@
         }
       },
       "AggregationResponse" : {
+        "required" : [ "count", "name" ],
         "type" : "object",
         "properties" : {
           "query_time" : {
@@ -4707,13 +4712,6 @@
             "format" : "int64"
           },
           "totalnb" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "count" : {
             "type" : "integer",
             "format" : "int64"
           },
@@ -4756,6 +4754,13 @@
             "additionalProperties" : {
               "type" : "object"
             }
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "count" : {
+            "type" : "integer",
+            "format" : "int64"
           }
         }
       },
@@ -4997,15 +5002,9 @@
         }
       },
       "Aggregation" : {
+        "required" : [ "field", "type" ],
         "type" : "object",
         "properties" : {
-          "type" : {
-            "type" : "string",
-            "enum" : [ "datehistogram", "geohash", "geotile", "histogram", "term", "geohex" ]
-          },
-          "field" : {
-            "type" : "string"
-          },
           "interval" : {
             "$ref" : "#/components/schemas/Interval"
           },
@@ -5047,6 +5046,13 @@
           },
           "fetch_hits" : {
             "$ref" : "#/components/schemas/HitsFetcher"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "datehistogram", "geohash", "geotile", "histogram", "term", "geohex" ]
+          },
+          "field" : {
+            "type" : "string"
           }
         }
       },
@@ -5100,18 +5106,20 @@
         }
       },
       "Interval" : {
+        "required" : [ "value" ],
         "type" : "object",
         "properties" : {
-          "value" : {
-            "type" : "number"
-          },
           "unit" : {
             "type" : "string",
             "enum" : [ "year", "quarter", "month", "week", "day", "hour", "minute", "second" ]
+          },
+          "value" : {
+            "type" : "number"
           }
         }
       },
       "Metric" : {
+        "required" : [ "collect_fct", "collect_field" ],
         "type" : "object",
         "properties" : {
           "collect_field" : {
@@ -5124,11 +5132,9 @@
         }
       },
       "RawGeometry" : {
+        "required" : [ "geometry" ],
         "type" : "object",
         "properties" : {
-          "geometry" : {
-            "type" : "string"
-          },
           "sort" : {
             "type" : "string"
           },
@@ -5140,10 +5146,14 @@
             "items" : {
               "type" : "string"
             }
+          },
+          "geometry" : {
+            "type" : "string"
           }
         }
       },
       "ComputationResponse" : {
+        "required" : [ "field", "metric" ],
         "type" : "object",
         "properties" : {
           "query_time" : {
@@ -5158,23 +5168,24 @@
             "type" : "integer",
             "format" : "int64"
           },
-          "field" : {
-            "type" : "string"
-          },
-          "metric" : {
-            "type" : "string",
-            "enum" : [ "AVG", "MAX", "MIN", "SUM", "CARDINALITY", "SPANNING", "GEOBBOX", "GEOCENTROID" ]
-          },
           "value" : {
             "type" : "number",
             "format" : "double"
           },
           "geometry" : {
             "$ref" : "#/components/schemas/GeoJsonObject"
+          },
+          "field" : {
+            "type" : "string"
+          },
+          "metric" : {
+            "type" : "string",
+            "enum" : [ "AVG", "MAX", "MIN", "SUM", "CARDINALITY", "SPANNING", "GEOBBOX", "GEOCENTROID" ]
           }
         }
       },
       "ComputationRequest" : {
+        "required" : [ "field", "metric" ],
         "type" : "object",
         "properties" : {
           "partitionFilter" : {
@@ -5221,16 +5232,23 @@
         }
       },
       "Hits" : {
+        "required" : [ "collection", "nbhits", "totalnb" ],
         "type" : "object",
         "properties" : {
-          "collection" : {
-            "type" : "string"
-          },
           "hits" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/ArlasHit"
             }
+          },
+          "links" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/Link"
+            }
+          },
+          "collection" : {
+            "type" : "string"
           },
           "nbhits" : {
             "type" : "integer",
@@ -5239,12 +5257,6 @@
           "totalnb" : {
             "type" : "integer",
             "format" : "int64"
-          },
-          "links" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "$ref" : "#/components/schemas/Link"
-            }
           }
         }
       },
@@ -5350,12 +5362,9 @@
         }
       },
       "Page" : {
+        "required" : [ "size" ],
         "type" : "object",
         "properties" : {
-          "size" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
           "from" : {
             "type" : "integer",
             "format" : "int32"
@@ -5368,6 +5377,10 @@
           },
           "before" : {
             "type" : "string"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         }
       },

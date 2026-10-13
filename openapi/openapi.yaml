@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 29.0.2
+  version: 29.0.3
 externalDocs:
   description: API documentation
   url: https://docs.arlas.io/external_docs/ARLAS-server/arlas-api/
@@ -4091,6 +4091,9 @@ paths:
 components:
   schemas:
     Success:
+      required:
+      - message
+      - status
       type: object
       properties:
         status:
@@ -4099,6 +4102,10 @@ components:
         message:
           type: string
     Error:
+      required:
+      - error
+      - message
+      - status
       type: object
       properties:
         status:
@@ -4258,6 +4265,10 @@ components:
         coverage_centroid:
           type: string
     Expression:
+      required:
+      - field
+      - op
+      - value
       type: object
       properties:
         field:
@@ -4500,6 +4511,10 @@ components:
           items:
             type: string
     AggregationMetric:
+      required:
+      - field
+      - type
+      - value
       type: object
       properties:
         type:
@@ -4509,6 +4524,9 @@ components:
         value:
           type: object
     AggregationResponse:
+      required:
+      - count
+      - name
       type: object
       properties:
         query_time:
@@ -4518,11 +4536,6 @@ components:
           type: integer
           format: int64
         totalnb:
-          type: integer
-          format: int64
-        name:
-          type: string
-        count:
           type: integer
           format: int64
         sumotherdoccounts:
@@ -4552,6 +4565,11 @@ components:
           type: object
           additionalProperties:
             type: object
+        name:
+          type: string
+        count:
+          type: integer
+          format: int64
     Crs:
       type: object
       properties:
@@ -4709,19 +4727,11 @@ components:
         is_raw:
           type: boolean
     Aggregation:
+      required:
+      - field
+      - type
       type: object
       properties:
-        type:
-          type: string
-          enum:
-          - datehistogram
-          - geohash
-          - geotile
-          - histogram
-          - term
-          - geohex
-        field:
-          type: string
         interval:
           $ref: "#/components/schemas/Interval"
         format:
@@ -4762,6 +4772,17 @@ components:
             - GEOHASH_CENTER
         fetch_hits:
           $ref: "#/components/schemas/HitsFetcher"
+        type:
+          type: string
+          enum:
+          - datehistogram
+          - geohash
+          - geotile
+          - histogram
+          - term
+          - geohex
+        field:
+          type: string
     AggregationsRequest:
       type: object
       properties:
@@ -4795,10 +4816,10 @@ components:
           items:
             type: string
     Interval:
+      required:
+      - value
       type: object
       properties:
-        value:
-          type: number
         unit:
           type: string
           enum:
@@ -4810,7 +4831,12 @@ components:
           - hour
           - minute
           - second
+        value:
+          type: number
     Metric:
+      required:
+      - collect_fct
+      - collect_field
       type: object
       properties:
         collect_field:
@@ -4826,10 +4852,10 @@ components:
           - GEOCENTROID
           - GEOBBOX
     RawGeometry:
+      required:
+      - geometry
       type: object
       properties:
-        geometry:
-          type: string
         sort:
           type: string
         signedSort:
@@ -4838,7 +4864,12 @@ components:
           type: array
           items:
             type: string
+        geometry:
+          type: string
     ComputationResponse:
+      required:
+      - field
+      - metric
       type: object
       properties:
         query_time:
@@ -4850,6 +4881,11 @@ components:
         totalnb:
           type: integer
           format: int64
+        value:
+          type: number
+          format: double
+        geometry:
+          $ref: "#/components/schemas/GeoJsonObject"
         field:
           type: string
         metric:
@@ -4863,12 +4899,10 @@ components:
           - SPANNING
           - GEOBBOX
           - GEOCENTROID
-        value:
-          type: number
-          format: double
-        geometry:
-          $ref: "#/components/schemas/GeoJsonObject"
     ComputationRequest:
+      required:
+      - field
+      - metric
       type: object
       properties:
         partitionFilter:
@@ -4907,24 +4941,28 @@ components:
         geometry:
           $ref: "#/components/schemas/GeoJsonObject"
     Hits:
+      required:
+      - collection
+      - nbhits
+      - totalnb
       type: object
       properties:
-        collection:
-          type: string
         hits:
           type: array
           items:
             $ref: "#/components/schemas/ArlasHit"
+        links:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Link"
+        collection:
+          type: string
         nbhits:
           type: integer
           format: int64
         totalnb:
           type: integer
           format: int64
-        links:
-          type: object
-          additionalProperties:
-            $ref: "#/components/schemas/Link"
     Link:
       required:
       - href
@@ -5047,11 +5085,10 @@ components:
         indexed:
           type: boolean
     Page:
+      required:
+      - size
       type: object
       properties:
-        size:
-          type: integer
-          format: int32
         from:
           type: integer
           format: int32
@@ -5061,6 +5098,9 @@ components:
           type: string
         before:
           type: string
+        size:
+          type: integer
+          format: int32
     Projection:
       type: object
       properties:
