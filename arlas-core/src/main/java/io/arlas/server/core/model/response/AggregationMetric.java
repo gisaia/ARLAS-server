@@ -30,7 +30,6 @@ public class AggregationMetric {
     public String type;
     @JsonProperty(value = "field", required = true)
     public String field;
-     // Unsure about this one
     @JsonProperty(value = "value", required = true)
     public Object value;
 }
