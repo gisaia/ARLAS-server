@@ -21,7 +21,10 @@ package io.arlas.server.core.model.request;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class RawGeometry {
+    @JsonProperty(value = "geometry", required = true)
     public String geometry;
     public String sort;
     public String signedSort;

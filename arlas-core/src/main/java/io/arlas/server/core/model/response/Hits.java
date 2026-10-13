@@ -24,14 +24,18 @@ import io.arlas.server.core.model.Link;
 import java.util.HashMap;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Hits {
+    @JsonProperty(value = "collection", required = true)
     public String collection;
     public List<ArlasHit> hits;
+    @JsonProperty(value = "nbhits", required = true)
     public long nbhits;
+    @JsonProperty(value = "totalnb", required = true)
     public long totalnb;
     public HashMap<String, Link> links;
 
