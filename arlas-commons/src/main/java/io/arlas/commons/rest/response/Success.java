@@ -19,12 +19,15 @@
 
 package io.arlas.commons.rest.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Success {
+    @JsonProperty(value = "status", required = true)
     public int status;
+    @JsonProperty(value = "message", required = true)
     public String message;
 
     public Success(int status, String message) {

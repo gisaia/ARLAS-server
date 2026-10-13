@@ -20,12 +20,16 @@
 package io.arlas.server.core.model.response;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AggregationMetric {
+    @JsonProperty(value = "type", required = true)
     public String type;
+    @JsonProperty(value = "field", required = true)
     public String field;
+    @JsonProperty(value = "value", required = true)
     public Object value;
 }

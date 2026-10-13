@@ -19,7 +19,10 @@
 
 package io.arlas.server.core.model.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Page {
+    @JsonProperty(value = "size", required = true)
     public Integer size;
     public Integer from;
     public String sort;

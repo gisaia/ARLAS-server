@@ -22,8 +22,12 @@ package io.arlas.server.core.model.response;
 import io.arlas.server.core.model.enumerations.ComputationEnum;
 import org.geojson.GeoJsonObject;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ComputationResponse extends OperationInfo {
+    @JsonProperty(value = "field", required = true)
     public String field;
+    @JsonProperty(value = "metric", required = true)
     public ComputationEnum metric;
     public Double value;
     public GeoJsonObject geometry;
