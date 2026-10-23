@@ -19,7 +19,9 @@
 package io.arlas.server.core.app;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.arlas.commons.exceptions.ArlasConfigurationException;
+import io.arlas.commons.utils.MaskedSerializer;
 import io.arlas.commons.utils.StringUtil;
 import org.apache.http.HttpHost;
 
@@ -36,6 +38,7 @@ public class ElasticConfiguration {
     public Boolean elasticIgnoreCerts = true;
 
     @JsonProperty("elastic-credentials")
+    @JsonSerialize(using = MaskedSerializer.class)
     public String elasticCredentials;
 
     @JsonProperty("elastic-socket-timeout")

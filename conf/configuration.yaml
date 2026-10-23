@@ -58,7 +58,7 @@ logging:
   loggers:
     "org.apache.http": ${ARLAS_LOGGING_APACHE_HTTP_LEVEL:-INFO}
     "org.eclipse.jetty": ${ARLAS_LOGGING_JETTY_LEVEL:-INFO}
-    "org.elasticsearch.client": ${ARLAS_LOGGING_ELASTICSEARCH_LEVEL:-DEBUG}
+    "org.elasticsearch.client": ${ARLAS_LOGGING_ELASTICSEARCH_LEVEL:-INFO}
     "org.reflections": ${ARLAS_LOGGING_REFLECTIONS_LEVEL:-INFO}
     "org.glassfish": ${ARLAS_LOGGING_GLASSFISH_LEVEL:-INFO}
     "io.dropwizard": ${ARLAS_LOGGING_DROPWIZARD_LEVEL:-INFO}
