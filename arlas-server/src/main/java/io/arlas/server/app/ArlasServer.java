@@ -21,6 +21,7 @@ package io.arlas.server.app;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.arlas.commons.cache.CacheFactory;
 import io.arlas.commons.config.ArlasConfiguration;
@@ -31,6 +32,7 @@ import io.arlas.commons.exceptions.JsonProcessingExceptionMapper;
 import io.arlas.commons.rest.utils.CORSUtil;
 import io.arlas.commons.rest.utils.PrettyPrintFilter;
 import io.arlas.commons.utils.MapAwareConverter;
+import io.arlas.commons.utils.SafeConfigRenderer;
 import io.arlas.filter.config.ResourceDefinitions;
 import io.arlas.filter.config.TechnicalRoles;
 import io.arlas.filter.core.PolicyEnforcer;
@@ -118,8 +120,13 @@ public class ArlasServer extends Application<ArlasServerConfiguration> {
     public void run(ArlasServerConfiguration configuration, Environment environment) throws Exception {
         
         configuration.check();
-        LOGGER.info("Checked configuration: {}", environment.getObjectMapper().writer().writeValueAsString(configuration));
-        ModelConverters.getInstance().addConverter(new MapAwareConverter());
+        if (LOGGER.isDebugEnabled()) {
+            ObjectMapper mapper = environment.getObjectMapper();
+            LOGGER.debug(
+                    "Checked configuration: {}",
+                    SafeConfigRenderer.render(mapper, mapper.valueToTree(configuration))
+            );
+        }        ModelConverters.getInstance().addConverter(new MapAwareConverter());
         CacheFactory cacheFactory = (CacheFactory) Class
                 .forName(configuration.arlasCacheFactoryClass)
                 .getConstructor(ArlasConfiguration.class)
