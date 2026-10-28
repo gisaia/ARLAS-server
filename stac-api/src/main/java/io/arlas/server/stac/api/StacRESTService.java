@@ -461,8 +461,8 @@ public abstract class StacRESTService {
         return bboxList;
     }
     protected String getGeoFilter(List<Double> bbox, CollectionReference collectionReference) throws ArlasException {
-        if (collectionReference.params.centroidPath == null) {
-            throw new ArlasException("No default centroid path defined for the collection");
+        if (collectionReference.params.geometryPath == null) {
+            throw new ArlasException("No default geometry path defined for the collection");
         }
         if (bbox == null || bbox.isEmpty()) {
             return null; // no bbox filter
@@ -475,8 +475,8 @@ public abstract class StacRESTService {
             bbox.remove(2);
             bbox.remove(4);
         }
-        return StringUtil.concat(collectionReference.params.centroidPath,
-                ":within:",
+        return StringUtil.concat(collectionReference.params.geometryPath,
+                ":intersects:",
                 bbox.stream()
                         .map(Object::toString)
                         .collect(Collectors.joining(",")));
