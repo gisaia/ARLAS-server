@@ -20,6 +20,7 @@
 package io.arlas.server.core.utils;
 
 import io.arlas.commons.exceptions.ArlasException;
+import io.arlas.commons.exceptions.NotAuthorizedException;
 import io.arlas.server.core.exceptions.CollectionUnavailableException;
 import io.arlas.server.core.exceptions.ColumnUnavailableException;
 import io.arlas.commons.exceptions.InternalServerErrorException;
@@ -35,6 +36,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static io.arlas.filter.impl.AbstractPolicyEnforcer.DUMMY_COLUMN_FILTER;
 
 /**
  * Provide functions to check columns against a column filter.
@@ -71,7 +74,7 @@ public class ColumnFilterUtil {
     public static void assertRequestAllowed(Optional<String> columnFilter,
                                             CollectionReference collectionReference,
                                             Request basicRequest)
-            throws InternalServerErrorException, ColumnUnavailableException, CollectionUnavailableException {
+            throws InternalServerErrorException, ColumnUnavailableException, CollectionUnavailableException, NotAuthorizedException {
         assertRequestAllowed(columnFilter, collectionReference, basicRequest, null);
     }
 
@@ -79,7 +82,7 @@ public class ColumnFilterUtil {
                                             CollectionReference collectionReference,
                                             Request basicRequest,
                                             RequestFieldsExtractor.IRequestFieldsExtractor requestExtractor)
-            throws InternalServerErrorException, ColumnUnavailableException, CollectionUnavailableException {
+            throws InternalServerErrorException, ColumnUnavailableException, CollectionUnavailableException, NotAuthorizedException {
         if (CollectionUtil.isCollectionPublic(collectionReference)) {
             LOGGER.debug("Collection is public");
             return;
@@ -89,6 +92,10 @@ public class ColumnFilterUtil {
 
         if (cleanColumnFilter.isEmpty()) {
             return;
+        }
+
+        if (cleanColumnFilter.equals(DUMMY_COLUMN_FILTER)) {
+            throw new NotAuthorizedException() ;
         }
 
         Optional<String> collectionColumnFilter = getCollectionRelatedColumnFilter(cleanColumnFilter, collectionReference);
@@ -269,7 +276,7 @@ public class ColumnFilterUtil {
                 .map(col -> col.contains(":") ? col.substring(col.indexOf(":")+1) : col);
     }
 
-    public static void assertCollectionsAllowed(Optional<String> columnFilter, List<CollectionReference> collections) throws CollectionUnavailableException {
+    public static void assertCollectionsAllowed(Optional<String> columnFilter, List<CollectionReference> collections) throws CollectionUnavailableException, NotAuthorizedException {
         Optional<String> cleanColumnFilter = cleanColumnFilter(columnFilter);
 
         if (cleanColumnFilter.isEmpty()) {
@@ -280,7 +287,12 @@ public class ColumnFilterUtil {
             if (getCollectionRelatedColumnFilter(cleanColumnFilter, collection).isEmpty()
                     && (collection.params.collectionOrganisations == null
                     || !collection.params.collectionOrganisations.isPublic)) {
-                throw new CollectionUnavailableException(collection);
+                if (columnFilter.equals(DUMMY_COLUMN_FILTER)) {
+                    throw new NotAuthorizedException();
+                } else {
+                    throw new CollectionUnavailableException(collection);
+
+                }
             }
         }
     }
