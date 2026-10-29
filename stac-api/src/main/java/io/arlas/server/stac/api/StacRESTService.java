@@ -131,7 +131,7 @@ public abstract class StacRESTService {
     }
 
     protected StacLink getRawLink(String url, String rel) {
-        return getRawLink(url, rel, MediaType.APPLICATION_JSON);
+        return new StacLink().method("GET").rel(rel).type(MediaType.APPLICATION_JSON).href(url);
     }
 
     protected StacLink getRawLink(String url, String rel, Object body) {
@@ -375,17 +375,21 @@ public abstract class StacRESTService {
     }
 
     private SearchBody getSearchBody(SearchBody body, Search search) {
-        return new SearchBody()
+        SearchBody result = new SearchBody()
                 .after(search.page.after)
-                .bbox(body == null ? null : body.getBbox())
-                .before(search.page.before)
-                .collections(body == null ? null : body.getCollections())
-                .datetime(body == null ? null : body.getDatetime())
-                .from(search.page.from)
-                .ids(body == null ? null : body.getIds())
-                .intersects(body == null ? null : body.getIntersects())
-                .limit(search.page.size)
-                .sortBy(search.page.sort);
+                .before(search.page.before);
+        if (body != null) {
+            result
+                    .bbox(body.getBbox())
+                    .collections(body.getCollections())
+                    .datetime(body.getDatetime())
+                    .from(body.getFrom())
+                    .ids(body.getIds())
+                    .intersects(body.getIntersects())
+                    .limit(body.getLimit())
+                    .sortBy(body.getSortBy());
+        }
+        return result;
     }
 
     protected String getDateFilter(String datetime, CollectionReference collectionReference) throws ArlasException {
