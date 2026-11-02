@@ -1,5 +1,9 @@
 # Change Log
 
+## [v29.0.4](https://github.com/gisaia/ARLAS-server/tree/v29.0.4) (2026-11-02)
+
+[Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v29.0.3...v29.0.4)
+
 ## [v29.0.3](https://github.com/gisaia/ARLAS-server/tree/v29.0.3) (2026-10-13)
 
 [Full Changelog](https://github.com/gisaia/ARLAS-server/compare/v29.0.2...v29.0.3)
@@ -14,6 +18,7 @@
 
 **Miscellaneous:**
 
+- Enhance strict typage on model [\#1064](https://github.com/gisaia/ARLAS-server/issues/1064) [[API](https://github.com/gisaia/ARLAS-server/labels/API)]
 - Implement STAC Filter Extension [\#1055](https://github.com/gisaia/ARLAS-server/issues/1055) [[API](https://github.com/gisaia/ARLAS-server/labels/API)] [[OGC](https://github.com/gisaia/ARLAS-server/labels/OGC)] [[documentation](https://github.com/gisaia/ARLAS-server/labels/documentation)]
 
 ## [v23.0.8-security.4](https://github.com/gisaia/ARLAS-server/tree/v23.0.8-security.4) (2026-09-24)
