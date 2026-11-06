@@ -62,6 +62,7 @@
                       <artifact>com.hazelcast:hazelcast</artifact>
                       <excludes>
                           <exclude>META-INF/maven/com.fasterxml.jackson.core/**</exclude>
+                          <exclude>META-INF/maven/tools.jackson.core/**</exclude>
                       </excludes>
                   </filter>
                 <filter>

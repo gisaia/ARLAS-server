@@ -47,7 +47,7 @@
         <dropwizard.version>5.0.1</dropwizard.version>
         <dropwizard.swagger.version>4.0.5-1</dropwizard.swagger.version>
         <!-- CACHE-->
-        <hazelcast.version>5.6.0</hazelcast.version>
+        <hazelcast.version>5.7.0</hazelcast.version>
         <!-- ELASTICSEARCH-->
         <elastic.version>8.13.3</elastic.version>
         <!-- GEO-->
@@ -78,7 +78,10 @@
         <!-- JAXB RUNTIME -->
         <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
         <!-- JACKSON CORE -->
-        <jackson.core.version>2.21.4</jackson.core.version>
+        <jackson.core.version>2.21.7</jackson.core.version>
+        <!-- TOOLS JACKSON CORE -->
+        <toolsjackson.core.version>3.2.3</toolsjackson.core.version>
+        <guava.version>33.7.2-jre</guava.version>
     </properties>
     <dependencies>
         <dependency>
@@ -110,6 +113,21 @@
                 <version>${jetty-server.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${toolsjackson.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${toolsjackson.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
